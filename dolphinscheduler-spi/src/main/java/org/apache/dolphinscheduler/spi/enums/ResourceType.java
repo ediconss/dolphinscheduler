@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
  * resource type
  */
 public enum ResourceType {
-
     /**
      * 0 file, 1 udf
      */

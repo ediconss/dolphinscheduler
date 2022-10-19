@@ -17,13 +17,13 @@
 
 package org.apache.dolphinscheduler.plugin.task.mlflow;
 
+import lombok.Data;
+
 import org.apache.dolphinscheduler.plugin.task.api.parameters.AbstractParameters;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
-
-import lombok.Data;
 
 @Data
 public class MlflowParameters extends AbstractParameters {
@@ -47,6 +47,7 @@ public class MlflowParameters extends AbstractParameters {
      * AutoML parameters
      */
     private String automlTool = "FLAML";
+
 
     /**
      * basic algorithm parameters
@@ -93,7 +94,7 @@ public class MlflowParameters extends AbstractParameters {
         paramsMap.put("experiment_name", experimentName);
         paramsMap.put("model_name", modelName);
         paramsMap.put("MLFLOW_TRACKING_URI", mlflowTrackingUri);
-        switch (mlflowJobType) {
+        switch (mlflowJobType){
             case MlflowConstants.JOB_TYPE_BASIC_ALGORITHM:
                 addParamsMapForBasicAlgorithm(paramsMap);
                 break;
@@ -134,11 +135,11 @@ public class MlflowParameters extends AbstractParameters {
         return imageName;
     }
 
-    public String getContainerName() {
+    public String getContainerName(){
         return "ds-mlflow-" + getModelKeyName("-");
     }
 
-    public boolean getIsDeployDocker() {
+    public boolean getIsDeployDocker(){
         if (StringUtils.isEmpty(deployType)) {
             return false;
         }

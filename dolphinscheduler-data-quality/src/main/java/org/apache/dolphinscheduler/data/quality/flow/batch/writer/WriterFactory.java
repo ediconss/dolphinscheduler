@@ -35,7 +35,6 @@ import java.util.List;
 public class WriterFactory {
 
     private static class Singleton {
-
         static WriterFactory instance = new WriterFactory();
     }
 
@@ -43,12 +42,11 @@ public class WriterFactory {
         return Singleton.instance;
     }
 
-    public List<BatchWriter> getWriters(SparkRuntimeEnvironment sparkRuntimeEnvironment,
-                                        List<WriterConfig> writerConfigs) throws DataQualityException {
+    public List<BatchWriter> getWriters(SparkRuntimeEnvironment sparkRuntimeEnvironment, List<WriterConfig> writerConfigs) throws DataQualityException {
 
         List<BatchWriter> writerList = new ArrayList<>();
 
-        for (WriterConfig writerConfig : writerConfigs) {
+        for (WriterConfig writerConfig:writerConfigs) {
             BatchWriter writer = getWriter(writerConfig);
             if (writer != null) {
                 writer.validateConfig();

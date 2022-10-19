@@ -29,7 +29,6 @@ import lombok.NonNull;
 @Data
 @AllArgsConstructor
 public abstract class HttpLoopTaskMethodDefinition implements LoopTaskMethodDefinition {
-
     protected final String url;
     protected final String httpMethodType;
     protected final String dataType;

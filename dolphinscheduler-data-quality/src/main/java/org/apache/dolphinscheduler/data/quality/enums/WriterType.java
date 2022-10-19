@@ -21,7 +21,6 @@ package org.apache.dolphinscheduler.data.quality.enums;
  * WriterType
  */
 public enum WriterType {
-
     /**
      * JDBC
      */
@@ -30,7 +29,7 @@ public enum WriterType {
     HDFS_FILE;
 
     public static WriterType getType(String name) {
-        for (WriterType type : WriterType.values()) {
+        for (WriterType type: WriterType.values()) {
             if (type.name().equalsIgnoreCase(name)) {
                 return type;
             }

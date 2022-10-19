@@ -17,6 +17,7 @@
 
 package org.apache.dolphinscheduler.server.worker.runner;
 
+import lombok.NonNull;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
 import org.apache.dolphinscheduler.server.worker.rpc.WorkerMessageSender;
@@ -26,11 +27,7 @@ import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 
 import javax.annotation.Nullable;
 
-import lombok.NonNull;
-
-public class DefaultWorkerDelayTaskExecuteRunnableFactory
-        extends
-            WorkerDelayTaskExecuteRunnableFactory<DefaultWorkerDelayTaskExecuteRunnable> {
+public class DefaultWorkerDelayTaskExecuteRunnableFactory extends WorkerDelayTaskExecuteRunnableFactory<DefaultWorkerDelayTaskExecuteRunnable> {
 
     protected DefaultWorkerDelayTaskExecuteRunnableFactory(@NonNull TaskExecutionContext taskExecutionContext,
                                                            @NonNull WorkerConfig workerConfig,
@@ -39,8 +36,7 @@ public class DefaultWorkerDelayTaskExecuteRunnableFactory
                                                            @NonNull AlertClientService alertClientService,
                                                            @NonNull TaskPluginManager taskPluginManager,
                                                            @Nullable StorageOperate storageOperate) {
-        super(taskExecutionContext, workerConfig, workflowMasterAddress, workerMessageSender, alertClientService,
-                taskPluginManager, storageOperate);
+        super(taskExecutionContext, workerConfig, workflowMasterAddress, workerMessageSender, alertClientService, taskPluginManager, storageOperate);
     }
 
     @Override

@@ -24,6 +24,5 @@ import java.util.List;
  * interface filter
  */
 public interface IFilter {
-
     List<Resource> filter();
 }

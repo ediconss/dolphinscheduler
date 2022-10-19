@@ -16,17 +16,15 @@
  */
 package org.apache.dolphinscheduler.service.cron;
 
-import org.apache.dolphinscheduler.common.enums.CycleEnum;
-
 import com.cronutils.model.Cron;
 import com.cronutils.model.field.expression.Always;
 import com.cronutils.model.field.expression.QuestionMark;
+import org.apache.dolphinscheduler.common.enums.CycleEnum;
 
 /**
  * Crontab Cycle Tool Factory
  */
 public class CycleFactory {
-
     private CycleFactory() {
         throw new IllegalStateException("CycleFactory class");
     }
@@ -36,7 +34,7 @@ public class CycleFactory {
      * @return AbstractCycle
      */
     public static AbstractCycle min(Cron cron) {
-        return new MinCycle(cron);
+      return new MinCycle(cron);
     }
 
     /**
@@ -45,7 +43,7 @@ public class CycleFactory {
      * @return AbstractCycle
      */
     public static AbstractCycle hour(Cron cron) {
-        return new HourCycle(cron);
+      return new HourCycle(cron);
     }
 
     /**
@@ -54,7 +52,7 @@ public class CycleFactory {
      * @return AbstractCycle
      */
     public static AbstractCycle day(Cron cron) {
-        return new DayCycle(cron);
+      return new DayCycle(cron);
     }
 
     /**
@@ -63,7 +61,7 @@ public class CycleFactory {
      * @return AbstractCycle
      */
     public static AbstractCycle week(Cron cron) {
-        return new WeekCycle(cron);
+      return new WeekCycle(cron);
     }
 
     /**
@@ -72,9 +70,9 @@ public class CycleFactory {
      * @return AbstractCycle
      */
     public static AbstractCycle month(Cron cron) {
-        return new MonthCycle(cron);
+      return new MonthCycle(cron);
     }
-
+    
     /**
      * year
      * @param cron cron
@@ -84,219 +82,217 @@ public class CycleFactory {
         return new YearCycle(cron);
     }
 
-    /**
-     * day cycle
-     */
-    public static class DayCycle extends AbstractCycle {
+  /**
+   * day cycle
+   */
+  public static class DayCycle extends AbstractCycle {
 
-        public DayCycle(Cron cron) {
-            super(cron);
-        }
+    public DayCycle(Cron cron) {
+      super(cron);
+    }
 
-        /**
-         * get cycle
-         * @return CycleEnum
-         */
+      /**
+       * get cycle
+       * @return CycleEnum
+       */
         @Override
         protected CycleEnum getCycle() {
 
-            if (minFiledIsSetAll()
-                    && hourFiledIsSetAll()
-                    && dayOfMonthFieldIsEvery()
-                    && dayOfWeekField.getExpression() instanceof QuestionMark
-                    && monthField.getExpression() instanceof Always) {
-                return CycleEnum.DAY;
-            }
+          if (minFiledIsSetAll()
+              && hourFiledIsSetAll()
+              && dayOfMonthFieldIsEvery()
+              && dayOfWeekField.getExpression() instanceof QuestionMark
+              && monthField.getExpression() instanceof Always) {
+            return CycleEnum.DAY;
+          }
 
-            return null;
+          return null;
         }
 
-        /**
-         * get min cycle
-         * @return CycleEnum
-         */
+      /**
+       * get min cycle
+       * @return CycleEnum
+       */
         @Override
         protected CycleEnum getMiniCycle() {
-            if (dayOfMonthFieldIsEvery()) {
-                return CycleEnum.DAY;
-            }
+          if (dayOfMonthFieldIsEvery()) {
+            return CycleEnum.DAY;
+          }
 
-            return null;
+          return null;
         }
+  }
+
+  /**
+   * hour cycle
+   */
+  public static class HourCycle extends AbstractCycle {
+
+    public HourCycle(Cron cron) {
+      super(cron);
     }
 
-    /**
-     * hour cycle
-     */
-    public static class HourCycle extends AbstractCycle {
-
-        public HourCycle(Cron cron) {
-            super(cron);
-        }
-
-        /**
-         * get cycle
-         * @return CycleEnum
-         */
+      /**
+       * get cycle
+       * @return CycleEnum
+       */
         @Override
         protected CycleEnum getCycle() {
-            if (minFiledIsSetAll()
-                    && hourFiledIsEvery()
-                    && dayOfMonthField.getExpression() instanceof Always
-                    && dayOfWeekField.getExpression() instanceof QuestionMark
-                    && monthField.getExpression() instanceof Always) {
-                return CycleEnum.HOUR;
-            }
+          if (minFiledIsSetAll()
+              && hourFiledIsEvery()
+              && dayOfMonthField.getExpression() instanceof Always
+              && dayOfWeekField.getExpression() instanceof QuestionMark
+              && monthField.getExpression() instanceof Always) {
+            return CycleEnum.HOUR;
+          }
 
-            return null;
+          return null;
         }
 
-        /**
-         * get mini cycle
-         * @return CycleEnum
-         */
+      /**
+       * get mini cycle
+       * @return CycleEnum
+       */
         @Override
         protected CycleEnum getMiniCycle() {
-            if (hourFiledIsEvery()) {
-                return CycleEnum.HOUR;
-            }
-            return null;
+          if(hourFiledIsEvery()){
+            return CycleEnum.HOUR;
+          }
+          return null;
         }
+  }
+
+  /**
+   * minute cycle
+   */
+  public static class MinCycle extends AbstractCycle {
+
+      public MinCycle(Cron cron) {
+          super(cron);
+      }
+
+      /**
+       * get cycle
+       * @return CycleEnum
+       */
+      @Override
+      protected CycleEnum getCycle() {
+          if (minFiledIsEvery()
+                  && hourField.getExpression() instanceof Always
+                  && dayOfMonthField.getExpression() instanceof Always
+                  && monthField.getExpression() instanceof Always) {
+              return CycleEnum.MINUTE;
+          }
+
+          return null;
+      }
+
+      /**
+       * get min cycle
+       * @return CycleEnum
+       */
+      @Override
+      protected CycleEnum getMiniCycle() {
+          if(minFiledIsEvery()){
+              return CycleEnum.MINUTE;
+          }
+          return null;
+      }
+  }
+
+  /**
+   * month cycle
+   */
+  public static class MonthCycle extends AbstractCycle {
+
+    public MonthCycle(Cron cron) {
+      super(cron);
     }
 
-    /**
-     * minute cycle
-     */
-    public static class MinCycle extends AbstractCycle {
-
-        public MinCycle(Cron cron) {
-            super(cron);
-        }
-
-        /**
-         * get cycle
-         * @return CycleEnum
-         */
+      /**
+       * get cycle
+       * @return CycleEnum
+       */
         @Override
         protected CycleEnum getCycle() {
-            if (minFiledIsEvery()
-                    && hourField.getExpression() instanceof Always
-                    && dayOfMonthField.getExpression() instanceof Always
-                    && monthField.getExpression() instanceof Always) {
-                return CycleEnum.MINUTE;
-            }
+          boolean flag = (minFiledIsSetAll()
+                  && hourFiledIsSetAll()
+                  && dayOfMonthFieldIsSetAll()
+                  && dayOfWeekField.getExpression() instanceof QuestionMark
+                  && monthFieldIsEvery()) ||
+                  (minFiledIsSetAll()
+                          && hourFiledIsSetAll()
+                          && dayOfMonthField.getExpression() instanceof QuestionMark
+                          && dayofWeekFieldIsSetAll()
+                          && monthFieldIsEvery());
+          if (flag) {
+            return CycleEnum.MONTH;
+          }
 
-            return null;
+          return null;
         }
 
-        /**
-         * get min cycle
-         * @return CycleEnum
-         */
+      /**
+       * get mini cycle
+       * @return CycleEnum
+       */
         @Override
         protected CycleEnum getMiniCycle() {
-            if (minFiledIsEvery()) {
-                return CycleEnum.MINUTE;
-            }
-            return null;
+          if (monthFieldIsEvery()) {
+            return CycleEnum.MONTH;
+          }
+
+          return null;
         }
+  }
+
+  /**
+   * week cycle
+   */
+  public static class WeekCycle extends AbstractCycle {
+    public WeekCycle(Cron cron) {
+      super(cron);
     }
 
-    /**
-     * month cycle
-     */
-    public static class MonthCycle extends AbstractCycle {
-
-        public MonthCycle(Cron cron) {
-            super(cron);
-        }
-
-        /**
-         * get cycle
-         * @return CycleEnum
-         */
+      /**
+       * get cycle
+       * @return CycleEnum
+       */
         @Override
         protected CycleEnum getCycle() {
-            boolean flag = (minFiledIsSetAll()
-                    && hourFiledIsSetAll()
-                    && dayOfMonthFieldIsSetAll()
-                    && dayOfWeekField.getExpression() instanceof QuestionMark
-                    && monthFieldIsEvery()) ||
-                    (minFiledIsSetAll()
-                            && hourFiledIsSetAll()
-                            && dayOfMonthField.getExpression() instanceof QuestionMark
-                            && dayofWeekFieldIsSetAll()
-                            && monthFieldIsEvery());
-            if (flag) {
-                return CycleEnum.MONTH;
-            }
+          if (minFiledIsSetAll()
+              && hourFiledIsSetAll()
+              && dayOfMonthField.getExpression() instanceof QuestionMark
+              && dayofWeekFieldIsEvery()
+              && monthField.getExpression() instanceof Always) {
+            return CycleEnum.WEEK;
+          }
 
-            return null;
+          return null;
         }
 
-        /**
-         * get mini cycle
-         * @return CycleEnum
-         */
+      /**
+       * get mini cycle
+       * @return CycleEnum
+       */
         @Override
         protected CycleEnum getMiniCycle() {
-            if (monthFieldIsEvery()) {
-                return CycleEnum.MONTH;
-            }
+          if (dayofWeekFieldIsEvery()) {
+            return CycleEnum.WEEK;
+          }
 
-            return null;
+          return null;
         }
-    }
-
-    /**
-     * week cycle
-     */
-    public static class WeekCycle extends AbstractCycle {
-
-        public WeekCycle(Cron cron) {
-            super(cron);
-        }
-
-        /**
-         * get cycle
-         * @return CycleEnum
-         */
-        @Override
-        protected CycleEnum getCycle() {
-            if (minFiledIsSetAll()
-                    && hourFiledIsSetAll()
-                    && dayOfMonthField.getExpression() instanceof QuestionMark
-                    && dayofWeekFieldIsEvery()
-                    && monthField.getExpression() instanceof Always) {
-                return CycleEnum.WEEK;
-            }
-
-            return null;
-        }
-
-        /**
-         * get mini cycle
-         * @return CycleEnum
-         */
-        @Override
-        protected CycleEnum getMiniCycle() {
-            if (dayofWeekFieldIsEvery()) {
-                return CycleEnum.WEEK;
-            }
-
-            return null;
-        }
-    }
-
+  }
+    
     /**
      * year cycle
      */
     public static class YearCycle extends AbstractCycle {
-
         public YearCycle(Cron cron) {
             super(cron);
         }
-
+        
         /**
          * get cycle
          * @return CycleEnum
@@ -315,14 +311,14 @@ public class CycleFactory {
                             && dayofWeekFieldIsSetAll()
                             && monthFieldIsSetAll()
                             && yearFieldIsEvery());
-
+            
             if (flag) {
                 return CycleEnum.YEAR;
             }
-
+            
             return null;
         }
-
+        
         /**
          * get mini cycle
          * @return CycleEnum
@@ -332,7 +328,7 @@ public class CycleFactory {
             if (yearFieldIsEvery()) {
                 return CycleEnum.YEAR;
             }
-
+            
             return null;
         }
     }

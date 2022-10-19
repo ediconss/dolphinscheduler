@@ -21,14 +21,13 @@ package org.apache.dolphinscheduler.data.quality.enums;
  * TransformerType
  */
 public enum TransformerType {
-
     /**
      * JDBC
      */
     SQL;
 
     public static TransformerType getType(String name) {
-        for (TransformerType type : TransformerType.values()) {
+        for (TransformerType type: TransformerType.values()) {
             if (type.name().equalsIgnoreCase(name)) {
                 return type;
             }

@@ -64,7 +64,6 @@ public class Validate {
 
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "set")
     public static class Builder {
-
         private boolean required = false;
 
         private String message;

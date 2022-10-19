@@ -18,6 +18,8 @@
 package org.apache.dolphinscheduler.plugin.task.api;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 public class TaskConstants {
 

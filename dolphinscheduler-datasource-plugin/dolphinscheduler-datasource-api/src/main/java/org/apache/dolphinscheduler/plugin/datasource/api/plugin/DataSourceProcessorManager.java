@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DataSourceProcessorManager {
-
     private static final Logger logger = LoggerFactory.getLogger(DataSourceProcessorManager.class);
 
     private static final Map<String, DataSourceProcessor> dataSourceProcessorMap = new ConcurrentHashMap<>();

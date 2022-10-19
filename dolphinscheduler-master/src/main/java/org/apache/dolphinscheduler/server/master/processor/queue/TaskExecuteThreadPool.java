@@ -71,15 +71,13 @@ public class TaskExecuteThreadPool extends ThreadPoolTaskExecutor {
         this.setMaxPoolSize(masterConfig.getExecThreads());
         this.setCorePoolSize(masterConfig.getExecThreads());
         taskEventHandlerList.forEach(
-                taskEventHandler -> taskEventHandlerMap.put(taskEventHandler.getHandleEventType(), taskEventHandler));
+            taskEventHandler -> taskEventHandlerMap.put(taskEventHandler.getHandleEventType(), taskEventHandler));
     }
 
     public void submitTaskEvent(TaskEvent taskEvent) {
         // stream task event handle
-        if (taskEvent.getProcessInstanceId() == 0
-                && streamTaskInstanceExecCacheManager.contains(taskEvent.getTaskInstanceId())) {
-            streamTaskInstanceExecCacheManager.getByTaskInstanceId(taskEvent.getTaskInstanceId())
-                    .addTaskEvent(taskEvent);
+        if (taskEvent.getProcessInstanceId() == 0 && streamTaskInstanceExecCacheManager.contains(taskEvent.getTaskInstanceId())) {
+            streamTaskInstanceExecCacheManager.getByTaskInstanceId(taskEvent.getTaskInstanceId()).addTaskEvent(taskEvent);
             return;
         }
         if (!processInstanceExecCacheManager.contains(taskEvent.getProcessInstanceId())) {
@@ -87,7 +85,7 @@ public class TaskExecuteThreadPool extends ThreadPoolTaskExecutor {
             return;
         }
         TaskExecuteRunnable taskExecuteRunnable = taskExecuteThreadMap.computeIfAbsent(taskEvent.getProcessInstanceId(),
-                (processInstanceId) -> new TaskExecuteRunnable(processInstanceId, taskEventHandlerMap));
+            (processInstanceId) -> new TaskExecuteRunnable(processInstanceId, taskEventHandlerMap));
         taskExecuteRunnable.addEvent(taskEvent);
     }
 
@@ -107,16 +105,14 @@ public class TaskExecuteThreadPool extends ThreadPoolTaskExecutor {
         multiThreadFilterMap.put(taskExecuteThread.getKey(), taskExecuteThread);
         ListenableFuture future = this.submitListenable(taskExecuteThread::run);
         future.addCallback(new ListenableFutureCallback() {
-
             @Override
             public void onFailure(Throwable ex) {
                 Integer processInstanceId = taskExecuteThread.getProcessInstanceId();
                 logger.error("[WorkflowInstance-{}] persist event failed", processInstanceId, ex);
                 if (!processInstanceExecCacheManager.contains(processInstanceId)) {
                     taskExecuteThreadMap.remove(processInstanceId);
-                    logger.info(
-                            "[WorkflowInstance-{}] Cannot find processInstance from cacheManager, remove process instance from threadMap",
-                            processInstanceId);
+                    logger.info("[WorkflowInstance-{}] Cannot find processInstance from cacheManager, remove process instance from threadMap",
+                        processInstanceId);
                 }
                 multiThreadFilterMap.remove(taskExecuteThread.getKey());
             }
@@ -127,9 +123,8 @@ public class TaskExecuteThreadPool extends ThreadPoolTaskExecutor {
                 logger.info("[WorkflowInstance-{}] persist events succeeded", processInstanceId);
                 if (!processInstanceExecCacheManager.contains(processInstanceId)) {
                     taskExecuteThreadMap.remove(processInstanceId);
-                    logger.info(
-                            "[WorkflowInstance-{}] Cannot find processInstance from cacheManager, remove process instance from threadMap",
-                            processInstanceId);
+                    logger.info("[WorkflowInstance-{}] Cannot find processInstance from cacheManager, remove process instance from threadMap",
+                        processInstanceId);
                 }
                 multiThreadFilterMap.remove(taskExecuteThread.getKey());
             }

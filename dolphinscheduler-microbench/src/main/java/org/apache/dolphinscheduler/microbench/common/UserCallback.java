@@ -23,7 +23,6 @@ import org.apache.dolphinscheduler.rpc.common.AbstractRpcCallBack;
  * UserCallback
  */
 public class UserCallback extends AbstractRpcCallBack {
-
     @Override
     public void run(Object object) {
 

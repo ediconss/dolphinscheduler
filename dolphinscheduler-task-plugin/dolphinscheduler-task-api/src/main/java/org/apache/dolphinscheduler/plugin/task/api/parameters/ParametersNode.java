@@ -36,7 +36,6 @@ public class ParametersNode {
     }
 
     public static class ParametersNodeBuilder {
-
         private String taskType;
 
         private String taskParams;

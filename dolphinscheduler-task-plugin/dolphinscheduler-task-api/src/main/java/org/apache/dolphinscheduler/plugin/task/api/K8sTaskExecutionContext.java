@@ -24,7 +24,6 @@ import java.io.Serializable;
  */
 
 public class K8sTaskExecutionContext implements Serializable {
-
     private String configYaml;
 
     public String getConfigYaml() {
@@ -38,7 +37,7 @@ public class K8sTaskExecutionContext implements Serializable {
     @Override
     public String toString() {
         return "K8sTaskExecutionContext{"
-                + "configYaml='" + configYaml + '\''
-                + '}';
+            + "configYaml='" + configYaml + '\''
+            + '}';
     }
 }

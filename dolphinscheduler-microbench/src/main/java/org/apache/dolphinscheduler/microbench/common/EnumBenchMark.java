@@ -16,21 +16,12 @@
  */
 package org.apache.dolphinscheduler.microbench.common;
 
-import org.apache.dolphinscheduler.microbench.base.AbstractBaseBenchmark;
 
+import org.apache.dolphinscheduler.microbench.base.AbstractBaseBenchmark;
+import org.openjdk.jmh.annotations.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Warmup;
 
 /**
  *Enum values JMH test
@@ -41,11 +32,12 @@ import org.openjdk.jmh.annotations.Warmup;
 public class EnumBenchMark extends AbstractBaseBenchmark {
 
     @Benchmark
-    public boolean simpleTest() {
+    public boolean simpleTest(){
         return Boolean.TRUE;
     }
     @Param({"101", "108", "103", "104", "105", "103"})
     private int testNum;
+
 
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
@@ -61,7 +53,8 @@ public class EnumBenchMark extends AbstractBaseBenchmark {
         TestTypeEnum.newGetNameByType(testNum);
     }
 
-    public enum TestTypeEnum {
+
+    public enum  TestTypeEnum {
 
         TYPE_101(101, "TYPE101"),
         TYPE_102(102, "TYPE102"),
@@ -79,9 +72,11 @@ public class EnumBenchMark extends AbstractBaseBenchmark {
             return code;
         }
 
+
         public String getName() {
             return name;
         }
+
 
         TestTypeEnum(int code, String name) {
             this.code = code;
@@ -92,7 +87,7 @@ public class EnumBenchMark extends AbstractBaseBenchmark {
 
         static {
             for (TestTypeEnum testTypeEnum : TestTypeEnum.values()) {
-                TEST_TYPE_MAP.put(testTypeEnum.code, testTypeEnum);
+                TEST_TYPE_MAP.put(testTypeEnum.code,testTypeEnum);
             }
         }
 

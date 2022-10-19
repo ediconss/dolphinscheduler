@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * operator type
  */
 public enum OperatorType {
-
     /**
      * 0-equal
      * 1-little than
@@ -35,12 +34,12 @@ public enum OperatorType {
      * 4-great and equal
      * 5-not equal
      */
-    EQ(0, "equal"),
-    LT(1, "little than"),
-    LE(2, "little and equal"),
-    GT(3, "great than"),
-    GE(4, "great and equal"),
-    NE(5, "not equal");
+    EQ(0,"equal"),
+    LT(1,"little than"),
+    LE(2,"little and equal"),
+    GT(3,"great than"),
+    GE(4,"great and equal"),
+    NE(5,"not equal");
 
     OperatorType(int code, String description) {
         this.code = code;
@@ -63,7 +62,7 @@ public enum OperatorType {
 
     static {
         for (OperatorType type : OperatorType.values()) {
-            VALUES_MAP.put(type.code, type);
+            VALUES_MAP.put(type.code,type);
         }
     }
 

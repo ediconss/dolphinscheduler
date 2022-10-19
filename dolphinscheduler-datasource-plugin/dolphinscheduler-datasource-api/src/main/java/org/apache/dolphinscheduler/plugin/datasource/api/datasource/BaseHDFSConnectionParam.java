@@ -20,7 +20,6 @@ package org.apache.dolphinscheduler.plugin.datasource.api.datasource;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
 
 public class BaseHDFSConnectionParam extends BaseConnectionParam {
-
     protected String principal;
     protected String javaSecurityKrb5Conf;
     protected String loginUserKeytabUsername;

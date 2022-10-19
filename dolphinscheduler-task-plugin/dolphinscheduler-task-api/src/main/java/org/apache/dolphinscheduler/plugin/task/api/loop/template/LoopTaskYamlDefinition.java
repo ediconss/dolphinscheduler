@@ -24,13 +24,11 @@ import lombok.Data;
 
 @Data
 public class LoopTaskYamlDefinition implements Serializable {
-
     // todo: support multiple services
     private LoopTaskServiceYamlDefinition service;
 
     @Data
     public static class LoopTaskServiceYamlDefinition implements Serializable {
-
         private String name;
         private String type;
         private LoopTaskAPIYamlDefinition api;
@@ -38,7 +36,6 @@ public class LoopTaskYamlDefinition implements Serializable {
 
     @Data
     public static class LoopTaskAPIYamlDefinition implements Serializable {
-
         private LoopTaskSubmitMethodYamlDefinition submit;
         private LoopTaskQueryStateYamlDefinition queryState;
         private LoopTaskCancelYamlDefinition cancel;
@@ -47,7 +44,6 @@ public class LoopTaskYamlDefinition implements Serializable {
     @Data
     @SuppressWarnings("checkstyle:ModifierOrder")
     public static abstract class LoopTaskMethodYamlDefinition {
-
         private String url;
         private String method;
         private String dataType;
@@ -72,7 +68,6 @@ public class LoopTaskYamlDefinition implements Serializable {
 
     @Data
     public static class LoopTaskQueryStateYamlDefinition extends LoopTaskMethodYamlDefinition {
-
         /**
          * Used to extract taskInstance finished state from response
          * todo: we need to support the function to calculate the finished state

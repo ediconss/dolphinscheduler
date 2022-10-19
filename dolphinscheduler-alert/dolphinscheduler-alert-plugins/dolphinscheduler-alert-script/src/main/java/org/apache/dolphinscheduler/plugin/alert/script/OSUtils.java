@@ -18,7 +18,6 @@
 package org.apache.dolphinscheduler.plugin.alert.script;
 
 public final class OSUtils {
-
     private OSUtils() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }

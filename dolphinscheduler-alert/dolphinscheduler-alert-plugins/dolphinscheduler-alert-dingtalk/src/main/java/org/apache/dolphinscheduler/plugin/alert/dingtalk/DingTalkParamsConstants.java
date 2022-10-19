@@ -18,7 +18,6 @@
 package org.apache.dolphinscheduler.plugin.alert.dingtalk;
 
 public final class DingTalkParamsConstants {
-
     static final String DING_TALK_PROXY_ENABLE = "$t('isEnableProxy')";
     static final String NAME_DING_TALK_PROXY_ENABLE = "IsEnableProxy";
 

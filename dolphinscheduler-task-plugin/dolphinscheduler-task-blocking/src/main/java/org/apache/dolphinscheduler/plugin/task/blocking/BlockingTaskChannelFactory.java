@@ -29,7 +29,6 @@ import com.google.auto.service.AutoService;
 
 @AutoService(TaskChannelFactory.class)
 public class BlockingTaskChannelFactory implements TaskChannelFactory {
-
     @Override
     public TaskChannel create() {
         return new BlockingTaskChannel();

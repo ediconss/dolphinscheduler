@@ -44,6 +44,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 @ChannelHandler.Sharable
 public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 
+
     private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
 
     private static final ThreadPoolManager threadPoolManager = ThreadPoolManager.INSTANCE;
@@ -86,8 +87,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 
             try {
                 consumerConfig.getServiceCallBackClass().getDeclaredConstructor().newInstance().run(rsp.getResult());
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
-                    | InvocationTargetException e) {
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 logger.error("rpc service call back error,serviceName {},rsp {}", serviceName, rsp);
             }
         } else {

@@ -17,14 +17,13 @@
 
 package org.apache.dolphinscheduler.api.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.enums.AuthorizationType;
 import org.apache.dolphinscheduler.dao.entity.User;
-
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 
 /**
@@ -39,6 +38,7 @@ public interface BaseService {
      * @return ture if administrator, otherwise return false
      */
     boolean isAdmin(User user);
+
 
     /**
      * isNotAdmin
@@ -85,6 +85,7 @@ public interface BaseService {
      * @return check result
      */
     boolean check(Map<String, Object> result, boolean bool, Status userNoOperationPerm);
+
 
     /**
      * Verify that the operator has permissions

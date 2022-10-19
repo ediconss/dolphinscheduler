@@ -24,7 +24,6 @@ import com.google.auto.service.AutoService;
 
 @AutoService(DataSourceChannelFactory.class)
 public class RedshiftDataSourceChannelFactory implements DataSourceChannelFactory {
-
     @Override
     public DataSourceChannel create() {
         return new RedshiftDataSourceChannel();

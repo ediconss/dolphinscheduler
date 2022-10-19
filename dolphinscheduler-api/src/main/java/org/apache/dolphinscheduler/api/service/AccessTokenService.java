@@ -57,6 +57,7 @@ public interface AccessTokenService {
      */
     Result createToken(User loginUser, int userId, String expireTime, String token);
 
+
     /**
      * generate token
      *

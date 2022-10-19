@@ -102,7 +102,6 @@ public class MasterPriorityQueue implements TaskPriorityQueue<Server> {
      * server comparator, used to sort server by createTime in reverse order.
      */
     private class ServerComparator implements Comparator<Server> {
-
         @Override
         public int compare(Server o1, Server o2) {
             return o2.getCreateTime().compareTo(o1.getCreateTime());

@@ -43,8 +43,7 @@ public class DataQualityConfiguration implements IConfig {
     @JsonProperty("writers")
     private List<WriterConfig> writerConfigs;
 
-    public DataQualityConfiguration() {
-    }
+    public DataQualityConfiguration() {}
 
     public DataQualityConfiguration(String name,
                                     EnvConfig envConfig,
@@ -115,7 +114,7 @@ public class DataQualityConfiguration implements IConfig {
         }
 
         Preconditions.checkArgument(writerConfigs != null, "writer config should not be empty");
-        for (WriterConfig writerConfig : writerConfigs) {
+        for (WriterConfig writerConfig :writerConfigs) {
             writerConfig.validate();
         }
     }

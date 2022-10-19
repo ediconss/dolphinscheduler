@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(value = "python-gateway")
 public class PythonGatewayConfiguration {
-
     private boolean enabled;
     private String gatewayServerAddress;
     private int gatewayServerPort;

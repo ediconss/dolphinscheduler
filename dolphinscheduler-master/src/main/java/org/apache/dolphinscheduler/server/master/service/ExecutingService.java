@@ -49,8 +49,7 @@ public class ExecutingService {
     private ProcessInstanceExecCacheManager processInstanceExecCacheManager;
 
     public Optional<WorkflowExecuteDto> queryWorkflowExecutingData(Integer processInstanceId) {
-        WorkflowExecuteRunnable workflowExecuteRunnable =
-                processInstanceExecCacheManager.getByProcessInstanceId(processInstanceId);
+        WorkflowExecuteRunnable workflowExecuteRunnable = processInstanceExecCacheManager.getByProcessInstanceId(processInstanceId);
         if (workflowExecuteRunnable == null) {
             logger.info("workflow execute data not found, maybe it has finished, workflow id:{}", processInstanceId);
             return Optional.empty();

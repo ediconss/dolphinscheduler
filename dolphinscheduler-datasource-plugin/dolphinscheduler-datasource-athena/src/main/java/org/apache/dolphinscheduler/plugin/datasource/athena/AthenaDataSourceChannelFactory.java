@@ -24,7 +24,6 @@ import com.google.auto.service.AutoService;
 
 @AutoService(DataSourceChannelFactory.class)
 public class AthenaDataSourceChannelFactory implements DataSourceChannelFactory {
-
     @Override
     public DataSourceChannel create() {
         return new AthenaDataSourceChannel();

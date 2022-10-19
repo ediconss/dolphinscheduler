@@ -27,7 +27,6 @@ import com.google.auto.service.AutoService;
 
 @AutoService(TaskChannelFactory.class)
 public class K8sTaskChannelFactory implements TaskChannelFactory {
-
     @Override
     public String getName() {
         return "K8S";

@@ -78,13 +78,14 @@ public class ZookeeperRecord {
      */
     private Date date;
 
+
     /**
      * is normal or not, 1:normal
      */
     private int state;
 
-    public ZookeeperRecord(String hostname, int connections, int watches, long sent, long received, String mode,
-                           float minLatency, float avgLatency, float maxLatency, int nodeCount, int state, Date date) {
+
+    public ZookeeperRecord(String hostname,int connections, int watches, long sent, long received, String mode, float minLatency, float avgLatency, float maxLatency, int nodeCount, int state,Date date) {
         this.hostname = hostname;
         this.connections = connections;
         this.watches = watches;
@@ -98,6 +99,7 @@ public class ZookeeperRecord {
         this.state = state;
         this.date = date;
     }
+
 
     public String getHostname() {
         return hostname;

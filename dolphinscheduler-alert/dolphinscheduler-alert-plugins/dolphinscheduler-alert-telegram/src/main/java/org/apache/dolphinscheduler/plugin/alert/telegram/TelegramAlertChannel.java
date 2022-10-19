@@ -25,7 +25,6 @@ import org.apache.dolphinscheduler.alert.api.AlertResult;
 import java.util.Map;
 
 public final class TelegramAlertChannel implements AlertChannel {
-
     @Override
     public AlertResult process(AlertInfo info) {
         Map<String, String> alertParams = info.getAlertParams();

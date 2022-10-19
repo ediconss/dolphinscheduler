@@ -20,7 +20,6 @@ package org.apache.dolphinscheduler.plugin.datasource.sqlserver.param;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
 
 public class SQLServerConnectionParam extends BaseConnectionParam {
-
     @Override
     public String toString() {
         return "SQLServerConnectionParam{"

@@ -26,17 +26,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * frontend form input entry type
  */
 public enum InputType {
-
     /**
      * 0-default
      * 1-statistics
      * 2-comparison
      * 3-check
      */
-    DEFAULT(0, "default"),
-    STATISTICS(1, "statistics"),
-    COMPARISON(2, "comparison"),
-    CHECK(3, "check");
+    DEFAULT(0,"default"),
+    STATISTICS(1,"statistics"),
+    COMPARISON(2,"comparison"),
+    CHECK(3,"check");
 
     InputType(int code, String description) {
         this.code = code;
@@ -59,7 +58,7 @@ public enum InputType {
 
     static {
         for (InputType type : InputType.values()) {
-            VALUES_MAP.put(type.code, type);
+            VALUES_MAP.put(type.code,type);
         }
     }
 

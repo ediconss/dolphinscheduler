@@ -21,6 +21,8 @@ import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.enums.UdfType;
 import org.apache.dolphinscheduler.dao.entity.User;
 
+import java.util.Map;
+
 /**
  * udf func service
  */
@@ -54,7 +56,7 @@ public interface UdfFuncService {
      * @param id  udf function id
      * @return udf function detail
      */
-    Result<Object> queryUdfFuncDetail(User loginUser, int id);
+    Result<Object> queryUdfFuncDetail(User loginUser,int id);
 
     /**
      * updateProcessInstance udf function
@@ -70,14 +72,14 @@ public interface UdfFuncService {
      * @return update result code
      */
     Result<Object> updateUdfFunc(User loginUser,
-                                 int udfFuncId,
-                                 String funcName,
-                                 String className,
-                                 String argTypes,
-                                 String database,
-                                 String desc,
-                                 UdfType type,
-                                 int resourceId);
+                                      int udfFuncId,
+                                      String funcName,
+                                      String className,
+                                      String argTypes,
+                                      String database,
+                                      String desc,
+                                      UdfType type,
+                                      int resourceId);
 
     /**
      * query udf function list paging

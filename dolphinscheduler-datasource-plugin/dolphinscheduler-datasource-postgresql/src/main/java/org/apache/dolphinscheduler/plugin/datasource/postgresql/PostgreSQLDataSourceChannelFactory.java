@@ -24,7 +24,6 @@ import com.google.auto.service.AutoService;
 
 @AutoService(DataSourceChannelFactory.class)
 public class PostgreSQLDataSourceChannelFactory implements DataSourceChannelFactory {
-
     @Override
     public String getName() {
         return "postgresql";

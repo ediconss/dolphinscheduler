@@ -47,7 +47,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 @EnableAutoConfiguration
 @ConditionalOnProperty(prefix = "metrics", name = "enabled", havingValue = "true")
 public class MeterConfiguration {
-
     @Bean
     public TimedAspect timedAspect(MeterRegistry registry) {
         return new TimedAspect(registry);

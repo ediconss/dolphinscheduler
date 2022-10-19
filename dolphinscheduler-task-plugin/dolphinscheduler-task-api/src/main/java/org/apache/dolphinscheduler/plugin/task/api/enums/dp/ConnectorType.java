@@ -26,13 +26,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * connector type
  */
 public enum ConnectorType {
-
     /**
      * 0-jdbc
      * 1-hive
      */
-    JDBC(0, "JDBC"),
-    HIVE(1, "HIVE");
+    JDBC(0,"JDBC"),
+    HIVE(1,"HIVE");
 
     ConnectorType(int code, String description) {
         this.code = code;
@@ -55,7 +54,7 @@ public enum ConnectorType {
 
     static {
         for (ConnectorType type : ConnectorType.values()) {
-            VALUES_MAP.put(type.code, type);
+            VALUES_MAP.put(type.code,type);
         }
     }
 

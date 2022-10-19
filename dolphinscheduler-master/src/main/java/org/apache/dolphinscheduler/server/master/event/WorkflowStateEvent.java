@@ -17,15 +17,10 @@
 
 package org.apache.dolphinscheduler.server.master.event;
 
+import io.netty.channel.Channel;
+import lombok.*;
 import org.apache.dolphinscheduler.common.enums.StateEventType;
 import org.apache.dolphinscheduler.common.enums.WorkflowExecutionStatus;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import io.netty.channel.Channel;
 
 @Data
 @Builder

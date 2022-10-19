@@ -29,8 +29,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public class HttpLoopTaskCancelTaskMethodDefinition extends HttpLoopTaskMethodDefinition
-        implements
-            LoopTaskCancelMethodDefinition {
+    implements LoopTaskCancelMethodDefinition {
 
     private final String taskInstanceIdHolder = "${taskInstanceId}";
 
@@ -70,7 +69,7 @@ public class HttpLoopTaskCancelTaskMethodDefinition extends HttpLoopTaskMethodDe
                 OkHttpUtils.post(url, httpHeaders, requestParams, requestBody);
             } else {
                 throw new IllegalArgumentException(String.format("http method type: %s is not supported",
-                        httpMethodType));
+                                                                 httpMethodType));
             }
         } catch (IllegalArgumentException ex) {
             throw ex;

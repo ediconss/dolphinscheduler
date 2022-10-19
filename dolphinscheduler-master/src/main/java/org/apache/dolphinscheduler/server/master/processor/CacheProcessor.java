@@ -32,6 +32,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.channel.Channel;
 
 /**
@@ -47,8 +48,7 @@ public class CacheProcessor implements NettyRequestProcessor {
 
     @Override
     public void process(Channel channel, Command command) {
-        Preconditions.checkArgument(CommandType.CACHE_EXPIRE == command.getType(),
-                String.format("invalid command type: %s", command.getType()));
+        Preconditions.checkArgument(CommandType.CACHE_EXPIRE == command.getType(), String.format("invalid command type: %s", command.getType()));
 
         CacheExpireCommand cacheExpireCommand = JSONUtils.parseObject(command.getBody(), CacheExpireCommand.class);
 

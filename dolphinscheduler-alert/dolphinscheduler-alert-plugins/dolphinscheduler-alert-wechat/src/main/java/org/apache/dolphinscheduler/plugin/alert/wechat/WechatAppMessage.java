@@ -99,8 +99,7 @@ public class WechatAppMessage {
     public WechatAppMessage() {
     }
 
-    public WechatAppMessage(String touser, String msgtype, Integer agentid, Map<String, String> contentMap,
-                            Integer safe, Integer enableIdTrans, Integer enableDuplicateCheck) {
+    public WechatAppMessage(String touser, String msgtype, Integer agentid, Map<String, String> contentMap, Integer safe, Integer enableIdTrans, Integer enableDuplicateCheck) {
         this.touser = touser;
         this.msgtype = msgtype;
         this.agentid = agentid;

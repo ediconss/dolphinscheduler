@@ -19,12 +19,15 @@ package org.apache.dolphinscheduler.plugin.task.seatunnel.spark;
 
 import static org.apache.dolphinscheduler.plugin.task.seatunnel.Constants.DEPLOY_MODE_OPTIONS;
 import static org.apache.dolphinscheduler.plugin.task.seatunnel.Constants.MASTER_OPTIONS;
+import static org.apache.dolphinscheduler.plugin.task.seatunnel.Constants.QUEUE_OPTIONS;
 
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.seatunnel.DeployModeEnum;
 import org.apache.dolphinscheduler.plugin.task.seatunnel.SeatunnelTask;
 import org.apache.dolphinscheduler.plugin.task.seatunnel.spark.SeatunnelSparkParameters.MasterTypeEnum;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -42,8 +45,7 @@ public class SeatunnelSparkTask extends SeatunnelTask {
 
     @Override
     public void init() {
-        seatunnelParameters =
-                JSONUtils.parseObject(taskExecutionContext.getTaskParams(), SeatunnelSparkParameters.class);
+        seatunnelParameters = JSONUtils.parseObject(taskExecutionContext.getTaskParams(), SeatunnelSparkParameters.class);
         setSeatunnelParameters(seatunnelParameters);
         super.init();
     }
@@ -54,8 +56,7 @@ public class SeatunnelSparkTask extends SeatunnelTask {
         args.add(DEPLOY_MODE_OPTIONS);
         args.add(seatunnelParameters.getDeployMode().getCommand());
 
-        MasterTypeEnum master = DeployModeEnum.local == seatunnelParameters.getDeployMode() ? MasterTypeEnum.LOCAL
-                : seatunnelParameters.getMaster();
+        MasterTypeEnum master = DeployModeEnum.local == seatunnelParameters.getDeployMode() ? MasterTypeEnum.LOCAL : seatunnelParameters.getMaster();
 
         args.add(MASTER_OPTIONS);
         args.add(master.getCommand());

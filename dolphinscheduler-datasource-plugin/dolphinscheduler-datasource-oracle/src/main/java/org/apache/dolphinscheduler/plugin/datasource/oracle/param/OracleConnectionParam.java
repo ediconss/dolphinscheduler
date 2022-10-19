@@ -21,7 +21,6 @@ import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbConnectType;
 
 public class OracleConnectionParam extends BaseConnectionParam {
-
     protected DbConnectType connectType;
 
     public DbConnectType getConnectType() {

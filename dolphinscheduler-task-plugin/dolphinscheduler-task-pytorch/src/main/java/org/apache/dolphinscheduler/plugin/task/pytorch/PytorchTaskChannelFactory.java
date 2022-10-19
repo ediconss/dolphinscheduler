@@ -28,7 +28,6 @@ import com.google.auto.service.AutoService;
 
 @AutoService(TaskChannelFactory.class)
 public class PytorchTaskChannelFactory implements TaskChannelFactory {
-
     @Override
     public TaskChannel create() {
         return new PytorchTaskChannel();

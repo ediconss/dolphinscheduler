@@ -33,7 +33,7 @@ public enum ExecuteType {
     NONE, REPEAT_RUNNING, RECOVER_SUSPENDED_PROCESS, START_FAILURE_TASK_PROCESS, STOP, PAUSE;
     // 翻译：无，重复运行，恢复暂停进程，启动失败任务进程，停止，暂停
     public static ExecuteType getEnum(int value) {
-        for (ExecuteType e : ExecuteType.values()) {
+        for (ExecuteType e: ExecuteType.values()) {
             if (e.ordinal() == value) {
                 return e;
             }

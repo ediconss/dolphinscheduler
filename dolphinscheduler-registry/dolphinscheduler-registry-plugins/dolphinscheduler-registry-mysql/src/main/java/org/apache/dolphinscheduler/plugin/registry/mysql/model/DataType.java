@@ -18,7 +18,6 @@
 package org.apache.dolphinscheduler.plugin.registry.mysql.model;
 
 public enum DataType {
-
     EPHEMERAL(1),
     PERSISTENT(2),
     ;

@@ -23,7 +23,6 @@ import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
  * Used for test.
  */
 public class MySQLConnectionParam extends BaseConnectionParam {
-
     @Override
     public String toString() {
         return "MySQLConnectionParam{"

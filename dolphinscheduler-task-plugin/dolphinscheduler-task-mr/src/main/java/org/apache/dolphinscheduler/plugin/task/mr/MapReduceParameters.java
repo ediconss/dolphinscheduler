@@ -153,6 +153,7 @@ public class MapReduceParameters extends AbstractParameters {
                 + "mainClass=" + mainClass
                 + "mainArgs=" + mainArgs
                 + "queue=" + queue
-                + "other mainArgs=" + others;
+                + "other mainArgs=" + others
+                ;
     }
 }

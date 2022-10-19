@@ -35,7 +35,6 @@ import io.netty.handler.codec.ReplayingDecoder;
  * netty decoder
  */
 public class NettyDecoder extends ReplayingDecoder<NettyDecoder.State> {
-
     private static final Logger logger = LoggerFactory.getLogger(NettyDecoder.class);
 
     public NettyDecoder() {

@@ -17,6 +17,7 @@
 
 package org.apache.dolphinscheduler.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.*;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
 import java.util.Date;

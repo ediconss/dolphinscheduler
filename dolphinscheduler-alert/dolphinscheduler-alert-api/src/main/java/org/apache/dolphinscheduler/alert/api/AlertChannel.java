@@ -25,7 +25,6 @@ import lombok.NonNull;
  * alert channel for sending alerts
  */
 public interface AlertChannel {
-
     /**
      * process and send alert
      *

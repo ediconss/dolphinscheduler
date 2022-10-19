@@ -17,11 +17,10 @@
 
 package org.apache.dolphinscheduler.plugin.task.api.model;
 
+import lombok.Data;
 import org.apache.dolphinscheduler.plugin.task.api.enums.DependentRelation;
 
 import java.util.List;
-
-import lombok.Data;
 
 @Data
 public class DependentTaskModel {

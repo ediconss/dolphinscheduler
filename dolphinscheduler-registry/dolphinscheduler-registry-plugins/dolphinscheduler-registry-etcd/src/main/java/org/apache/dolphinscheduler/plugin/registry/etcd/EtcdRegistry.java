@@ -37,8 +37,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import lombok.NonNull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -61,6 +59,7 @@ import io.etcd.jetcd.options.PutOption;
 import io.etcd.jetcd.options.WatchOption;
 import io.etcd.jetcd.support.Observers;
 import io.etcd.jetcd.watch.WatchEvent;
+import lombok.NonNull;
 
 /**
  * This is one of the implementation of {@link Registry}, with this implementation, you need to rely on Etcd cluster to
@@ -69,7 +68,6 @@ import io.etcd.jetcd.watch.WatchEvent;
 @Component
 @ConditionalOnProperty(prefix = "registry", name = "type", havingValue = "etcd")
 public class EtcdRegistry implements Registry {
-
     private static Logger LOGGER = LoggerFactory.getLogger(EtcdRegistry.class);
     private final Client client;
     private EtcdConnectionStateListener etcdConnectionStateListener;
@@ -90,8 +88,7 @@ public class EtcdRegistry implements Registry {
                 .retryDelay(registryProperties.getRetryDelay().toMillis())
                 .retryMaxDelay(registryProperties.getRetryMaxDelay().toMillis())
                 .retryMaxDuration(registryProperties.getRetryMaxDuration());
-        if (StringUtils.hasLength(registryProperties.getUser())
-                && StringUtils.hasLength(registryProperties.getPassword())) {
+        if (StringUtils.hasLength(registryProperties.getUser()) && StringUtils.hasLength(registryProperties.getPassword())) {
             clientBuilder.user(byteSequence(registryProperties.getUser()));
             clientBuilder.password(byteSequence(registryProperties.getPassword()));
         }
@@ -132,12 +129,11 @@ public class EtcdRegistry implements Registry {
         try {
             ByteSequence watchKey = byteSequence(path);
             WatchOption watchOption = WatchOption.newBuilder().isPrefix(true).build();
-            watcherMap.computeIfAbsent(path,
-                    $ -> client.getWatchClient().watch(watchKey, watchOption, watchResponse -> {
-                        for (WatchEvent event : watchResponse.getEvents()) {
-                            listener.notify(new EventAdaptor(event, path));
-                        }
-                    }));
+            watcherMap.computeIfAbsent(path, $ -> client.getWatchClient().watch(watchKey, watchOption,watchResponse -> {
+                for (WatchEvent event : watchResponse.getEvents()) {
+                    listener.notify(new EventAdaptor(event, path));
+                }
+            }));
         } catch (Exception e) {
             throw new RegistryException("Failed to subscribe listener for key: " + path, e);
         }
@@ -194,7 +190,7 @@ public class EtcdRegistry implements Registry {
                 client.getLeaseClient().keepAlive(leaseId, Observers.observer(response -> {
                 }));
                 PutOption putOption = PutOption.newBuilder().withLeaseId(leaseId).build();
-                client.getKVClient().put(byteSequence(key), byteSequence(value), putOption).get();
+                client.getKVClient().put(byteSequence(key), byteSequence(value),putOption).get();
             } else {
                 client.getKVClient().put(byteSequence(key), byteSequence(value)).get();
             }
@@ -214,10 +210,10 @@ public class EtcdRegistry implements Registry {
         try {
             DeleteOption deleteOption = DeleteOption.newBuilder().isPrefix(true).build();
             client.getKVClient().delete(byteSequence(key), deleteOption).get();
-        } catch (InterruptedException e) {
+        }  catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RegistryException("Failed to delete registry key: " + key, e);
-        } catch (ExecutionException e) {
+        }  catch (ExecutionException e) {
             throw new RegistryException("Failed to delete registry key: " + key, e);
         }
     }
@@ -230,12 +226,10 @@ public class EtcdRegistry implements Registry {
         // Make sure the string end with '/'
         // eg:change key = /nodes to /nodes/
         String prefix = key.endsWith(FOLDER_SEPARATOR) ? key : key + FOLDER_SEPARATOR;
-        GetOption getOption = GetOption.newBuilder().isPrefix(true).withSortField(GetOption.SortTarget.KEY)
-                .withSortOrder(GetOption.SortOrder.ASCEND).build();
+        GetOption getOption = GetOption.newBuilder().isPrefix(true).withSortField(GetOption.SortTarget.KEY).withSortOrder(GetOption.SortOrder.ASCEND).build();
         try {
-            List<KeyValue> keyValues = client.getKVClient().get(byteSequence(prefix), getOption).get().getKvs();
-            return keyValues.stream().map(e -> getSubNodeKeyName(prefix, e.getKey().toString(StandardCharsets.UTF_8)))
-                    .distinct().collect(Collectors.toList());
+            List<KeyValue> keyValues = client.getKVClient().get(byteSequence(prefix),getOption).get().getKvs();
+            return keyValues.stream().map(e -> getSubNodeKeyName(prefix, e.getKey().toString(StandardCharsets.UTF_8))).distinct().collect(Collectors.toList());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RegistryException("etcd get children error", e);
@@ -249,16 +243,14 @@ public class EtcdRegistry implements Registry {
      */
     private String getSubNodeKeyName(final String prefix, final String fullPath) {
         String pathWithoutPrefix = fullPath.substring(prefix.length());
-        return pathWithoutPrefix.contains(FOLDER_SEPARATOR)
-                ? pathWithoutPrefix.substring(0, pathWithoutPrefix.indexOf(FOLDER_SEPARATOR))
-                : pathWithoutPrefix;
+        return pathWithoutPrefix.contains(FOLDER_SEPARATOR) ? pathWithoutPrefix.substring(0, pathWithoutPrefix.indexOf(FOLDER_SEPARATOR)) : pathWithoutPrefix;
     }
 
     @Override
     public boolean exists(String key) {
         GetOption getOption = GetOption.newBuilder().withCountOnly(true).build();
         try {
-            if (client.getKVClient().get(byteSequence(key), getOption).get().getCount() >= 1) {
+            if (client.getKVClient().get(byteSequence(key),getOption).get().getCount() >= 1) {
                 return true;
             }
         } catch (InterruptedException e) {
@@ -283,13 +275,13 @@ public class EtcdRegistry implements Registry {
             // keep the lease
             client.getLeaseClient().keepAlive(leaseId, Observers.observer(response -> {
             }));
-            lockClient.lock(byteSequence(key), leaseId).get();
+            lockClient.lock(byteSequence(key),leaseId).get();
 
             // save the leaseId for release Lock
             if (null == threadLocalLockMap.get()) {
                 threadLocalLockMap.set(new HashMap<>());
             }
-            threadLocalLockMap.get().put(key, leaseId);
+            threadLocalLockMap.get().put(key,leaseId);
             return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -328,7 +320,6 @@ public class EtcdRegistry implements Registry {
     }
 
     static final class EventAdaptor extends Event {
-
         public EventAdaptor(WatchEvent event, String key) {
             key(key);
 
@@ -350,3 +341,4 @@ public class EtcdRegistry implements Registry {
         }
     }
 }
+

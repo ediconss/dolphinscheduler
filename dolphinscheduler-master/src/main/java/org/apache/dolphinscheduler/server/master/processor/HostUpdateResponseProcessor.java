@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.channel.Channel;
 
 public class HostUpdateResponseProcessor implements NettyRequestProcessor {
@@ -34,11 +35,9 @@ public class HostUpdateResponseProcessor implements NettyRequestProcessor {
 
     @Override
     public void process(Channel channel, Command command) {
-        Preconditions.checkArgument(CommandType.PROCESS_HOST_UPDATE_RESPONSE == command.getType(),
-                String.format("invalid command type : %s", command.getType()));
+        Preconditions.checkArgument(CommandType.PROCESS_HOST_UPDATE_RESPONSE == command.getType(), String.format("invalid command type : %s", command.getType()));
 
-        HostUpdateResponseProcessor responseCommand =
-                JSONUtils.parseObject(command.getBody(), HostUpdateResponseProcessor.class);
+        HostUpdateResponseProcessor responseCommand = JSONUtils.parseObject(command.getBody(), HostUpdateResponseProcessor.class);
         logger.info("received process host response command : {}", responseCommand);
     }
 }

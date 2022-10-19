@@ -25,9 +25,8 @@ import java.util.Map;
 
 import lombok.NonNull;
 
-public class SubmitTemplateMethodTransformer
-        implements
-            TemplateMethodTransformer<LoopTaskYamlDefinition.LoopTaskSubmitMethodYamlDefinition, HttpLoopTaskSubmitTaskMethodDefinition> {
+public class SubmitTemplateMethodTransformer implements
+    TemplateMethodTransformer<LoopTaskYamlDefinition.LoopTaskSubmitMethodYamlDefinition, HttpLoopTaskSubmitTaskMethodDefinition> {
 
     @Override
     public @NonNull HttpLoopTaskSubmitTaskMethodDefinition transform(@NonNull LoopTaskYamlDefinition.LoopTaskSubmitMethodYamlDefinition loopTaskAPIYamlDefinition) {
@@ -39,11 +38,11 @@ public class SubmitTemplateMethodTransformer
         Map<String, Object> requestBody = loopTaskAPIYamlDefinition.getRequestBody();
         String taskInstanceIdJPath = loopTaskAPIYamlDefinition.getTaskInstanceIdJPath();
         return new HttpLoopTaskSubmitTaskMethodDefinition(url,
-                method,
-                dataType,
-                httpHeaders,
-                requestParams,
-                requestBody,
-                taskInstanceIdJPath);
+                                                          method,
+                                                          dataType,
+                                                          httpHeaders,
+                                                          requestParams,
+                                                          requestBody,
+                                                          taskInstanceIdJPath);
     }
 }

@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 @EnableConfigurationProperties
 @ConfigurationProperties(value = "audit", ignoreUnknownFields = false)
 public class AuditConfiguration {
-
     private boolean enabled;
 
     public boolean getEnabled() {

@@ -51,7 +51,8 @@ public class HiveDataSourceProcessor extends AbstractDataSourceProcessor {
 
     @Override
     public BaseDataSourceParamDTO createDatasourceParamDTO(String connectionJson) {
-        HiveDataSourceParamDTO hiveDataSourceParamDTO = new HiveDataSourceParamDTO();
+        HiveDataSourceParamDTO
+                hiveDataSourceParamDTO = new HiveDataSourceParamDTO();
         HiveConnectionParam hiveConnectionParam = (HiveConnectionParam) createConnectionParams(connectionJson);
 
         hiveDataSourceParamDTO.setDatabase(hiveConnectionParam.getDatabase());

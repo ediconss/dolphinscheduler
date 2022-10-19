@@ -38,8 +38,7 @@ public class DataQualityException extends RuntimeException {
         super(cause);
     }
 
-    protected DataQualityException(String message, Throwable cause, boolean enableSuppression,
-                                   boolean writableStackTrace) {
+    protected DataQualityException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

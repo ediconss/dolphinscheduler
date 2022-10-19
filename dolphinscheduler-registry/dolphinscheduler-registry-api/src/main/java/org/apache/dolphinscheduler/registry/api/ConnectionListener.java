@@ -25,6 +25,5 @@ package org.apache.dolphinscheduler.registry.api;
  */
 @FunctionalInterface
 public interface ConnectionListener {
-
     void onUpdate(ConnectionState newState);
 }

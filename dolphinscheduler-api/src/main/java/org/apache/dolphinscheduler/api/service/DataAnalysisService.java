@@ -19,7 +19,6 @@ package org.apache.dolphinscheduler.api.service;
 
 import org.apache.dolphinscheduler.dao.entity.ExecuteStatusCount;
 import org.apache.dolphinscheduler.dao.entity.User;
-
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -51,8 +50,7 @@ public interface DataAnalysisService {
      * @param endDate     end date
      * @return process instance state count data
      */
-    Map<String, Object> countProcessInstanceStateByProject(User loginUser, long projectCode, String startDate,
-                                                           String endDate);
+    Map<String, Object> countProcessInstanceStateByProject(User loginUser, long projectCode, String startDate, String endDate);
 
     /**
      * statistics the process definition quantities of a certain person
