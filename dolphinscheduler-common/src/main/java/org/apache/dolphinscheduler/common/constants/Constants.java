@@ -54,6 +54,8 @@ public final class Constants {
 
     public static final String STORAGE_S3 = "S3";
 
+    public static final String STORAGE_OBS = "OBS";
+
     public static final String STORAGE_OSS = "OSS";
 
     public static final String STORAGE_HDFS = "HDFS";
@@ -149,6 +151,9 @@ public final class Constants {
 
     public static final String ALIBABA_CLOUD_OSS_BUCKET_NAME = "resource.alibaba.cloud.oss.bucket.name";
     public static final String ALIBABA_CLOUD_OSS_END_POINT = "resource.alibaba.cloud.oss.endpoint";
+
+    public static final String HUAWEI_CLOUD_OBS_BUCKET_NAME = "resource.huawei.cloud.obs.bucket.name";
+    public static final String HUAWEI_CLOUD_OBS_END_POINT = "resource.huawei.cloud.obs.endpoint";
 
     /**
      * comma ,

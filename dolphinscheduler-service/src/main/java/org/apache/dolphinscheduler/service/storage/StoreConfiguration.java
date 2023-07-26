@@ -19,11 +19,13 @@ package org.apache.dolphinscheduler.service.storage;
 
 import static org.apache.dolphinscheduler.common.constants.Constants.RESOURCE_STORAGE_TYPE;
 import static org.apache.dolphinscheduler.common.constants.Constants.STORAGE_HDFS;
+import static org.apache.dolphinscheduler.common.constants.Constants.STORAGE_OBS;
 import static org.apache.dolphinscheduler.common.constants.Constants.STORAGE_OSS;
 import static org.apache.dolphinscheduler.common.constants.Constants.STORAGE_S3;
 
 import org.apache.dolphinscheduler.common.utils.PropertyUtils;
 import org.apache.dolphinscheduler.service.storage.impl.HadoopUtils;
+import org.apache.dolphinscheduler.service.storage.impl.ObsOperator;
 import org.apache.dolphinscheduler.service.storage.impl.OssOperator;
 import org.apache.dolphinscheduler.service.storage.impl.S3Utils;
 
@@ -52,6 +54,10 @@ public class StoreConfiguration {
                 return S3Utils.getInstance();
             case STORAGE_HDFS:
                 return HadoopUtils.getInstance();
+            case STORAGE_OBS:
+                ObsOperator obsOperator = new ObsOperator();
+                obsOperator.init();
+                return obsOperator;
             default:
                 return null;
         }

@@ -29,8 +29,6 @@ import org.apache.dolphinscheduler.plugin.datasource.hive.utils.CommonUtil;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
-import sun.security.krb5.Config;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -48,8 +46,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
-import sun.security.krb5.Config;
 
 public class HiveDataSourceClient extends CommonDataSourceClient {
 
@@ -99,11 +95,11 @@ public class HiveDataSourceClient extends CommonDataSourceClient {
         if (kerberosStartupState && StringUtils.isNotBlank(krb5File)) {
             System.setProperty(JAVA_SECURITY_KRB5_CONF, krb5File);
             try {
-                Config.refresh();
+                // Config.refresh();
                 Class<?> kerberosName = Class.forName("org.apache.hadoop.security.authentication.util.KerberosName");
                 Field field = kerberosName.getDeclaredField("defaultRealm");
                 field.setAccessible(true);
-                field.set(null, Config.getInstance().getDefaultRealm());
+                // field.set(null, Config.getInstance().getDefaultRealm());
             } catch (Exception e) {
                 throw new RuntimeException("Update Kerberos environment failed.", e);
             }
@@ -153,7 +149,8 @@ public class HiveDataSourceClient extends CommonDataSourceClient {
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
-            boolean kerberosStartupState = PropertyUtils.getBoolean(HADOOP_SECURITY_AUTHENTICATION_STARTUP_STATE, false);
+            boolean kerberosStartupState =
+                    PropertyUtils.getBoolean(HADOOP_SECURITY_AUTHENTICATION_STARTUP_STATE, false);
             if (retryGetConnection && kerberosStartupState) {
                 retryGetConnection = false;
                 createUserGroupInformation(baseConnectionParam.getUser());

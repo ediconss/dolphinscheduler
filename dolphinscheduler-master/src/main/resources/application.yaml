@@ -33,9 +33,9 @@ spring:
       spec: maximumSize=100,expireAfterWrite=300s,recordStats
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://127.0.0.1:5432/dolphinscheduler
-    username: root
-    password: root
+    url: jdbc:postgresql://192.168.10.233:5434/star_river?currentSchema=ds
+    username: data_warehouse
+    password: datawarehouse
     hikari:
       connection-test-query: select 1
       minimum-idle: 5
@@ -73,7 +73,7 @@ registry:
   type: zookeeper
   zookeeper:
     namespace: dolphinscheduler
-    connect-string: localhost:2181
+    connect-string: 127.0.0.1:2181
     retry-policy:
       base-sleep-time: 60ms
       max-sleep: 300ms
@@ -141,18 +141,3 @@ management:
 metrics:
   enabled: true
 
-# Override by profile
-
----
-spring:
-  config:
-    activate:
-      on-profile: mysql
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/dolphinscheduler
-    username: root
-    password: root
-  quartz:
-    properties:
-      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
