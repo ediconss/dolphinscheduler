@@ -35,7 +35,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.obs.services.ObsClient;
-import com.obs.services.exception.ObsException;
 import com.obs.services.model.ObjectMetadata;
 import com.obs.services.model.ObsObject;
 import com.obs.services.model.PutObjectRequest;
@@ -172,10 +170,7 @@ public class ObsOperator implements Closeable, StorageOperate {
             while ((readLen = obsInputStream.read(readBuf)) > 0) {
                 fos.write(readBuf, 0, readLen);
             }
-        } catch (ObsException e) {
-            throw new IOException(e);
-        } catch (FileNotFoundException e) {
-            logger.error("cannot find the destination file {}", dstFilePath);
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -190,7 +185,7 @@ public class ObsOperator implements Closeable, StorageOperate {
         try {
             obsClient.deleteObject(bucketName, filePath);
             return true;
-        } catch (ObsException e) {
+        } catch (Exception e) {
             logger.error("fail to delete the object, the resource path is {}", filePath, e);
             return false;
         }
@@ -221,7 +216,7 @@ public class ObsOperator implements Closeable, StorageOperate {
         try {
             obsClient.putObject(bucketName, dstPath, new File(srcFile));
             return true;
-        } catch (ObsException e) {
+        } catch (Exception e) {
             logger.error("upload failed, the bucketName is {}, the filePath is {}", bucketName, dstPath, e);
             return false;
         }

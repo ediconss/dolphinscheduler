@@ -76,7 +76,7 @@ spring:
 registry:
   type: zookeeper
   zookeeper:
-    namespace: dolphinscheduler
+    namespace: dolphinscheduler2
     connect-string: localhost:2181
     retry-policy:
       base-sleep-time: 60ms

@@ -22,7 +22,7 @@ spring:
     date-format: "yyyy-MM-dd HH:mm:ss"
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://192.168.10.233:5434/star_river?currentSchema=ds
+    url: jdbc:postgresql://192.168.10.233:5434/star_river?currentSchema=ds-local
     username: data_warehouse
     password: datawarehouse
     hikari:
@@ -40,7 +40,7 @@ spring:
 registry:
   type: zookeeper
   zookeeper:
-    namespace: dolphinscheduler
+    namespace: dolphinscheduler2
     connect-string: 127.0.0.1:2181
     retry-policy:
       base-sleep-time: 60ms

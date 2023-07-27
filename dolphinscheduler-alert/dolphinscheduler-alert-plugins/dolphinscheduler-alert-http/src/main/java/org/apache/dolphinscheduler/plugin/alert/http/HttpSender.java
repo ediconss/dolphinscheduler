@@ -36,11 +36,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public final class HttpSender {
@@ -159,14 +162,50 @@ public final class HttpSender {
      */
     private void setMsgInRequestBody(String msg) {
         try {
+            logger.info("send http alert msg : {}", msg);
             ObjectNode objectNode = JSONUtils.parseObject(bodyParams);
-            String[] split = contentField.split("\\.");
-
-            objectNode.put(contentField, msg);
-            StringEntity entity = new StringEntity(JSONUtils.toJsonString(objectNode), DEFAULT_CHARSET);
+            setJSONObjectData(objectNode, msg, contentField.split("\\."), 0);
+            String jsonString = JSONUtils.toJsonString(objectNode);
+            logger.info("send http alert msg : {}", jsonString);
+            StringEntity entity = new StringEntity(jsonString, DEFAULT_CHARSET);
             ((HttpPost) httpRequest).setEntity(entity);
         } catch (Exception e) {
             logger.error("send http alert msg  exception : {}", e.getMessage());
         }
     }
+
+    private static void setJSONObjectData(ObjectNode objectNode, String msg, String[] fieldPath, int i) {
+        if (i == fieldPath.length - 1) {
+
+            if (objectNode.get(fieldPath[i]) == null) {
+                objectNode.put(fieldPath[i], msg);
+            } else {
+                String content = objectNode.get(fieldPath[i]).asText();
+
+                JsonNode jsonNode;
+                try {
+                    ArrayNode jsonNodes = JSONUtils.parseArray(msg);
+                    jsonNode = jsonNodes.get(0);
+                } catch (Exception e) {
+                    jsonNode = JSONUtils.parseObject(msg);
+                }
+
+                Iterator<String> elements = jsonNode.fieldNames();
+                while (elements.hasNext()) {
+                    String key = elements.next();
+                    String value = jsonNode.get(key).asText();
+                    content = content.replace("$" + key + "", value);
+                }
+                objectNode.put(fieldPath[i], content);
+                return;
+            }
+        }
+        ObjectNode node = (ObjectNode) objectNode.get(fieldPath[i]);
+        if (node == null) {
+            node = JSONUtils.createObjectNode();
+            objectNode.set(fieldPath[i], node);
+        }
+        setJSONObjectData(node, msg, fieldPath, ++i);
+    }
+
 }
