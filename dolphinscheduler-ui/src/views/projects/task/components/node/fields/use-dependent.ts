@@ -70,9 +70,35 @@ export function useDependent(model: { [field: string]: any }): IJsonItem[] {
     {
       value: 'hour',
       label: t('project.node.hour')
+    },
+    {
+      value: 'minute',
+      label: t('project.node.minute')
     }
   ]
   const DATE_LIST = {
+    minute: [
+      {
+        value: 'currentMinute',
+        label: t('project.node.current_minute')
+      },
+      {
+        value: 'last1Minute',
+        label: t('project.node.last_1_minute')
+      },
+      {
+        value: 'last5Minute',
+        label: t('project.node.last_5_minute')
+      },
+      {
+        value: 'last10Minute',
+        label: t('project.node.last_10_minute')
+      },
+      {
+        value: 'last30Minute',
+        label: t('project.node.last_30_minute')
+      }
+    ],
     hour: [
       {
         value: 'currentHour',

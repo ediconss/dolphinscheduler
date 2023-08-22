@@ -24,6 +24,7 @@ import java.util.Objects;
  * date interval class
  */
 public class DateInterval {
+
     private Date startTime;
     private Date endTime;
 
@@ -64,5 +65,13 @@ public class DateInterval {
     @Override
     public int hashCode() {
         return Objects.hash(startTime, endTime);
+    }
+
+    @Override
+    public String toString() {
+        return "DateInterval{"
+                + "startTime=" + startTime
+                + ", endTime=" + endTime
+                + '}';
     }
 }

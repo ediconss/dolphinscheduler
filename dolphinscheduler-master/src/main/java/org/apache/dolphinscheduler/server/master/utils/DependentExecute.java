@@ -112,7 +112,8 @@ public class DependentExecute {
             ProcessInstance processInstance = findLastProcessInterval(dependentItem.getDefinitionCode(),
                     dateInterval);
             if (processInstance == null) {
-                return DependResult.WAITING;
+                result = DependResult.WAITING;
+                continue;
             }
             // need to check workflow for updates, so get all task and check the task state
             if (dependentItem.getDepTaskCode() == Constants.DEPENDENT_ALL_TASK_CODE) {
@@ -120,7 +121,7 @@ public class DependentExecute {
             } else {
                 result = getDependTaskResult(dependentItem.getDepTaskCode(), processInstance);
             }
-            if (result != DependResult.SUCCESS) {
+            if (result == DependResult.SUCCESS) {
                 break;
             }
         }

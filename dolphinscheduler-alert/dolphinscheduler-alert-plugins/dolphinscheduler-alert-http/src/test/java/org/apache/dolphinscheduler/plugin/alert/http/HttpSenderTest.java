@@ -30,13 +30,14 @@ public class HttpSenderTest {
     @Test
     public void sendTest() {
         Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put(HttpAlertConstants.NAME_URL, "http://www.baidu.com");
+        paramsMap.put(HttpAlertConstants.NAME_URL,
+                "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=3d5519b0-741c-43fd-825a-4f64d543f03a");
         paramsMap.put(HttpAlertConstants.NAME_REQUEST_TYPE, "POST");
         paramsMap.put(HttpAlertConstants.NAME_HEADER_PARAMS, "{\"Content-Type\":\"application/json\"}");
-        paramsMap.put(HttpAlertConstants.NAME_BODY_PARAMS, "{\"number\":\"13457654323\"}");
-        paramsMap.put(HttpAlertConstants.NAME_CONTENT_FIELD, "content");
+        paramsMap.put(HttpAlertConstants.NAME_BODY_PARAMS, "{     \"msgtype\":\"text\",  \"text\":{ } }");
+        paramsMap.put(HttpAlertConstants.NAME_CONTENT_FIELD, "text.content");
         HttpSender httpSender = new HttpSender(paramsMap);
-        AlertResult alertResult = httpSender.send("Fault tolerance warning");
+        AlertResult alertResult = httpSender.send("{\"Content-Type\":\"application/json\"}");
         Assert.assertEquals("true", alertResult.getStatus());
     }
 }

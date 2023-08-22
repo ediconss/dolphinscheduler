@@ -29,6 +29,30 @@ public class DependentDateUtils {
     /**
      * get last day interval list
      * @param businessDate businessDate
+     * @param minuteNumber minuteNumber
+     * @return DateInterval list
+     */
+    public static List<DateInterval> getLastMinutesInterval(Date businessDate, int minuteNumber) {
+        List<DateInterval> dateIntervals = new ArrayList<>();
+        if (minuteNumber == 0) {
+            Date lastMinute = DateUtils.getSomeMinuteOfHour(businessDate, 0);
+            Date beginTime = DateUtils.getStartOfMinute(lastMinute);
+            Date endTime = DateUtils.getEndOfMinute(lastMinute);
+            dateIntervals.add(new DateInterval(beginTime, endTime));
+            return dateIntervals;
+        }
+        for (int index = minuteNumber; index > 0; index--) {
+            Date lastMinute = DateUtils.getSomeMinuteOfHour(businessDate, -index);
+            Date beginTime = DateUtils.getStartOfMinute(lastMinute);
+            Date endTime = DateUtils.getEndOfMinute(lastMinute);
+            dateIntervals.add(new DateInterval(beginTime, endTime));
+        }
+        return dateIntervals;
+    }
+
+    /**
+     * get last day interval list
+     * @param businessDate businessDate
      * @param hourNumber hourNumber
      * @return DateInterval list
      */
@@ -179,7 +203,7 @@ public class DependentDateUtils {
      */
     public static List<DateInterval> getLastWeekOneDayInterval(Date businessDate, int dayOfWeek) {
         Date mondayThisWeek = DateUtils.getMonday(businessDate);
-        Date sunday = DateUtils.getSomeDay(mondayThisWeek, - 1);
+        Date sunday = DateUtils.getSomeDay(mondayThisWeek, -1);
         Date monday = DateUtils.getMonday(sunday);
         Date destDay = DateUtils.getSomeDay(monday, dayOfWeek - 1);
         return getDateIntervalListBetweenTwoDates(destDay, destDay);

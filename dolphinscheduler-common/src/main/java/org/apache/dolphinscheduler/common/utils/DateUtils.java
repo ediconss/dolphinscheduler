@@ -22,8 +22,6 @@ import org.apache.dolphinscheduler.common.thread.ThreadLocalContext;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -33,6 +31,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +125,8 @@ public final class DateUtils {
 
     public static String format(Date date, DateTimeFormatter dateTimeFormatter, String timezone) {
         LocalDateTime localDateTime =
-            StringUtils.isEmpty(timezone) ? date2LocalDateTime(date) : date2LocalDateTime(date, ZoneId.of(timezone));
+                StringUtils.isEmpty(timezone) ? date2LocalDateTime(date)
+                        : date2LocalDateTime(date, ZoneId.of(timezone));
         return format(localDateTime, dateTimeFormatter);
     }
 
@@ -244,8 +246,8 @@ public final class DateUtils {
         Date d = stringToDate(date);
         if (d == null) {
             throw new IllegalArgumentException(String.format(
-                "data: %s should be a validate data string - yyyy-MM-dd HH:mm:ss ",
-                date));
+                    "data: %s should be a validate data string - yyyy-MM-dd HH:mm:ss ",
+                    date));
         }
         return ZonedDateTime.ofInstant(d.toInstant(), ZoneId.systemDefault());
     }
@@ -457,6 +459,56 @@ public final class DateUtils {
     }
 
     /**
+     * return YYYY-MM-DD hh:MM:00
+     *
+     * @param inputMinute day
+     * @return start of minute
+     */
+    public static Date getEndOfMinute(Date inputMinute) {
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(inputMinute);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal.getTime();
+    }
+
+    /**
+     * return YYYY-MM-DD hh:MM:00
+     *
+     * @param inputMinute day
+     * @return start of minute
+     */
+    public static Date getStartOfMinute(Date inputMinute) {
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(inputMinute);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal.getTime();
+    }
+
+    /**
+     * get some Minute of hour
+     *
+     * @param date       date
+     * @param offsetMinute Minute
+     * @return some Minute of hour
+     */
+    public static Date getSomeMinuteOfHour(Date date, int offsetMinute) {
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(date);
+        cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + offsetMinute);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal.getTime();
+    }
+
+    /**
      * get last day of month
      *
      * @param date date
@@ -611,7 +663,7 @@ public final class DateUtils {
         LocalDateTime localDateTime =
                 LocalDateTime.parse(dateToString, DateTimeFormatter.ofPattern(DateConstants.YYYY_MM_DD_HH_MM_SS));
         ZonedDateTime zonedDateTime =
-            ZonedDateTime.of(localDateTime, TimeZone.getTimeZone(targetTimezoneId).toZoneId());
+                ZonedDateTime.of(localDateTime, TimeZone.getTimeZone(targetTimezoneId).toZoneId());
         return Date.from(zonedDateTime.toInstant());
     }
 
@@ -629,6 +681,7 @@ public final class DateUtils {
      * Time unit representing one thousandth of a second
      */
     public static class MILLISECONDS {
+
         public static long toDays(long d) {
             return d / (C6 / C2);
         }

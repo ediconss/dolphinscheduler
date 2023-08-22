@@ -176,7 +176,6 @@ public final class HttpSender {
 
     private static void setJSONObjectData(ObjectNode objectNode, String msg, String[] fieldPath, int i) {
         if (i == fieldPath.length - 1) {
-
             if (objectNode.get(fieldPath[i]) == null) {
                 objectNode.put(fieldPath[i], msg);
             } else {
@@ -196,9 +195,11 @@ public final class HttpSender {
                     String value = jsonNode.get(key).asText();
                     content = content.replace("$" + key + "", value);
                 }
+                content = content.replace("$all", msg);
                 objectNode.put(fieldPath[i], content);
                 return;
             }
+            return;
         }
         ObjectNode node = (ObjectNode) objectNode.get(fieldPath[i]);
         if (node == null) {
