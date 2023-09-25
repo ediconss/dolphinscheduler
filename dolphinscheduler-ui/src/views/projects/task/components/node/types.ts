@@ -388,6 +388,7 @@ interface ITaskParams {
   pythonEnvTool?: string
   requirements?: string
   condaPythonVersion?: string
+  config?: string
 }
 
 interface INodeData

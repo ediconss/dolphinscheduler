@@ -52,8 +52,7 @@ public class TaskLogFilter extends Filter<ILoggingEvent> {
     @Override
     public FilterReply decide(ILoggingEvent event) {
         FilterReply filterReply = FilterReply.DENY;
-        if ((event.getThreadName().startsWith(TaskConstants.TASK_APPID_LOG_FORMAT)
-                && event.getLoggerName().startsWith(TaskConstants.TASK_LOG_LOGGER_NAME))
+        if (event.getThreadName().startsWith(TaskConstants.TASK_APPID_LOG_FORMAT)
                 || event.getLevel().isGreaterOrEqual(level)) {
             filterReply = FilterReply.ACCEPT;
         }

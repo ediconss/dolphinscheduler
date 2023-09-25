@@ -45,6 +45,7 @@ export type TaskType =
   | 'FLINK_STREAM'
   | 'PYTORCH'
   | 'HIVECLI'
+  | 'XUANWU_CDC'
 
 export type TaskExecuteType = 'STREAM' | 'BATCH'
 
@@ -82,6 +83,9 @@ export const TASK_TYPES_MAP = {
   },
   DATAX: {
     alias: 'DataX'
+  },
+  XUANWU_CDC: {
+    alias: 'XUANWU_CDC'
   },
   PIGEON: {
     alias: 'PIGEON'

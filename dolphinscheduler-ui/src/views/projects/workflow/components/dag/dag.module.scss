@@ -135,6 +135,9 @@ $bgLight: #ffffff;
     &.icon-datax {
       background-image: url('/images/task-icons/datax.png');
     }
+    &.icon-xuanwu_cdc {
+      background-image: url('/images/task-icons/datax.png');
+    }
     &.icon-pigeon {
       background-image: url('/images/task-icons/pigeon.png');
     }
@@ -225,6 +228,9 @@ $bgLight: #ffffff;
         background-image: url('/images/task-icons/http_hover.png');
       }
       &.icon-datax {
+        background-image: url('/images/task-icons/datax_hover.png');
+      }
+      &.icon-xuanwu_cdc {
         background-image: url('/images/task-icons/datax_hover.png');
       }
       &.icon-pigeon {

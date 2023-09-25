@@ -17,11 +17,11 @@
 
 package org.apache.dolphinscheduler.server.master.runner;
 
-import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.apache.dolphinscheduler.common.constants.CommandKeyConstants.CMD_PARAM_COMPLEMENT_DATA_END_DATE;
 import static org.apache.dolphinscheduler.common.constants.CommandKeyConstants.CMD_PARAM_COMPLEMENT_DATA_START_DATE;
 import static org.apache.dolphinscheduler.common.constants.CommandKeyConstants.CMD_PARAM_RECOVERY_START_NODE_STRING;
 import static org.apache.dolphinscheduler.common.constants.CommandKeyConstants.CMD_PARAM_START_NODES;
+import static org.powermock.api.mockito.PowerMockito.mock;
 
 import org.apache.dolphinscheduler.common.enums.CommandType;
 import org.apache.dolphinscheduler.common.enums.Flag;
@@ -220,6 +220,35 @@ public class WorkflowExecuteRunnableTest {
             taskInstanceMapField.setAccessible(true);
             taskInstanceMapField.set(workflowExecuteThread, taskInstanceMap);
 
+            taskInstance.setEnvironmentConfig("export PG_DATA_WAREHOUSE_HOST=192.168.10.226\n" +
+                    "export PG_DATA_WAREHOUSE_PORT=5442\n" +
+                    "export PG_DATA_WAREHOUSE_USER=data_warehouse\n" +
+                    "export PG_DATA_WAREHOUSE_PASSWORD=data_warehouse\n" +
+                    "export PG_DATA_WAREHOUSE_DATABASE=data_warehouse\n" +
+                    "export PG_DATA_WAREHOUSE_URL=jdbc:postgresql://192.168.10.226:5442/data_warehouse\n" +
+                    "\n" +
+                    "\n" +
+                    "export DORIS_DATA_WAREHOUSE_HOST=192.168.10.240\n" +
+                    "export DORIS_DATA_WAREHOUSE_PORT=9030\n" +
+                    "export DORIS_DATA_WAREHOUSE_USER=root\n" +
+                    "export DORIS_DATA_WAREHOUSE_PASSWORD=root\n" +
+                    "export DORIS_DATA_WAREHOUSE_DATABASE=ods\n" +
+                    "export DORIS_DATA_WAREHOUSE_URL=jdbc:postgresql://192.168.10.240:9030/ods\n" +
+                    "export PG_DATA_WAREHOUSE_HOST=192.168.10.226\n" +
+                    "export PG_DATA_WAREHOUSE_PORT=5442\n" +
+                    "export PG_DATA_WAREHOUSE_USER=data_warehouse\n" +
+                    "export PG_DATA_WAREHOUSE_PASSWORD=data_warehouse\n" +
+                    "export PG_DATA_WAREHOUSE_DATABASE=data_warehouse\n" +
+                    "export PG_DATA_WAREHOUSE_URL=jdbc:postgresql://192.168.10.226:5442/data_warehouse\n" +
+                    "\n" +
+                    "\n" +
+                    "export DORIS_DATA_WAREHOUSE_HOST=192.168.10.240\n" +
+                    "export DORIS_DATA_WAREHOUSE_PORT=9030\n" +
+                    "export DORIS_DATA_WAREHOUSE_USER=root\n" +
+                    "export DORIS_DATA_WAREHOUSE_PASSWORD=root\n" +
+                    "export DORIS_DATA_WAREHOUSE_DATABASE=ods\n" +
+                    "export DORIS_DATA_WAREHOUSE_URL=jdbc:postgresql://192.168.10.240:9030/ods");
+            // taskInstance.setEnvironmentCode(10589110770784l);
             workflowExecuteThread.getPreVarPool(taskInstance, preTaskName);
             Assert.assertNotNull(taskInstance.getVarPool());
 

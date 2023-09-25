@@ -261,6 +261,9 @@ export function formatParams(data: INodeData): {
     taskParams.xms = data.xms
     taskParams.xmx = data.xmx
   }
+  if (data.taskType === 'XUANWU_CDC') {
+    taskParams.config = data.config
+  }
   if (data.taskType === 'DEPENDENT') {
     taskParams.dependence = {
       relation: data.relation,

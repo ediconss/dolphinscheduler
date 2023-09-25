@@ -109,6 +109,11 @@ export default defineComponent({
         image: `${import.meta.env.BASE_URL}images/task-icons/datax.png`
       },
       {
+        taskType: 'XUANWU_CDC',
+        color: '#75CC71',
+        image: `${import.meta.env.BASE_URL}images/task-icons/datax.png`
+      },
+      {
         taskType: 'PIGEON',
         color: '#5EC459',
         image: `${import.meta.env.BASE_URL}images/task-icons/pigeon.png`

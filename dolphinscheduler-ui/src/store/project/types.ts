@@ -56,6 +56,7 @@ type TaskType =
   | 'DATASYNC'
   | 'KUBEFLOW'
   | 'LINKIS'
+  | 'XUANWU_CDC'
 
 type ProgramType = 'JAVA' | 'SCALA' | 'PYTHON'
 

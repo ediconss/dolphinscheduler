@@ -49,7 +49,7 @@ public class TaskLogDiscriminator extends AbstractDiscriminator<ILoggingEvent> {
     @Override
     public String getDiscriminatingValue(ILoggingEvent event) {
         String key = "unknown_task";
-        if (event.getLoggerName().startsWith(TaskConstants.TASK_LOG_LOGGER_NAME)) {
+        if (event.getThreadName().startsWith(TaskConstants.TASK_APPID_LOG_FORMAT)) {
             String threadName = event.getThreadName();
             if (threadName.endsWith(TaskConstants.GET_OUTPUT_LOG_SERVICE)) {
                 threadName =

@@ -531,6 +531,7 @@ export default {
     switch_branch_flow_tips: '请选择分支流转',
     and: '且',
     or: '或',
+    xuanwu_cdc_config: '同步配置',
     datax_custom_template: '自定义模板',
     datax_json_template: 'JSON',
     datax_target_datasource_type: '目标源类型',
