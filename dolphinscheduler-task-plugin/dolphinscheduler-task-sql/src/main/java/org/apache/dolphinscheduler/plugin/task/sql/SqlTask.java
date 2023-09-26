@@ -20,7 +20,7 @@ package org.apache.dolphinscheduler.plugin.task.sql;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.dolphinscheduler.common.utils.DateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.datasource.api.plugin.DataSourceClientProvider;
 import org.apache.dolphinscheduler.plugin.datasource.api.utils.CommonUtils;
@@ -43,24 +43,27 @@ import org.apache.dolphinscheduler.plugin.task.api.parser.ParamUtils;
 import org.apache.dolphinscheduler.plugin.task.api.parser.ParameterUtils;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
-
 import org.slf4j.Logger;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -301,18 +304,88 @@ public class SqlTask extends AbstractTask {
     private String executeQuery(Connection connection, SqlBinds sqlBinds, String handlerType) throws Exception {
         try (PreparedStatement statement = prepareStatementAndBind(connection, sqlBinds)) {
             ResultSet resultSet = statement.executeQuery();
+            if (handlerType.equals("main")) {
+                String sql = statement.toString();
+                try {
+                    saveSqlLog(sql).get(5, TimeUnit.SECONDS);
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    logger.error("SqlTask: Save sql timeout!", e);
+                }
+                saveSqlLog(sql);
+            }
             return resultProcess(resultSet);
         }
     }
 
+    /**
+     * Save original SQL into `ds.ds_sql_logs`.
+     * 
+     * @param sql It may contain some prefixes that need to be stripped, depending on the jdbc driver.
+     * @return CompletableFuture, it's an asynchronous processing, there may be multiple sqls need to be inserted.
+     */
+    private CompletableFuture<Void> saveSqlLog(String sql) {
+        // contains ?currentSchema=ds
+        final Property urlProp = sqlParameters.getVarPoolMap().get("PG_DS_URL");
+        final Property passwordProp = sqlParameters.getVarPoolMap().get("PG_DS_PASSWORD");
+        final Property usernameProp = sqlParameters.getVarPoolMap().get("PG_DS_USER");
+        final String dbName = baseConnectionParam.getDatabase();
+        final String dbType = sqlParameters.getType();
+        final String insertSql = "INSERT INTO ds_sql_logs(process_define_code, process_define_version, db_name, db_type, sql, create_time) VALUES (?, ?, ?, ?, ?, ?)";
+        return CompletableFuture.runAsync(() -> {
+            String url = null;
+            String username = null;
+            String password = null;
+            if (urlProp != null && StringUtils.isNotBlank(urlProp.getValue())) {
+                url = urlProp.getValue();
+            }
+            if (usernameProp != null && StringUtils.isNotBlank(usernameProp.getValue())) {
+                username = usernameProp.getValue();
+            }
+            if (passwordProp != null && StringUtils.isNotBlank(passwordProp.getValue())) {
+                password = passwordProp.getValue();
+            }
+            if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+                try (Connection conn = DriverManager.getConnection(url, username, password)) {
+                    conn.setAutoCommit(true);
+                    try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+                        stmt.setLong(1, taskExecutionContext.getProcessDefineCode());
+                        stmt.setInt(2, taskExecutionContext.getProcessDefineVersion());
+                        stmt.setString(3, dbName);
+                        stmt.setString(4, dbType);
+                        stmt.setString(5, sql);
+                        stmt.setTimestamp(6, Timestamp.from(Instant.now()));
+
+                        stmt.executeUpdate();
+                    } catch (SQLException e) {
+                        logger.error("SqlTask: save sql failed", e);
+                    }
+                } catch (SQLException e) {
+                    logger.error("SqlTask: save sql failed", e);
+                }
+            }
+        });
+    }
+
     private String executeUpdate(Connection connection, List<SqlBinds> statementsBinds, String handlerType) throws Exception {
         int result = 0;
+        List<CompletableFuture<Void>> list = new ArrayList<>();
         for (SqlBinds sqlBind : statementsBinds) {
             try (PreparedStatement statement = prepareStatementAndBind(connection, sqlBind)) {
                 result = statement.executeUpdate();
+                if (handlerType.equals("main")) {
+                    String sql = statement.toString();
+                    list.add(saveSqlLog(sql));
+                }
                 logger.info("{} statement execute update result: {}, for sql: {}", handlerType, result, sqlBind.getSql());
             }
         }
+
+        try {
+            CompletableFuture.allOf(list.toArray(new CompletableFuture[]{})).get(30, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.error("SqlTask: Save sql timeout!", e);
+        }
+
         return String.valueOf(result);
     }
 
