@@ -311,7 +311,6 @@ public class SqlTask extends AbstractTask {
                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
                     logger.error("SqlTask: Save sql timeout!", e);
                 }
-                saveSqlLog(sql);
             }
             return resultProcess(resultSet);
         }
