@@ -22,8 +22,8 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.SqlParameters;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class AbstractResourceParametersTest {
 
@@ -51,6 +51,6 @@ public class AbstractResourceParametersTest {
 
         taskExecutionContext = JSONUtils.parseObject(json, TaskExecutionContext.class);
 
-        Assertions.assertNotNull(taskExecutionContext);
+        Assert.assertNotNull(taskExecutionContext);
     }
 }

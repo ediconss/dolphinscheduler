@@ -42,13 +42,15 @@ import org.apache.dolphinscheduler.spi.enums.DbType;
 
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * mysql target generator
  */
-@Slf4j
 public class MySQLTargetGenerator implements ITargetGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger(MySQLTargetGenerator.class);
 
     @Override
     public String generate(SqoopParameters sqoopParameters, SqoopTaskExecutionContext sqoopTaskExecutionContext) {
@@ -116,7 +118,7 @@ public class MySQLTargetGenerator implements ITargetGenerator {
                 }
             }
         } catch (Exception e) {
-            log.error(String.format("Sqoop mysql target params build failed: [%s]", e.getMessage()));
+            logger.error(String.format("Sqoop mysql target params build failed: [%s]", e.getMessage()));
         }
 
         return mysqlTargetSb.toString();

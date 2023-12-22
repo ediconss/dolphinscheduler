@@ -17,8 +17,8 @@
 
 package org.apache.dolphinscheduler.api.utils;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * RegexUtils test case
@@ -28,43 +28,43 @@ public class RegexUtilsTest {
     @Test
     public void testIsValidLinuxUserName() {
         String name1 = "10000";
-        Assertions.assertTrue(RegexUtils.isValidLinuxUserName(name1));
+        Assert.assertTrue(RegexUtils.isValidLinuxUserName(name1));
 
         String name2 = "00hayden";
-        Assertions.assertTrue(RegexUtils.isValidLinuxUserName(name2));
+        Assert.assertTrue(RegexUtils.isValidLinuxUserName(name2));
 
         String name3 = "hayde123456789123456789123456789";
-        Assertions.assertFalse(RegexUtils.isValidLinuxUserName(name3));
+        Assert.assertFalse(RegexUtils.isValidLinuxUserName(name3));
 
         String name4 = "hayd123456789123456789123456789";
-        Assertions.assertTrue(RegexUtils.isValidLinuxUserName(name4));
+        Assert.assertTrue(RegexUtils.isValidLinuxUserName(name4));
 
         String name5 = "h";
-        Assertions.assertTrue(RegexUtils.isValidLinuxUserName(name5));
+        Assert.assertTrue(RegexUtils.isValidLinuxUserName(name5));
 
         String name6 = "hayden";
-        Assertions.assertTrue(RegexUtils.isValidLinuxUserName(name6));
+        Assert.assertTrue(RegexUtils.isValidLinuxUserName(name6));
 
         String name7 = "00hayden_0";
-        Assertions.assertTrue(RegexUtils.isValidLinuxUserName(name2));
+        Assert.assertTrue(RegexUtils.isValidLinuxUserName(name2));
 
         String name8 = "00hayden.8";
-        Assertions.assertTrue(RegexUtils.isValidLinuxUserName(name2));
+        Assert.assertTrue(RegexUtils.isValidLinuxUserName(name2));
     }
 
     @Test
     public void testEscapeNRT() {
         String result1 = RegexUtils.escapeNRT("abc\n");
-        Assertions.assertEquals("abc_", result1);
+        Assert.assertEquals("abc_", result1);
 
         String result2 = RegexUtils.escapeNRT("abc\r");
-        Assertions.assertEquals("abc_", result2);
+        Assert.assertEquals("abc_", result2);
 
         String result3 = RegexUtils.escapeNRT("abc\t");
-        Assertions.assertEquals("abc_", result3);
+        Assert.assertEquals("abc_", result3);
 
         String result4 = RegexUtils.escapeNRT(null);
-        Assertions.assertNull(result4);
+        Assert.assertNull(result4);
     }
 
 }

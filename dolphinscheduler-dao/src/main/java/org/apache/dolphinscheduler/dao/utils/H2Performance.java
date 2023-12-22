@@ -27,13 +27,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * H2 MEMORY DB Performance Monitor
  */
-@Slf4j
 public class H2Performance extends BaseDBPerformance {
+
+    private static final Logger logger = LoggerFactory.getLogger(H2Performance.class);
 
     /**
      * return the current database performance
@@ -58,7 +60,7 @@ public class H2Performance extends BaseDBPerformance {
             }
         } catch (SQLException e) {
             monitorRecord.setState(Flag.NO);
-            log.error("SQLException ", e);
+            logger.error("SQLException ", e);
         }
         return monitorRecord;
     }

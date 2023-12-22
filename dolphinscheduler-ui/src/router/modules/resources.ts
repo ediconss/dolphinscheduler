@@ -53,7 +53,7 @@ export default {
       }
     },
     {
-      path: '/resource/file/edit',
+      path: '/resource/file/edit/:id',
       name: 'resource-file-edit',
       component: components['resource-file-edit'],
       meta: {
@@ -65,7 +65,7 @@ export default {
       }
     },
     {
-      path: '/resource/file/subdirectory',
+      path: '/resource/file/subdirectory/:id',
       name: 'resource-file-subdirectory',
       component: components['resource-file'],
       meta: {
@@ -77,7 +77,7 @@ export default {
       }
     },
     {
-      path: '/resource/file/list',
+      path: '/resource/file/list/:id',
       name: 'resource-file-list',
       component: components['resource-file-edit'],
       meta: {
@@ -89,7 +89,7 @@ export default {
       }
     },
     {
-      path: '/resource/file/create',
+      path: '/resource/file/create/:id',
       name: 'resource-subfile-create',
       component: components['resource-file-create'],
       meta: {
@@ -112,7 +112,7 @@ export default {
       }
     },
     {
-      path: '/resource/resource-manage',
+      path: '/resource/resource-manage/:id',
       name: 'resource-sub-manage',
       component: components['resource-udf-resource'],
       meta: {

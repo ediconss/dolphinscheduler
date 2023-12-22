@@ -26,13 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DataQualityParameters
  */
-@Slf4j
 public class DataQualityParameters extends AbstractParameters {
+
+    private static final Logger logger = LoggerFactory.getLogger(DataQualityParameters.class);
 
     /**
      * rule id
@@ -72,12 +74,12 @@ public class DataQualityParameters extends AbstractParameters {
     public boolean checkParameters() {
 
         if (ruleId == 0) {
-            log.error("rule id is null");
+            logger.error("rule id is null");
             return false;
         }
 
         if (MapUtils.isEmpty(ruleInputParameter)) {
-            log.error("rule input parameter is empty");
+            logger.error("rule input parameter is empty");
             return false;
         }
 

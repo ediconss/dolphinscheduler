@@ -29,13 +29,14 @@ import org.apache.commons.io.IOUtils;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,17 +50,18 @@ public class PigeonTaskTest {
 
     private TaskExecutionContext taskExecutionContext;
 
-    @BeforeEach
+    @Before
     public void before() throws Exception {
 
         String taskParams = "{\"targetJobName\":\"mysql_elastic\"}";
 
         taskExecutionContext = Mockito.mock(TaskExecutionContext.class);
+        Mockito.when(taskExecutionContext.getTaskLogName()).thenReturn("pigeonlogger");
         Mockito.when(taskExecutionContext.getTaskParams()).thenReturn(taskParams);
         Mockito.when(taskExecutionContext.getExecutePath()).thenReturn("/tmp");
         Mockito.when(taskExecutionContext.getTaskAppId()).thenReturn(UUID.randomUUID().toString());
         Mockito.when(taskExecutionContext.getTenantCode()).thenReturn("root");
-        Mockito.when(taskExecutionContext.getStartTime()).thenReturn(System.currentTimeMillis());
+        Mockito.when(taskExecutionContext.getStartTime()).thenReturn(new Date());
         Mockito.when(taskExecutionContext.getTaskTimeout()).thenReturn(10000);
         Mockito.when(taskExecutionContext.getLogPath()).thenReturn("/tmp/dx");
         // Mockito.when(taskExecutionContext.getVarPool())
@@ -78,22 +80,22 @@ public class PigeonTaskTest {
     public void testGetTISConfigParams() {
         PigeonConfig cfg = PigeonConfig.getInstance();
         String tisHost = "127.0.0.1:8080";
-        Assertions.assertEquals("http://127.0.0.1:8080/tjs/coredefine/coredefine.ajax", cfg.getJobTriggerUrl(tisHost));
+        Assert.assertEquals("http://127.0.0.1:8080/tjs/coredefine/coredefine.ajax", cfg.getJobTriggerUrl(tisHost));
         String jobName = "mysql_elastic";
         int taskId = 123;
-        Assertions.assertEquals(
+        Assert.assertEquals(
                 "ws://" + tisHost + "/tjs/download/logfeedback?logtype=full&collection=mysql_elastic&taskid=" + taskId,
                 cfg.getJobLogsFetchUrl(tisHost, jobName, taskId));
 
-        Assertions.assertEquals("action=datax_action&emethod=trigger_fullbuild_task", cfg.getJobTriggerPostBody());
+        Assert.assertEquals("action=datax_action&emethod=trigger_fullbuild_task", cfg.getJobTriggerPostBody());
 
-        Assertions.assertEquals(
+        Assert.assertEquals(
                 "http://127.0.0.1:8080/tjs/config/config.ajax?action=collection_action&emethod=get_task_status",
                 cfg.getJobStatusUrl(tisHost));
 
-        Assertions.assertEquals("{\n taskid: " + taskId + "\n, log: false }", cfg.getJobStatusPostBody(taskId));
+        Assert.assertEquals("{\n taskid: " + taskId + "\n, log: false }", cfg.getJobStatusPostBody(taskId));
 
-        Assertions.assertEquals("action=core_action&event_submit_do_cancel_task=y&taskid=" + taskId,
+        Assert.assertEquals("action=core_action&event_submit_do_cancel_task=y&taskid=" + taskId,
                 cfg.getJobCancelPostBody(taskId));
     }
 
@@ -102,7 +104,7 @@ public class PigeonTaskTest {
         try {
             pigeonTask.init();
         } catch (Exception e) {
-            Assertions.fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -114,7 +116,7 @@ public class PigeonTaskTest {
         running(server, () -> {
             pigeonTask.handle(null);
 
-            Assertions.assertEquals(TaskExecutionStatus.SUCCESS, pigeonTask.getExitStatus());
+            Assert.assertEquals("PIGEON execute be success", TaskExecutionStatus.SUCCESS, pigeonTask.getExitStatus());
         });
     }
 
@@ -135,7 +137,7 @@ public class PigeonTaskTest {
     // try {
     // tisTask.cancelApplication(true);
     // } catch (Exception e) {
-    // Assertions.fail(e.getMessage());
+    // Assert.fail(e.getMessage());
     // }
     // }
 

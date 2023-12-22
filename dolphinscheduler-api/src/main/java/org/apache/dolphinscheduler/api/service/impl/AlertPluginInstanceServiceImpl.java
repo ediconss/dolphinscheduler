@@ -17,9 +17,7 @@
 
 package org.apache.dolphinscheduler.api.service.impl;
 
-import static org.apache.dolphinscheduler.api.constants.ApiFuncIdentificationConstant.ALART_INSTANCE_CREATE;
-import static org.apache.dolphinscheduler.api.constants.ApiFuncIdentificationConstant.ALERT_PLUGIN_DELETE;
-import static org.apache.dolphinscheduler.api.constants.ApiFuncIdentificationConstant.ALERT_PLUGIN_UPDATE;
+import static org.apache.dolphinscheduler.api.constants.ApiFuncIdentificationConstant.*;
 
 import org.apache.dolphinscheduler.api.constants.ApiFuncIdentificationConstant;
 import org.apache.dolphinscheduler.api.enums.Status;
@@ -38,7 +36,7 @@ import org.apache.dolphinscheduler.dao.mapper.AlertPluginInstanceMapper;
 import org.apache.dolphinscheduler.dao.mapper.PluginDefineMapper;
 import org.apache.dolphinscheduler.spi.params.PluginParamsTransfer;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,8 +48,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -64,8 +62,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
  */
 @Service
 @Lazy
-@Slf4j
 public class AlertPluginInstanceServiceImpl extends BaseServiceImpl implements AlertPluginInstanceService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AlertPluginInstanceServiceImpl.class);
 
     @Autowired
     private AlertPluginInstanceMapper alertPluginInstanceMapper;
@@ -99,7 +98,7 @@ public class AlertPluginInstanceServiceImpl extends BaseServiceImpl implements A
             return result;
         }
         if (alertPluginInstanceMapper.existInstanceName(alertPluginInstance.getInstanceName()) == Boolean.TRUE) {
-            log.error("Plugin instance with the same name already exists, name:{}.",
+            logger.error("Plugin instance with the same name already exists, name:{}.",
                     alertPluginInstance.getInstanceName());
             putMsg(result, Status.PLUGIN_INSTANCE_ALREADY_EXISTS);
             return result;
@@ -107,12 +106,10 @@ public class AlertPluginInstanceServiceImpl extends BaseServiceImpl implements A
 
         int i = alertPluginInstanceMapper.insert(alertPluginInstance);
         if (i > 0) {
-            log.info("Create alert plugin instance complete, name:{}", alertPluginInstance.getInstanceName());
             result.put(Constants.DATA_LIST, alertPluginInstance);
             putMsg(result, Status.SUCCESS);
             return result;
         }
-        log.error("Create alert plugin instance error, name:{}", alertPluginInstance.getInstanceName());
         putMsg(result, Status.SAVE_ERROR);
         return result;
     }
@@ -142,13 +139,9 @@ public class AlertPluginInstanceServiceImpl extends BaseServiceImpl implements A
         int i = alertPluginInstanceMapper.updateById(alertPluginInstance);
 
         if (i > 0) {
-            log.info("Update alert plugin instance complete, instanceId:{}, name:{}", alertPluginInstance.getId(),
-                    alertPluginInstance.getInstanceName());
             putMsg(result, Status.SUCCESS);
             return result;
         }
-        log.error("Update alert plugin instance error, instanceId:{}, name:{}", alertPluginInstance.getId(),
-                alertPluginInstance.getInstanceName());
         putMsg(result, Status.SAVE_ERROR);
         return result;
     }
@@ -166,7 +159,6 @@ public class AlertPluginInstanceServiceImpl extends BaseServiceImpl implements A
         // check if there is an associated alert group
         boolean hasAssociatedAlertGroup = checkHasAssociatedAlertGroup(String.valueOf(id));
         if (hasAssociatedAlertGroup) {
-            log.warn("Delete alert plugin failed because alert group is using it, pluginId:{}.", id);
             putMsg(result, Status.DELETE_ALERT_PLUGIN_INSTANCE_ERROR_HAS_ALERT_GROUP_ASSOCIATED);
             return result;
         }
@@ -177,10 +169,9 @@ public class AlertPluginInstanceServiceImpl extends BaseServiceImpl implements A
 
         int i = alertPluginInstanceMapper.deleteById(id);
         if (i > 0) {
-            log.info("Delete alert plugin instance complete, instanceId:{}", id);
             putMsg(result, Status.SUCCESS);
         }
-        log.error("Delete alert plugin instance error, instanceId:{}", id);
+
         return result;
     }
 
@@ -243,16 +234,16 @@ public class AlertPluginInstanceServiceImpl extends BaseServiceImpl implements A
     }
 
     private List<AlertPluginInstanceVO> buildPluginInstanceVOList(List<AlertPluginInstance> alertPluginInstances) {
-        List<AlertPluginInstanceVO> alertPluginInstanceVOS = new ArrayList<>();
         if (CollectionUtils.isEmpty(alertPluginInstances)) {
-            return alertPluginInstanceVOS;
+            return null;
         }
         List<PluginDefine> pluginDefineList = pluginDefineMapper.queryAllPluginDefineList();
         if (CollectionUtils.isEmpty(pluginDefineList)) {
-            return alertPluginInstanceVOS;
+            return null;
         }
         Map<Integer, PluginDefine> pluginDefineMap =
                 pluginDefineList.stream().collect(Collectors.toMap(PluginDefine::getId, Function.identity()));
+        List<AlertPluginInstanceVO> alertPluginInstanceVOS = new ArrayList<>();
         alertPluginInstances.forEach(alertPluginInstance -> {
             AlertPluginInstanceVO alertPluginInstanceVO = new AlertPluginInstanceVO();
 

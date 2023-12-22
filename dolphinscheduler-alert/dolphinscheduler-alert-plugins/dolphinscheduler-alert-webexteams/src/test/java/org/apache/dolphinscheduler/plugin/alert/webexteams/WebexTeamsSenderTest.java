@@ -23,9 +23,9 @@ import org.apache.dolphinscheduler.alert.api.AlertResult;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class WebexTeamsSenderTest {
 
@@ -49,7 +49,7 @@ public class WebexTeamsSenderTest {
             "\"taskHost\":\"dolphinscheduler-test\"," +
             "\"logPath\":\"test.log\"}]";
 
-    @BeforeEach
+    @Before
     public void initDingTalkConfig() {
         webexTeamsConfig.put(WebexTeamsParamsConstants.NAME_WEBEX_TEAMS_BOT_ACCESS_TOKEN, "accessToken");
         webexTeamsConfig.put(WebexTeamsParamsConstants.NAME_WEBEX_TEAMS_ROOM_ID, "roomId");
@@ -85,6 +85,6 @@ public class WebexTeamsSenderTest {
     public void testSend() {
         WebexTeamsSender webexTeamsSender = new WebexTeamsSender(webexTeamsConfig);
         AlertResult alertResult = webexTeamsSender.sendWebexTeamsAlter(alertData);
-        Assertions.assertEquals("false", alertResult.getStatus());
+        Assert.assertEquals("false", alertResult.getStatus());
     }
 }

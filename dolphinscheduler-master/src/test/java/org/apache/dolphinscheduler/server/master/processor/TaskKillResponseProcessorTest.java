@@ -18,16 +18,16 @@
 package org.apache.dolphinscheduler.server.master.processor;
 
 import org.apache.dolphinscheduler.plugin.task.api.enums.TaskExecutionStatus;
-import org.apache.dolphinscheduler.remote.command.Message;
-import org.apache.dolphinscheduler.remote.command.MessageType;
-import org.apache.dolphinscheduler.remote.command.task.TaskKillResponse;
+import org.apache.dolphinscheduler.remote.command.Command;
+import org.apache.dolphinscheduler.remote.command.CommandType;
+import org.apache.dolphinscheduler.remote.command.TaskKillResponseCommand;
 
 import java.util.ArrayList;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
 
 import io.netty.channel.Channel;
 
@@ -38,33 +38,33 @@ public class TaskKillResponseProcessorTest {
 
     private TaskKillResponseProcessor taskKillResponseProcessor;
 
-    private TaskKillResponse taskKillResponse;
+    private TaskKillResponseCommand taskKillResponseCommand;
 
     private Channel channel;
 
-    @BeforeEach
+    @Before
     public void before() {
         taskKillResponseProcessor = new TaskKillResponseProcessor();
-        channel = Mockito.mock(Channel.class);
-        taskKillResponse = new TaskKillResponse();
-        taskKillResponse.setAppIds(
+        channel = PowerMockito.mock(Channel.class);
+        taskKillResponseCommand = new TaskKillResponseCommand();
+        taskKillResponseCommand.setAppIds(
                 new ArrayList<String>() {
 
                     {
                         add("task_1");
                     }
                 });
-        taskKillResponse.setHost("localhost");
-        taskKillResponse.setProcessId(1);
-        taskKillResponse.setStatus(TaskExecutionStatus.RUNNING_EXECUTION);
-        taskKillResponse.setTaskInstanceId(1);
+        taskKillResponseCommand.setHost("localhost");
+        taskKillResponseCommand.setProcessId(1);
+        taskKillResponseCommand.setStatus(TaskExecutionStatus.RUNNING_EXECUTION);
+        taskKillResponseCommand.setTaskInstanceId(1);
 
     }
 
     @Test
     public void testProcess() {
-        Message message = taskKillResponse.convert2Command(1);
-        Assertions.assertEquals(MessageType.RESPONSE, message.getType());
-        taskKillResponseProcessor.process(channel, message);
+        Command command = taskKillResponseCommand.convert2Command();
+        Assert.assertEquals(CommandType.TASK_KILL_RESPONSE, command.getType());
+        taskKillResponseProcessor.process(channel, command);
     }
 }

@@ -24,6 +24,7 @@ import {
 } from 'vue'
 import {
   NSpace,
+  NInput,
   NSelect,
   NDatePicker,
   NButton,
@@ -35,7 +36,6 @@ import { SearchOutlined } from '@vicons/antd'
 import { useTable } from './use-table'
 import { useI18n } from 'vue-i18n'
 import Card from '@/components/card'
-import Search from '@/components/input-search'
 
 const TaskResult = defineComponent({
   name: 'task-result',
@@ -90,10 +90,12 @@ const TaskResult = defineComponent({
       <NSpace vertical>
         <Card>
           <NSpace justify='end'>
-            <Search
-              v-model:value={this.searchVal}
+            <NInput
+              allowInput={this.trim}
+              v-model={[this.searchVal, 'value']}
+              size='small'
               placeholder={t('data_quality.task_result.task_name')}
-              onSearch={onSearch}
+              clearable
             />
             <NSelect
               v-model={[this.ruleType, 'value']}

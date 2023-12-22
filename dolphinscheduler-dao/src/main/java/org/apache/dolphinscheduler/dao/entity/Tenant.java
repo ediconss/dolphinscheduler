@@ -105,7 +105,7 @@ public class Tenant {
 
         Tenant tenant = (Tenant) o;
 
-        return Objects.equals(id, tenant.id);
+        return id == tenant.id;
     }
 
     @Override

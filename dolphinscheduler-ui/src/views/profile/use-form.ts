@@ -23,7 +23,6 @@ import type { FormRules } from 'naive-ui'
 import type { UserInfoRes } from '@/service/modules/users/types'
 
 export function useForm() {
-  // todo: is "t": some kind of function to internationalize text?
   const { t, locale } = useI18n()
   const userInfo = useUserStore().userInfo as UserInfoRes
 

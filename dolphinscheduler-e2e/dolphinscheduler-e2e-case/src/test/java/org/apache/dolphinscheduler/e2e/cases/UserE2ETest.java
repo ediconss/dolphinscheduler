@@ -21,6 +21,7 @@ package org.apache.dolphinscheduler.e2e.cases;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 import org.apache.dolphinscheduler.e2e.core.DolphinScheduler;
 import org.apache.dolphinscheduler.e2e.pages.LoginPage;
@@ -29,9 +30,6 @@ import org.apache.dolphinscheduler.e2e.pages.security.SecurityPage;
 import org.apache.dolphinscheduler.e2e.pages.security.TenantPage;
 import org.apache.dolphinscheduler.e2e.pages.security.UserPage;
 
-import java.time.Duration;
-
-import org.testcontainers.shaded.org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -65,7 +63,7 @@ class UserE2ETest {
                 .goToTab(TenantPage.class)
                 .create(tenant);
 
-        Awaitility.await().untilAsserted(() -> assertThat(tenantPage.tenantList())
+        await().untilAsserted(() -> assertThat(tenantPage.tenantList())
                 .as("Tenant list should contain newly-created tenant")
                 .extracting(WebElement::getText)
                 .anyMatch(it -> it.contains(tenant)));
@@ -89,7 +87,7 @@ class UserE2ETest {
 
         page.create(user, password, email, phone, tenant);
 
-        Awaitility.await().untilAsserted(() -> {
+        await().untilAsserted(() -> {
             browser.navigate().refresh();
 
             assertThat(page.userList())
@@ -106,7 +104,7 @@ class UserE2ETest {
 
         page.create(user, password, email, phone, tenant);
 
-        Awaitility.await().untilAsserted(() ->
+        await().untilAsserted(() ->
             assertThat(browser.findElement(By.tagName("body")).getText())
                 .contains("already exists")
         );
@@ -119,14 +117,14 @@ class UserE2ETest {
     void testEditUser() {
         UserPage page = new UserPage(browser);
 
-        new WebDriverWait(browser, Duration.ofSeconds(20)).until(ExpectedConditions.visibilityOfElementLocated(
+        new WebDriverWait(browser, 20).until(ExpectedConditions.visibilityOfElementLocated(
                 new By.ByClassName("name")));
 
         browser.navigate().refresh();
 
         page.update(user, editUser, editEmail, editPhone, tenant);
 
-        Awaitility.await().untilAsserted(() -> {
+        await().untilAsserted(() -> {
             browser.navigate().refresh();
             assertThat(page.userList())
                 .as("User list should contain newly-modified User")
@@ -142,7 +140,7 @@ class UserE2ETest {
 
         page.delete(editUser);
 
-        Awaitility.await().untilAsserted(() -> {
+        await().untilAsserted(() -> {
             browser.navigate().refresh();
 
             assertThat(

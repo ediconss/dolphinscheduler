@@ -42,33 +42,27 @@ public class FavTaskServiceImpl extends BaseServiceImpl implements FavTaskServic
 
     @Override
     public List<FavTaskDto> getFavTaskList(User loginUser) {
+        List<FavTaskDto> result = new ArrayList<>();
         Set<String> userFavTaskTypes = favMapper.getUserFavTaskTypes(loginUser.getId());
 
-        List<FavTaskDto> defaultTaskTypes = taskTypeConfiguration.getDefaultTaskTypes();
-        List<FavTaskDto> result = new ArrayList<>();
-        // clone default list and modify fav task type flag
+        Set<FavTaskDto> defaultTaskTypes = taskTypeConfiguration.getDefaultTaskTypes();
         defaultTaskTypes.forEach(e -> {
-            try {
-                FavTaskDto clone = (FavTaskDto) e.clone();
-                if (userFavTaskTypes.contains(clone.getTaskType())) {
-                    clone.setCollection(true);
-                }
-                result.add(clone);
-            } catch (CloneNotSupportedException ex) {
-                throw new RuntimeException(ex);
+            if (userFavTaskTypes.contains(e.getTaskName())) {
+                e.setCollection(true);
             }
+            result.add(e);
         });
         return result;
     }
 
     @Override
-    public boolean deleteFavTask(User loginUser, String taskType) {
-        return favMapper.deleteUserFavTask(loginUser.getId(), taskType);
+    public boolean deleteFavTask(User loginUser, String taskName) {
+        return favMapper.deleteUserFavTask(loginUser.getId(), taskName);
     }
 
     @Override
-    public int addFavTask(User loginUser, String taskType) {
-        favMapper.deleteUserFavTask(loginUser.getId(), taskType);
-        return favMapper.insert(new FavTask(null, taskType, loginUser.getId()));
+    public int addFavTask(User loginUser, String taskName) {
+        favMapper.deleteUserFavTask(loginUser.getId(), taskName);
+        return favMapper.insert(new FavTask(null, taskName, loginUser.getId()));
     }
 }

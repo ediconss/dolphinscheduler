@@ -19,9 +19,9 @@ spring:
     banner-mode: off
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://127.0.0.1:5432/dolphinscheduler
-    username: root
-    password: root
+    url: jdbc:postgresql://192.168.10.233:5434/star_river?currentSchema=ds_local
+    username: data_warehouse
+    password: datawarehouse
     hikari:
       connection-test-query: select 1
       minimum-idle: 5
@@ -33,11 +33,6 @@ spring:
       idle-timeout: 600000
       leak-detection-threshold: 0
       initialization-fail-timeout: 1
-
-demo:
-  tenant-code: default
-  domain-name: localhost
-  api-server-port: 5173
 
 # Override by profile
 

@@ -25,10 +25,7 @@ import org.apache.dolphinscheduler.common.enums.WarningType;
 
 import java.util.Date;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -36,9 +33,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @TableName("t_ds_command")
 public class Command {
 
@@ -61,10 +55,10 @@ public class Command {
     private String commandParam;
 
     @TableField("task_depend_type")
-    private TaskDependType taskDependType = TaskDependType.TASK_POST;
+    private TaskDependType taskDependType;
 
     @TableField("failure_strategy")
-    private FailureStrategy failureStrategy = FailureStrategy.CONTINUE;
+    private FailureStrategy failureStrategy;
 
     @TableField("warning_type")
     private WarningType warningType;
@@ -76,21 +70,16 @@ public class Command {
     private Date scheduleTime;
 
     @TableField("start_time")
-    private Date startTime = new Date();
+    private Date startTime;
 
     @TableField("process_instance_priority")
     private Priority processInstancePriority;
 
     @TableField("update_time")
-    private Date updateTime = new Date();
+    private Date updateTime;
 
     @TableField("worker_group")
     private String workerGroup;
-
-    /**
-     * tenant code
-     */
-    private String tenantCode;
 
     @TableField("environment_code")
     private Long environmentCode;
@@ -104,11 +93,12 @@ public class Command {
     @TableField("process_definition_version")
     private int processDefinitionVersion;
 
-    /**
-     * test flag
-     */
-    @TableField("test_flag")
-    private int testFlag;
+    public Command() {
+        this.taskDependType = TaskDependType.TASK_POST;
+        this.failureStrategy = FailureStrategy.CONTINUE;
+        this.startTime = new Date();
+        this.updateTime = new Date();
+    }
 
     public Command(
                    CommandType commandType,
@@ -125,8 +115,7 @@ public class Command {
                    Priority processInstancePriority,
                    int dryRun,
                    int processInstanceId,
-                   int processDefinitionVersion,
-                   int testFlag) {
+                   int processDefinitionVersion) {
         this.commandType = commandType;
         this.executorId = executorId;
         this.processDefinitionCode = processDefinitionCode;
@@ -144,6 +133,6 @@ public class Command {
         this.dryRun = dryRun;
         this.processInstanceId = processInstanceId;
         this.processDefinitionVersion = processDefinitionVersion;
-        this.testFlag = testFlag;
     }
+
 }

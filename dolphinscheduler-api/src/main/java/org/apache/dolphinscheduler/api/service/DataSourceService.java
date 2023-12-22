@@ -17,16 +17,13 @@
 
 package org.apache.dolphinscheduler.api.service;
 
-import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.Result;
-import org.apache.dolphinscheduler.dao.entity.DataSource;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.BaseDataSourceParamDTO;
 import org.apache.dolphinscheduler.spi.datasource.ConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
-import org.apache.dolphinscheduler.spi.params.base.ParamsOptions;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * data source service
@@ -58,7 +55,7 @@ public interface DataSourceService {
      * @param id datasource id
      * @return data source detail
      */
-    BaseDataSourceParamDTO queryDataSource(int id, User loginUser);
+    Map<String, Object> queryDataSource(int id);
 
     /**
      * query datasource list by keyword
@@ -69,7 +66,7 @@ public interface DataSourceService {
      * @param pageSize  page size
      * @return data source list page
      */
-    PageInfo<DataSource> queryDataSourceListPaging(User loginUser, String searchVal, Integer pageNo, Integer pageSize);
+    Result queryDataSourceListPaging(User loginUser, String searchVal, Integer pageNo, Integer pageSize);
 
     /**
      * query data resource list
@@ -78,7 +75,7 @@ public interface DataSourceService {
      * @param type      data source type
      * @return data source list page
      */
-    List<DataSource> queryDataSourceList(User loginUser, Integer type);
+    Map<String, Object> queryDataSourceList(User loginUser, Integer type);
 
     /**
      * verify datasource exists
@@ -121,7 +118,7 @@ public interface DataSourceService {
      * @param userId    user id
      * @return unauthed data source result code
      */
-    List<DataSource> unAuthDatasource(User loginUser, Integer userId);
+    Map<String, Object> unauthDatasource(User loginUser, Integer userId);
 
     /**
      * authorized datasource
@@ -130,29 +127,20 @@ public interface DataSourceService {
      * @param userId    user id
      * @return authorized result code
      */
-    List<DataSource> authedDatasource(User loginUser, Integer userId);
+    Map<String, Object> authedDatasource(User loginUser, Integer userId);
 
     /**
      * get tables
      * @param datasourceId
-     * @param database
      * @return
      */
-    List<ParamsOptions> getTables(Integer datasourceId, String database);
+    Map<String, Object> getTables(Integer datasourceId);
 
     /**
      * get table columns
      * @param datasourceId
-     * @param database
      * @param tableName
      * @return
      */
-    List<ParamsOptions> getTableColumns(Integer datasourceId, String database, String tableName);
-
-    /**
-     * get databases
-     * @param datasourceId
-     * @return
-     */
-    List<ParamsOptions> getDatabases(Integer datasourceId);
+    Map<String, Object> getTableColumns(Integer datasourceId, String tableName);
 }

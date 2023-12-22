@@ -32,15 +32,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockCookie;
@@ -49,7 +49,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 /**
  * session service test
  */
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SessionServiceTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SessionServiceTest.class);
@@ -62,11 +62,11 @@ public class SessionServiceTest {
 
     private String sessionId = "aaaaaaaaaaaaaaaaaa";
 
-    @BeforeEach
+    @Before
     public void setUp() {
     }
 
-    @AfterEach
+    @After
     public void after() {
     }
 
@@ -83,7 +83,7 @@ public class SessionServiceTest {
         mockHttpServletRequest.addHeader("HTTP_X_FORWARDED_FOR", "127.0.0.1");
         // query
         Session session = sessionService.getSession(mockHttpServletRequest);
-        Assertions.assertNotNull(session);
+        Assert.assertNotNull(session);
         logger.info("session ip {}", session.getIp());
 
         // get sessionId from cookie
@@ -93,9 +93,9 @@ public class SessionServiceTest {
         mockHttpServletRequest.setCookies(mockCookie);
         // query
         session = sessionService.getSession(mockHttpServletRequest);
-        Assertions.assertNotNull(session);
+        Assert.assertNotNull(session);
         logger.info("session ip {}", session.getIp());
-        Assertions.assertEquals(session.getIp(), "127.0.0.1");
+        Assert.assertEquals(session.getIp(), "127.0.0.1");
     }
 
     /**
@@ -110,7 +110,7 @@ public class SessionServiceTest {
         Mockito.when(sessionMapper.queryByUserId(1)).thenReturn(getSessions());
         String sessionId = sessionService.createSession(user, ip);
         logger.info("createSessionId is " + sessionId);
-        Assertions.assertTrue(!StringUtils.isEmpty(sessionId));
+        Assert.assertTrue(!StringUtils.isEmpty(sessionId));
     }
 
     /**

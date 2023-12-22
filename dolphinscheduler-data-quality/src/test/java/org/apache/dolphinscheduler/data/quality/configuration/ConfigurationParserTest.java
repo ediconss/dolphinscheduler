@@ -20,8 +20,8 @@ package org.apache.dolphinscheduler.data.quality.configuration;
 import org.apache.dolphinscheduler.data.quality.config.DataQualityConfiguration;
 import org.apache.dolphinscheduler.data.quality.utils.JsonUtils;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * ConfigurationParserTest
@@ -30,7 +30,7 @@ public class ConfigurationParserTest {
 
     @Test
     public void testConfigurationValidate() {
-        Assertions.assertEquals(1, verifyConfigurationValidate());
+        Assert.assertEquals(1, verifyConfigurationValidate());
     }
 
     private int verifyConfigurationValidate() {

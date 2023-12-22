@@ -82,18 +82,12 @@ export function useTable() {
       {
         title: t('project.task.task_name'),
         key: 'name',
-        ...COLUMN_WIDTH_CONFIG['name'],
-        resizable: true,
-        minWidth: 200,
-        maxWidth: 600
+        ...COLUMN_WIDTH_CONFIG['name']
       },
       {
         title: t('project.task.workflow_instance'),
         key: 'processInstanceName',
         ...COLUMN_WIDTH_CONFIG['linkName'],
-        resizable: true,
-        minWidth: 300,
-        maxWidth: 600,
         render: (row: {
           processInstanceId: number
           processInstanceName: string
@@ -101,22 +95,18 @@ export function useTable() {
           h(
             ButtonLink,
             {
-              onClick: () => {
-                const routeUrl = router.resolve({
+              onClick: () =>
+                void router.push({
                   name: 'workflow-instance-detail',
                   params: { id: row.processInstanceId },
                   query: { code: projectCode }
                 })
-                window.open(routeUrl.href, '_blank')
-              }
             },
             {
               default: () =>
                 h(
                   NEllipsis,
-                  {
-                    style: 'max-width: 580px;line-height: 1.5'
-                  },
+                  COLUMN_WIDTH_CONFIG['linkEllipsis'],
                   () => row.processInstanceName
                 )
             }
@@ -178,12 +168,6 @@ export function useTable() {
         key: 'host',
         ...COLUMN_WIDTH_CONFIG['name'],
         render: (row: IRecord) => row.host || '-'
-      },
-      {
-        title: t('project.task.app_link'),
-        key: 'appLink',
-        ...COLUMN_WIDTH_CONFIG['name'],
-        render: (row: IRecord) => row.appLink || '-'
       },
       {
         title: t('project.task.operation'),
@@ -258,7 +242,6 @@ export function useTable() {
                         circle: true,
                         type: 'info',
                         size: 'small',
-                        disabled: !row.host,
                         onClick: () => downloadLog(row.id)
                       },
                       {

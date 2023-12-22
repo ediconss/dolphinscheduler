@@ -17,15 +17,14 @@
 
 package org.apache.dolphinscheduler.server.worker.runner;
 
-import org.apache.dolphinscheduler.plugin.storage.api.StorageOperate;
 import org.apache.dolphinscheduler.plugin.task.api.TaskCallBack;
 import org.apache.dolphinscheduler.plugin.task.api.TaskException;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
-import org.apache.dolphinscheduler.plugin.task.api.TaskPluginManager;
 import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
-import org.apache.dolphinscheduler.server.worker.registry.WorkerRegistryClient;
 import org.apache.dolphinscheduler.server.worker.rpc.WorkerMessageSender;
-import org.apache.dolphinscheduler.server.worker.rpc.WorkerRpcClient;
+import org.apache.dolphinscheduler.service.alert.AlertClientService;
+import org.apache.dolphinscheduler.service.storage.StorageOperate;
+import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 
 import javax.annotation.Nullable;
 
@@ -35,24 +34,19 @@ public class DefaultWorkerDelayTaskExecuteRunnable extends WorkerDelayTaskExecut
 
     public DefaultWorkerDelayTaskExecuteRunnable(@NonNull TaskExecutionContext taskExecutionContext,
                                                  @NonNull WorkerConfig workerConfig,
+                                                 @NonNull String workflowMaster,
                                                  @NonNull WorkerMessageSender workerMessageSender,
-                                                 @NonNull WorkerRpcClient workerRpcClient,
+                                                 @NonNull AlertClientService alertClientService,
                                                  @NonNull TaskPluginManager taskPluginManager,
-                                                 @Nullable StorageOperate storageOperate,
-                                                 @NonNull WorkerRegistryClient workerRegistryClient) {
-        super(taskExecutionContext,
-                workerConfig,
-                workerMessageSender,
-                workerRpcClient,
-                taskPluginManager,
-                storageOperate,
-                workerRegistryClient);
+                                                 @Nullable StorageOperate storageOperate) {
+        super(taskExecutionContext, workerConfig, workflowMaster, workerMessageSender, alertClientService,
+                taskPluginManager, storageOperate);
     }
 
     @Override
     public void executeTask(TaskCallBack taskCallBack) throws TaskException {
         if (task == null) {
-            throw new IllegalArgumentException("The task plugin instance is not initialized");
+            throw new TaskException("The task plugin instance is not initialized");
         }
         task.handle(taskCallBack);
     }

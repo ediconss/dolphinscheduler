@@ -21,29 +21,30 @@ import org.apache.dolphinscheduler.api.service.ResourcesService;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
 import org.apache.dolphinscheduler.dao.entity.Project;
+import org.apache.dolphinscheduler.dao.entity.Resource;
 import org.apache.dolphinscheduler.dao.entity.TaskDefinition;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
-import org.apache.dolphinscheduler.plugin.storage.api.StorageEntity;
 import org.apache.dolphinscheduler.spi.enums.ResourceType;
 
 import java.util.Date;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * python gate test
  */
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PythonGatewayTest {
 
     @InjectMocks
@@ -76,7 +77,7 @@ public class PythonGatewayTest {
 
         Map<String, Long> result = pythonGateway.getCodeAndVersion(project.getName(), processDefinition.getName(),
                 taskDefinition.getName());
-        Assertions.assertEquals(result.get("code").longValue(), taskDefinition.getCode());
+        Assert.assertEquals(result.get("code").longValue(), taskDefinition.getCode());
     }
 
     @Test
@@ -94,7 +95,7 @@ public class PythonGatewayTest {
 
         Map<String, Object> result = pythonGateway.getDependentInfo(project.getName(), processDefinition.getName(),
                 taskDefinition.getName());
-        Assertions.assertEquals((long) result.get("taskDefinitionCode"), taskDefinition.getCode());
+        Assert.assertEquals((long) result.get("taskDefinitionCode"), taskDefinition.getCode());
     }
 
     @Test
@@ -103,30 +104,30 @@ public class PythonGatewayTest {
         String resourceDir = "/dir1/dir2/";
         String resourceName = "test";
         String resourceSuffix = "py";
+        String desc = "desc";
         String content = "content";
         String resourceFullName = resourceDir + resourceName + "." + resourceSuffix;
 
         Assertions.assertDoesNotThrow(
-                () -> pythonGateway.createOrUpdateResource(user.getUserName(), resourceFullName, content));
+                () -> resourcesService.createOrUpdateResource(user.getUserName(), resourceFullName, desc, content));
     }
 
     @Test
-    public void testQueryResourcesFileInfo() throws Exception {
+    public void testQueryResourcesFileInfo() {
         User user = getTestUser();
-        StorageEntity storageEntity = getTestResource();
-
-        Mockito.when(resourcesService.queryFileStatus(user.getUserName(), storageEntity.getFullName()))
-                .thenReturn(storageEntity);
-        StorageEntity result = pythonGateway.queryResourcesFileInfo(user.getUserName(), storageEntity.getFullName());
-        Assertions.assertEquals(result.getId(), storageEntity.getId());
+        Resource resource = getTestResource();
+        Mockito.when(resourcesService.queryResourcesFileInfo(user.getUserName(), resource.getFullName()))
+                .thenReturn(resource);
+        Resource result = pythonGateway.queryResourcesFileInfo(user.getUserName(), resource.getFullName());
+        Assert.assertEquals(result.getId(), resource.getId());
     }
 
-    private StorageEntity getTestResource() {
-        StorageEntity storageEntity = new StorageEntity();
-        storageEntity.setId(1);
-        storageEntity.setType(ResourceType.FILE);
-        storageEntity.setFullName("/dev/test.py");
-        return storageEntity;
+    private Resource getTestResource() {
+        Resource resource = new Resource();
+        resource.setId(1);
+        resource.setType(ResourceType.FILE);
+        resource.setFullName("/dev/test.py");
+        return resource;
     }
 
     private User getTestUser() {

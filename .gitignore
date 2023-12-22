@@ -6,7 +6,6 @@
 .DS_Store
 .target
 .idea/
-!.idea/icon.png
 .run/
 target/
 dist/
@@ -21,6 +20,9 @@ third-party-dependencies.txt
 *.ipr
 *.iws
 *.tgz
+*.jar
+*.yml
+*.yaml
 .*.swp
 .vim
 .tmp
@@ -39,7 +41,6 @@ config.gypi
 test/coverage
 /docs/zh_CN/介绍
 /docs/zh_CN/贡献代码.md
-derby.log
 dolphinscheduler-common/src/main/resources/zookeeper.properties
 dolphinscheduler-dao/src/main/resources/dao/data_source.properties
 dolphinscheduler-alert/logs/

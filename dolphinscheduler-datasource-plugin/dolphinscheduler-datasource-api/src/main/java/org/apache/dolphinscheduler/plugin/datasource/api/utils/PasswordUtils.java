@@ -28,10 +28,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class PasswordUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(PasswordUtils.class);
 
     private static final Base64 BASE64 = new Base64();
 
@@ -77,7 +79,7 @@ public class PasswordUtils {
         String salt = PropertyUtils.getString(DATASOURCE_ENCRYPTION_SALT, DATASOURCE_ENCRYPTION_SALT_DEFAULT);
         String passwordWithSalt = new String(BASE64.decode(password), StandardCharsets.UTF_8);
         if (!passwordWithSalt.startsWith(salt)) {
-            log.warn("There is a password and salt mismatch: {} ", password);
+            logger.warn("There is a password and salt mismatch: {} ", password);
             return password;
         }
         return new String(BASE64.decode(passwordWithSalt.substring(salt.length())), StandardCharsets.UTF_8);

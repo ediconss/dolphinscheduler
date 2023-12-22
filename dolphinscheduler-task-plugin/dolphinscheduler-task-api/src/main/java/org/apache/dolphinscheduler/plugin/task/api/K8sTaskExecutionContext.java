@@ -19,34 +19,26 @@ package org.apache.dolphinscheduler.plugin.task.api;
 
 import java.io.Serializable;
 
-import lombok.Value;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  *  k8s Task ExecutionContext
  */
-@Value
+
 public class K8sTaskExecutionContext implements Serializable {
 
     private String configYaml;
 
-    private String namespace;
+    public String getConfigYaml() {
+        return configYaml;
+    }
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public K8sTaskExecutionContext(
-                                   @JsonProperty("configYaml") String configYaml,
-                                   @JsonProperty("namespace") String namespace) {
+    public void setConfigYaml(String configYaml) {
         this.configYaml = configYaml;
-        this.namespace = namespace;
     }
 
     @Override
     public String toString() {
         return "K8sTaskExecutionContext{"
-                + "namespace=" + namespace
-                + ", configYaml='" + configYaml + '\''
+                + "configYaml='" + configYaml + '\''
                 + '}';
     }
 }

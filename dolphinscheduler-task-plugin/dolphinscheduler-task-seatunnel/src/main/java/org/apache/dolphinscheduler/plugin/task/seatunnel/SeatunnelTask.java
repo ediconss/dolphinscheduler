@@ -20,7 +20,6 @@ package org.apache.dolphinscheduler.plugin.task.seatunnel;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_FAILURE;
 import static org.apache.dolphinscheduler.plugin.task.seatunnel.Constants.CONFIG_OPTIONS;
 
-import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.AbstractRemoteTask;
 import org.apache.dolphinscheduler.plugin.task.api.ShellCommandExecutor;
 import org.apache.dolphinscheduler.plugin.task.api.TaskCallBack;
@@ -30,9 +29,8 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.model.Property;
 import org.apache.dolphinscheduler.plugin.task.api.model.TaskResponse;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.AbstractParameters;
-import org.apache.dolphinscheduler.plugin.task.api.shell.IShellInterceptorBuilder;
-import org.apache.dolphinscheduler.plugin.task.api.shell.ShellInterceptorBuilderFactory;
-import org.apache.dolphinscheduler.plugin.task.api.utils.ParameterUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParamUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParameterUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -80,7 +78,7 @@ public class SeatunnelTask extends AbstractRemoteTask {
         this.taskExecutionContext = taskExecutionContext;
         this.shellCommandExecutor = new ShellCommandExecutor(this::logHandle,
                 taskExecutionContext,
-                log);
+                logger);
     }
 
     @Override
@@ -90,9 +88,9 @@ public class SeatunnelTask extends AbstractRemoteTask {
 
     @Override
     public void init() {
-        log.info("Intialize SeaTunnel task params {}", JSONUtils.toPrettyJsonString(seatunnelParameters));
-        if (seatunnelParameters == null || !seatunnelParameters.checkParameters()) {
-            throw new TaskException("SeaTunnel task params is not valid");
+        logger.info("SeaTunnel task params {}", taskExecutionContext.getTaskParams());
+        if (!seatunnelParameters.checkParameters()) {
+            throw new RuntimeException("SeaTunnel task params is not valid");
         }
     }
 
@@ -102,21 +100,18 @@ public class SeatunnelTask extends AbstractRemoteTask {
         try {
             // construct process
             String command = buildCommand();
-            IShellInterceptorBuilder<?, ?> shellActuatorBuilder = ShellInterceptorBuilderFactory.newBuilder()
-                    .appendScript(command);
-
-            TaskResponse commandExecuteResult = shellCommandExecutor.run(shellActuatorBuilder, taskCallBack);
+            TaskResponse commandExecuteResult = shellCommandExecutor.run(command);
             setExitStatusCode(commandExecuteResult.getExitStatusCode());
             setAppIds(String.join(TaskConstants.COMMA, getApplicationIds()));
             setProcessId(commandExecuteResult.getProcessId());
             seatunnelParameters.dealOutParam(shellCommandExecutor.getVarPool());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("The current SeaTunnel task has been interrupted", e);
+            logger.error("The current SeaTunnel task has been interrupted", e);
             setExitStatusCode(EXIT_CODE_FAILURE);
             throw new TaskException("The current SeaTunnel task has been interrupted", e);
         } catch (Exception e) {
-            log.error("SeaTunnel task error", e);
+            logger.error("SeaTunnel task error", e);
             setExitStatusCode(EXIT_CODE_FAILURE);
             throw new TaskException("Execute Seatunnel task failed", e);
         }
@@ -149,7 +144,7 @@ public class SeatunnelTask extends AbstractRemoteTask {
         args.addAll(buildOptions());
 
         String command = String.join(" ", args);
-        log.info("SeaTunnel task command: {}", command);
+        logger.info("SeaTunnel task command: {}", command);
 
         return command;
     }
@@ -162,7 +157,6 @@ public class SeatunnelTask extends AbstractRemoteTask {
         } else {
             seatunnelParameters.getResourceList().forEach(resourceInfo -> {
                 args.add(CONFIG_OPTIONS);
-                // TODO: Need further check for refactored resource center
                 // TODO Currently resourceName is `/xxx.sh`, it has more `/` and needs to be optimized
                 args.add(resourceInfo.getResourceName().substring(1));
             });
@@ -179,8 +173,8 @@ public class SeatunnelTask extends AbstractRemoteTask {
     }
 
     private String buildCustomConfigContent() {
-        log.info("raw custom config content : {}", seatunnelParameters.getRawScript());
-        String script = seatunnelParameters.getRawScript().replaceAll("\\r\\n", System.lineSeparator());
+        logger.info("raw custom config content : {}", seatunnelParameters.getRawScript());
+        String script = seatunnelParameters.getRawScript().replaceAll("\\r\\n", "\n");
         script = parseScript(script);
         return script;
     }
@@ -191,11 +185,11 @@ public class SeatunnelTask extends AbstractRemoteTask {
     }
 
     private void createConfigFileIfNotExists(String script, String scriptFile) throws IOException {
-        log.info("tenantCode :{}, task dir:{}", taskExecutionContext.getTenantCode(),
+        logger.info("tenantCode :{}, task dir:{}", taskExecutionContext.getTenantCode(),
                 taskExecutionContext.getExecutePath());
 
         if (!Files.exists(Paths.get(scriptFile))) {
-            log.info("generate script file:{}", scriptFile);
+            logger.info("generate script file:{}", scriptFile);
 
             // write data to file
             FileUtils.writeStringToFile(new File(scriptFile), script, StandardCharsets.UTF_8);
@@ -208,8 +202,9 @@ public class SeatunnelTask extends AbstractRemoteTask {
     }
 
     private String parseScript(String script) {
+        // combining local and global parameters
         Map<String, Property> paramsMap = taskExecutionContext.getPrepareParamsMap();
-        return ParameterUtils.convertParameterPlaceholders(script, ParameterUtils.convert(paramsMap));
+        return ParameterUtils.convertParameterPlaceholders(script, ParamUtils.convert(paramsMap));
     }
 
     public void setSeatunnelParameters(SeatunnelParameters seatunnelParameters) {

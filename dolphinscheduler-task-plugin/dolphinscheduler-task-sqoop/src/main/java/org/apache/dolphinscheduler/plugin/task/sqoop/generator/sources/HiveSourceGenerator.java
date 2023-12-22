@@ -31,13 +31,15 @@ import org.apache.dolphinscheduler.plugin.task.sqoop.parameter.sources.SourceHiv
 
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * hive source generator
  */
-@Slf4j
 public class HiveSourceGenerator implements ISourceGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger(HiveSourceGenerator.class);
 
     @Override
     public String generate(SqoopParameters sqoopParameters, SqoopTaskExecutionContext sqoopTaskExecutionContext) {
@@ -68,7 +70,7 @@ public class HiveSourceGenerator implements ISourceGenerator {
                 }
             }
         } catch (Exception e) {
-            log.error(String.format("Sqoop hive source params build failed: [%s]", e.getMessage()));
+            logger.error(String.format("Sqoop hive source params build failed: [%s]", e.getMessage()));
         }
 
         return hiveSourceSb.toString();

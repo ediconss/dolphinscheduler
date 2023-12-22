@@ -18,7 +18,6 @@
 task:
   universal:
     - 'SHELL'
-    - 'JAVA'
     - 'PYTHON'
     - 'PROCEDURE'
     - 'SQL'
@@ -29,18 +28,16 @@ task:
     - 'DINKY'
     - 'FLINK_STREAM'
     - 'HIVECLI'
-    - 'REMOTESHELL'
   cloud:
     - 'EMR'
     - 'K8S'
-    - 'DMS'
-    - 'DATA_FACTORY'
   logic:
     - 'SUB_PROCESS'
     - 'DEPENDENT'
     - 'CONDITIONS'
     - 'SWITCH'
-    - 'DYNAMIC'
+    - 'NEXT_LOOP'
+    - 'SURVEIL'
   dataIntegration:
     - 'SEATUNNEL'
     - 'DATAX'
@@ -54,10 +51,7 @@ task:
     - 'DVC'
     - 'SAGEMAKER'
     - 'PYTORCH'
-    - 'KUBEFLOW'
   other:
     - 'PIGEON'
     - 'ZEPPELIN'
     - 'CHUNJUN'
-    - 'DATASYNC'
-    - 'LINKIS'

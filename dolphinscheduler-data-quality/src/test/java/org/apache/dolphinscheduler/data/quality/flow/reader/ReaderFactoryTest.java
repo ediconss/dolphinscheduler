@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * ConnectorFactoryTest
@@ -65,6 +65,6 @@ public class ReaderFactoryTest {
             flag = 1;
         }
 
-        Assertions.assertEquals(1, flag);
+        Assert.assertEquals(1, flag);
     }
 }

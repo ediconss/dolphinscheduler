@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -86,7 +86,7 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         // update
         processDefinition.setUpdateTime(new Date());
         int update = processDefinitionMapper.updateById(processDefinition);
-        Assertions.assertEquals(1, update);
+        Assert.assertEquals(1, update);
     }
 
     /**
@@ -96,7 +96,7 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
     public void testDelete() {
         ProcessDefinition processDefinition = insertOne("def 1");
         int delete = processDefinitionMapper.deleteById(processDefinition.getId());
-        Assertions.assertEquals(1, delete);
+        Assert.assertEquals(1, delete);
     }
 
     /**
@@ -107,7 +107,7 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         insertOne("def 1");
         // query
         List<ProcessDefinition> dataSources = processDefinitionMapper.selectList(null);
-        Assertions.assertNotEquals(0, dataSources.size());
+        Assert.assertNotEquals(dataSources.size(), 0);
     }
 
     /**
@@ -143,10 +143,11 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         processDefinition.setProjectCode(project.getCode());
         processDefinition.setUpdateTime(new Date());
         processDefinition.setCreateTime(new Date());
+        processDefinition.setTenantId(tenant.getId());
         processDefinition.setUserId(user.getId());
         processDefinitionMapper.insert(processDefinition);
         ProcessDefinition definition = processDefinitionMapper.verifyByDefineName(10L, "xxx");
-        Assertions.assertEquals(null, definition);
+        Assert.assertEquals(definition, null);
     }
 
     /**
@@ -186,11 +187,30 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         processDefinition.setProjectCode(project.getCode());
         processDefinition.setUpdateTime(new Date());
         processDefinition.setCreateTime(new Date());
+        processDefinition.setTenantId(tenant.getId());
         processDefinition.setUserId(user.getId());
         processDefinitionMapper.insert(processDefinition);
 
         ProcessDefinition processDefinition1 = processDefinitionMapper.queryByDefineName(project.getCode(), "def 1");
-        Assertions.assertNotEquals(null, processDefinition1);
+        Assert.assertNotEquals(processDefinition1, null);
+    }
+
+    /**
+     * test queryDefinitionListByTenant
+     */
+    @Test
+    public void testQueryDefinitionListByTenant() {
+        ProcessDefinition processDefinition = new ProcessDefinition();
+        processDefinition.setCode(1L);
+        processDefinition.setName("def 1");
+        processDefinition.setProjectCode(888L);
+        processDefinition.setUpdateTime(new Date());
+        processDefinition.setCreateTime(new Date());
+        processDefinition.setTenantId(999);
+        processDefinition.setUserId(1234);
+        processDefinitionMapper.insert(processDefinition);
+        List<ProcessDefinition> definitions = processDefinitionMapper.queryDefinitionListByTenant(999);
+        Assert.assertNotEquals(definitions.size(), 0);
     }
 
     /**
@@ -230,10 +250,11 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         processDefinition.setProjectCode(project.getCode());
         processDefinition.setUpdateTime(new Date());
         processDefinition.setCreateTime(new Date());
+        processDefinition.setTenantId(tenant.getId());
         processDefinition.setUserId(user.getId());
         processDefinitionMapper.insert(processDefinition);
         ProcessDefinition definition = processDefinitionMapper.queryByDefineId(333);
-        Assertions.assertEquals(null, definition);
+        Assert.assertEquals(definition, null);
     }
 
     /**
@@ -245,7 +266,7 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         Page<ProcessDefinition> page = new Page(1, 3);
         IPage<ProcessDefinition> processDefinitionIPage =
                 processDefinitionMapper.queryDefineListPaging(page, "def", 101, 1010L);
-        Assertions.assertNotEquals(0, processDefinitionIPage.getTotal());
+        Assert.assertNotEquals(processDefinitionIPage.getTotal(), 0);
     }
 
     /**
@@ -255,7 +276,7 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
     public void testQueryAllDefinitionList() {
         insertOne("def 1");
         List<ProcessDefinition> processDefinitionIPage = processDefinitionMapper.queryAllDefinitionList(1010L);
-        Assertions.assertNotEquals(0, processDefinitionIPage.size());
+        Assert.assertNotEquals(processDefinitionIPage.size(), 0);
     }
 
     /**
@@ -272,7 +293,7 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         array[1] = processDefinition1.getId();
 
         List<ProcessDefinition> processDefinitions = processDefinitionMapper.queryDefinitionListByIdList(array);
-        Assertions.assertEquals(2, processDefinitions.size());
+        Assert.assertEquals(2, processDefinitions.size());
 
     }
 
@@ -300,7 +321,7 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         projectCodes[0] = processDefinition.getProjectCode();
         List<DefinitionGroupByUser> processDefinitions =
                 processDefinitionMapper.countDefinitionByProjectCodes(projectCodes);
-        Assertions.assertNotEquals(0, processDefinitions.size());
+        Assert.assertNotEquals(processDefinitions.size(), 0);
     }
 
     @Test
@@ -308,7 +329,7 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         ProcessDefinition processDefinition = insertOne("def 1");
         processDefinition.setReleaseState(ReleaseState.ONLINE);
         List<Map<String, Object>> maps = processDefinitionMapper.listResources();
-        Assertions.assertNotNull(maps);
+        Assert.assertNotNull(maps);
     }
 
     @Test
@@ -316,14 +337,14 @@ public class ProcessDefinitionMapperTest extends BaseDaoTest {
         ProcessDefinition processDefinition = insertOne("def 1");
         processDefinition.setReleaseState(ReleaseState.ONLINE);
         List<Map<String, Object>> maps = processDefinitionMapper.listResourcesByUser(processDefinition.getUserId());
-        Assertions.assertNotNull(maps);
+        Assert.assertNotNull(maps);
     }
 
     @Test
     public void listProjectIds() {
         insertOne("def 1");
         List<Integer> projectIds = processDefinitionMapper.listProjectIds();
-        Assertions.assertNotNull(projectIds);
+        Assert.assertNotNull(projectIds);
     }
 
 }

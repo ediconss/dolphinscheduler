@@ -20,23 +20,26 @@ package org.apache.dolphinscheduler.plugin.datasource.sqlserver;
 import org.apache.dolphinscheduler.plugin.datasource.sqlserver.param.SQLServerConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor("org.apache.dolphinscheduler.plugin.datasource.api.client.CommonDataSourceClient")
+@PrepareForTest({SQLServerDataSourceClient.class, SQLServerDataSourceChannel.class})
 public class SQLServerDataSourceChannelTest {
 
     @Test
     public void testCreateDataSourceClient() {
-        SQLServerDataSourceChannel sourceChannel = Mockito.mock(SQLServerDataSourceChannel.class);
-        SQLServerPooledDataSourceClient dataSourceClient = Mockito.mock(SQLServerPooledDataSourceClient.class);
-        Mockito.when(sourceChannel.createPooledDataSourceClient(Mockito.any(), Mockito.any()))
+        SQLServerDataSourceChannel sourceChannel = PowerMockito.mock(SQLServerDataSourceChannel.class);
+        SQLServerDataSourceClient dataSourceClient = PowerMockito.mock(SQLServerDataSourceClient.class);
+        PowerMockito.when(sourceChannel.createDataSourceClient(Mockito.any(), Mockito.any()))
                 .thenReturn(dataSourceClient);
-        Assertions
-                .assertNotNull(
-                        sourceChannel.createPooledDataSourceClient(new SQLServerConnectionParam(), DbType.SQLSERVER));
+        Assert.assertNotNull(sourceChannel.createDataSourceClient(new SQLServerConnectionParam(), DbType.SQLSERVER));
     }
 }

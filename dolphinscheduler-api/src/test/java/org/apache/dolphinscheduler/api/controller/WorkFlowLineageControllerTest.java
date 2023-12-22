@@ -28,19 +28,19 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * work flow lineage controller test
  */
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorkFlowLineageControllerTest {
 
     @InjectMocks
@@ -51,7 +51,7 @@ public class WorkFlowLineageControllerTest {
 
     protected User user;
 
-    @BeforeEach
+    @Before
     public void before() {
         User loginUser = new User();
         loginUser.setId(1);
@@ -78,7 +78,7 @@ public class WorkFlowLineageControllerTest {
         result.put(Constants.DATA_LIST, 1);
         Mockito.when(workFlowLineageService.queryWorkFlowLineageByName(projectCode, searchVal)).thenReturn(result);
         Result response = workFlowLineageController.queryWorkFlowLineageByName(user, projectCode, searchVal);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
     }
 
     @Test
@@ -90,6 +90,6 @@ public class WorkFlowLineageControllerTest {
         result.put(Constants.DATA_LIST, 1);
         Mockito.when(workFlowLineageService.queryWorkFlowLineageByCode(projectCode, code)).thenReturn(result);
         Result response = workFlowLineageController.queryWorkFlowLineageByCode(user, projectCode, code);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
     }
 }

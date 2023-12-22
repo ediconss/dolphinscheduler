@@ -17,30 +17,54 @@
 
 package org.apache.dolphinscheduler.plugin.alert.email;
 
-import org.apache.dolphinscheduler.plugin.alert.email.exception.AlertEmailException;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.nio.file.Path;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExcelUtilsTest {
 
-    @TempDir
-    public Path testFolder;
+    private static final Logger logger = LoggerFactory.getLogger(ExcelUtilsTest.class);
 
-    private String xlsFilePath;
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
-    @BeforeEach
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
+    private String rootPath = null;
+
+    @Before
     public void setUp() throws Exception {
-        xlsFilePath = testFolder.toString();
+
+        folder.create();
+        rootPath = folder.getRoot().getAbsolutePath();
     }
 
+    @After
+    public void tearDown() throws Exception {
+
+        folder.delete();
+    }
+
+    /**
+     * Test GenExcelFile
+     */
     @Test
     public void testGenExcelFile() {
+
+        // Define dest file path
+        String xlsFilePath = rootPath + System.getProperty("file.separator");
+        logger.info("xlsFilePath: " + xlsFilePath);
+
         // Define correctContent
         String correctContent = "[{\"name\":\"ds name\",\"value\":\"ds value\"}]";
 
@@ -55,15 +79,22 @@ public class ExcelUtilsTest {
 
         // Test file exists
         File xlsFile = new File(xlsFilePath + EmailConstants.SINGLE_SLASH + title + EmailConstants.EXCEL_SUFFIX_XLSX);
-        Assertions.assertTrue(xlsFile.exists());
+        assertTrue(xlsFile.exists());
+
+        // Expected RuntimeException
+        expectedException.expect(RuntimeException.class);
+
+        // Expected error message
+        expectedException.expectMessage("itemsList is null");
 
         // Invoke genExcelFile with incorrectContent, will cause RuntimeException
-        Assertions.assertThrows(AlertEmailException.class, () -> {
-            ExcelUtils.genExcelFile(incorrectContent1, title, xlsFilePath);
-        });
+        ExcelUtils.genExcelFile(incorrectContent1, title, xlsFilePath);
 
     }
 
+    /**
+     * Test GenExcelFile (check directory)
+     */
     @Test
     public void testGenExcelFileByCheckDir() {
         ExcelUtils.genExcelFile("[{\"a\": \"a\"},{\"a\": \"a\"}]", "t", "/tmp/xls");

@@ -17,6 +17,7 @@
 
 package org.apache.dolphinscheduler.common.constants;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.time.Duration;
@@ -28,15 +29,19 @@ public final class Constants {
         throw new UnsupportedOperationException("Construct Constants");
     }
 
-    public static final String AUTO_CLOSE_ALERT = "alert.auto-close";
-
     /**
      * common properties path
      */
     public static final String COMMON_PROPERTIES_PATH = "/common.properties";
 
+    /**
+     * registry properties
+     */
     public static final String REGISTRY_DOLPHINSCHEDULER_MASTERS = "/nodes/master";
     public static final String REGISTRY_DOLPHINSCHEDULER_WORKERS = "/nodes/worker";
+    public static final String REGISTRY_DOLPHINSCHEDULER_NODE = "/nodes";
+    public static final String REGISTRY_DOLPHINSCHEDULER_LOCK_MASTERS = "/lock/masters";
+    public static final String REGISTRY_DOLPHINSCHEDULER_LOCK_FAILOVER_MASTERS = "/lock/failover/masters";
 
     public static final String FORMAT_SS = "%s%s";
     public static final String FORMAT_S_S = "%s/%s";
@@ -46,6 +51,14 @@ public final class Constants {
     public static final String RESOURCE_TYPE_FILE = "resources";
 
     public static final String RESOURCE_TYPE_UDF = "udfs";
+
+    public static final String STORAGE_S3 = "S3";
+
+    public static final String STORAGE_OBS = "OBS";
+
+    public static final String STORAGE_OSS = "OSS";
+
+    public static final String STORAGE_HDFS = "HDFS";
 
     public static final String EMPTY_STRING = "";
 
@@ -126,6 +139,8 @@ public final class Constants {
      */
     public static final String SUDO_ENABLE = "sudo.enable";
 
+    public static final String SET_TASK_DIR_TO_TENANT_ENABLE = "setTaskDirToTenant.enable";
+
     /**
      * resource storage type
      */
@@ -137,21 +152,8 @@ public final class Constants {
     public static final String ALIBABA_CLOUD_OSS_BUCKET_NAME = "resource.alibaba.cloud.oss.bucket.name";
     public static final String ALIBABA_CLOUD_OSS_END_POINT = "resource.alibaba.cloud.oss.endpoint";
 
-    public static final String GOOGLE_CLOUD_STORAGE_BUCKET_NAME = "resource.google.cloud.storage.bucket.name";
-
-    public static final String GOOGLE_CLOUD_STORAGE_CREDENTIAL = "resource.google.cloud.storage.credential";
-
-    public static final String AZURE_BLOB_STORAGE_CONNECTION_STRING = "resource.azure.blob.storage.connection.string";
-
-    public static final String AZURE_BLOB_STORAGE_CONTAINER_NAME = "resource.azure.blob.storage.container.name";
-
-    public static final String AZURE_BLOB_STORAGE_ACCOUNT_NAME = "resource.azure.blob.storage.account.name";
-
-    /**
-     * fetch applicationId way
-     */
-    public static final String APPID_COLLECT = "appId.collect";
-    public static final String DEFAULT_COLLECT_WAY = "log";
+    public static final String HUAWEI_CLOUD_OBS_BUCKET_NAME = "resource.huawei.cloud.obs.bucket.name";
+    public static final String HUAWEI_CLOUD_OBS_END_POINT = "resource.huawei.cloud.obs.endpoint";
 
     /**
      * comma ,
@@ -228,7 +230,7 @@ public final class Constants {
     public static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 60 * 1000;
 
     /**
-     * httpclient socket time out
+     * httpclient soceket time out
      */
     public static final int SOCKET_TIMEOUT = 60 * 1000;
 
@@ -303,7 +305,7 @@ public final class Constants {
     public static final int DEFAULT_WORKER_HOST_WEIGHT = 100;
 
     /**
-     * time unit second to minutes
+     * time unit secong to minutes
      */
     public static final int SEC_2_MINUTES_TIME_UNIT = 60;
 
@@ -332,9 +334,6 @@ public final class Constants {
     public static final String THREAD_NAME_MASTER_SERVER = "Master-Server";
     public static final String THREAD_NAME_WORKER_SERVER = "Worker-Server";
     public static final String THREAD_NAME_ALERT_SERVER = "Alert-Server";
-
-    // suffix of crc file
-    public static final String CRC_SUFFIX = ".crc";
 
     /**
      * complement date default cron string
@@ -482,6 +481,13 @@ public final class Constants {
     public static final String BLOCKING_CONDITION = "blockingCondition";
     public static final String ALERT_WHEN_BLOCKING = "alertWhenBlocking";
 
+    /**
+     * master/worker server use for zk
+     */
+    public static final String MASTER_TYPE = "master";
+    public static final String WORKER_TYPE = "worker";
+    public static final String DELETE_OP = "delete";
+    public static final String ADD_OP = "add";
     public static final String ALIAS = "alias";
     public static final String CONTENT = "content";
     public static final String DEPENDENT_SPLIT = ":||";
@@ -537,11 +543,6 @@ public final class Constants {
      * loginUserFromKeytab path
      */
     public static final String LOGIN_USER_KEY_TAB_PATH = "login.user.keytab.path";
-
-    /**
-     * sso.login.user.state
-     */
-    public static final String SSO_LOGIN_USER_STATE = "sso.login.user.state";
 
     public static final String WORKFLOW_INSTANCE_ID_MDC_KEY = "workflowInstanceId";
     public static final String TASK_INSTANCE_ID_MDC_KEY = "taskInstanceId";
@@ -662,6 +663,18 @@ public final class Constants {
     public static final String SYSTEM_LINE_SEPARATOR = System.getProperty("line.separator");
 
     /**
+     * network interface preferred
+     */
+    public static final String DOLPHIN_SCHEDULER_NETWORK_INTERFACE_PREFERRED =
+            "dolphin.scheduler.network.interface.preferred";
+
+    /**
+     * network IP gets priority, default inner outer
+     */
+    public static final String DOLPHIN_SCHEDULER_NETWORK_PRIORITY_STRATEGY =
+            "dolphin.scheduler.network.priority.strategy";
+
+    /**
      * exec shell scripts
      */
     public static final String SH = "sh";
@@ -670,6 +683,9 @@ public final class Constants {
      * pstree, get pud and sub pid
      */
     public static final String PSTREE = "pstree";
+
+    public static final boolean KUBERNETES_MODE = !StringUtils.isEmpty(System.getenv("KUBERNETES_SERVICE_HOST"))
+            && !StringUtils.isEmpty(System.getenv("KUBERNETES_SERVICE_PORT"));
 
     /**
      * dry run flag
@@ -728,13 +744,6 @@ public final class Constants {
     public static final String SECURITY_CONFIG_TYPE_PASSWORD = "PASSWORD";
 
     public static final String SECURITY_CONFIG_TYPE_LDAP = "LDAP";
-
-    /**
-     * test flag
-     */
-    public static final int TEST_FLAG_NO = 0;
-    public static final int TEST_FLAG_YES = 1;
-
     /**
      * Task Types
      */
@@ -791,62 +800,4 @@ public final class Constants {
     public static final String KERBEROS_KRB5_CONF_PATH = "javaSecurityKrb5Conf";
     public static final String KERBEROS_KEY_TAB_USERNAME = "loginUserKeytabUsername";
     public static final String KERBEROS_KEY_TAB_PATH = "loginUserKeytabPath";
-
-    public static final Integer QUERY_ALL_ON_SYSTEM = 0;
-    public static final Integer QUERY_ALL_ON_PROJECT = 1;
-    public static final Integer QUERY_ALL_ON_WORKFLOW = 2;
-    public static final Integer QUERY_ALL_ON_TASK = 3;
-
-    /**
-     * remote logging
-     */
-    public static final String REMOTE_LOGGING_ENABLE = "remote.logging.enable";
-
-    public static final String REMOTE_LOGGING_TARGET = "remote.logging.target";
-
-    public static final String REMOTE_LOGGING_BASE_DIR = "remote.logging.base.dir";
-
-    public static final String REMOTE_LOGGING_THREAD_POOL_SIZE = "remote.logging.thread.pool.size";
-
-    /**
-     * remote logging for OSS
-     */
-    public static final String REMOTE_LOGGING_OSS_ACCESS_KEY_ID = "remote.logging.oss.access.key.id";
-
-    public static final String REMOTE_LOGGING_OSS_ACCESS_KEY_SECRET = "remote.logging.oss.access.key.secret";
-
-    public static final String REMOTE_LOGGING_OSS_BUCKET_NAME = "remote.logging.oss.bucket.name";
-
-    public static final String REMOTE_LOGGING_OSS_ENDPOINT = "remote.logging.oss.endpoint";
-
-    /**
-     * remote logging for S3
-     */
-    public static final String REMOTE_LOGGING_S3_ACCESS_KEY_ID = "remote.logging.s3.access.key.id";
-
-    public static final String REMOTE_LOGGING_S3_ACCESS_KEY_SECRET = "remote.logging.s3.access.key.secret";
-
-    public static final String REMOTE_LOGGING_S3_BUCKET_NAME = "remote.logging.s3.bucket.name";
-
-    public static final String REMOTE_LOGGING_S3_ENDPOINT = "remote.logging.s3.endpoint";
-
-    public static final String REMOTE_LOGGING_S3_REGION = "remote.logging.s3.region";
-
-    /**
-     * remote logging for GCS
-     */
-    public static final String REMOTE_LOGGING_GCS_CREDENTIAL = "remote.logging.google.cloud.storage.credential";
-
-    public static final String REMOTE_LOGGING_GCS_BUCKET_NAME = "remote.logging.google.cloud.storage.bucket.name";
-
-    /**
-     * data quality
-     */
-    public static final String DATABASES_QUERY = "show databases";
-    public static final String DATABASES_QUERY_PG = "SELECT datname FROM pg_database";
-
-    /**
-     * K8S sensitive param
-     */
-    public static final String K8S_CONFIG_REGEX = "(?<=((?i)configYaml(\" : \"))).*?(?=(\",\\n))";
 }

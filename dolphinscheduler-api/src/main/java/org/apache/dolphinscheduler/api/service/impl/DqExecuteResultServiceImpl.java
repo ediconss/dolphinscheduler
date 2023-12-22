@@ -30,8 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +40,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
  * DqExecuteResultServiceImpl
  */
 @Service
-@Slf4j
 public class DqExecuteResultServiceImpl extends BaseServiceImpl implements DqExecuteResultService {
 
     @Autowired
@@ -75,7 +72,6 @@ public class DqExecuteResultServiceImpl extends BaseServiceImpl implements DqExe
                 end = DateUtils.stringToDate(endTime);
             }
         } catch (Exception e) {
-            log.warn("Parameter startTime or endTime is invalid.");
             putMsg(result, Status.REQUEST_PARAMS_NOT_VALID_ERROR, "startTime,endTime");
             return result;
         }

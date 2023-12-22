@@ -25,15 +25,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ServiceBean find all rpcService
  */
-@Slf4j
 public class ServiceBean {
+
+    private static final Logger logger = LoggerFactory.getLogger(ServiceBean.class);
 
     private static Map<String, Class> serviceMap = new HashMap<>();
 
@@ -48,12 +49,12 @@ public class ServiceBean {
         if (initialized.get()) {
             return;
         }
-        Reflections f = new Reflections("org.apache.dolphinscheduler.");
+        Reflections f = new Reflections("org/apache/dolphinscheduler/");
         List<Class<?>> list = new ArrayList<>(f.getTypesAnnotatedWith(RpcService.class));
         list.forEach(rpcClass -> {
             RpcService rpcService = rpcClass.getAnnotation(RpcService.class);
             serviceMap.put(rpcService.value(), rpcClass);
-            log.info("load rpc service {}", rpcService.value());
+            logger.info("load rpc service {}", rpcService.value());
         });
         initialized.set(true);
     }

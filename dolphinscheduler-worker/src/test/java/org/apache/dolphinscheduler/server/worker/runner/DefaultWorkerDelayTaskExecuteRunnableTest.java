@@ -18,17 +18,20 @@
 package org.apache.dolphinscheduler.server.worker.runner;
 
 import org.apache.dolphinscheduler.common.constants.Constants;
-import org.apache.dolphinscheduler.plugin.storage.api.StorageOperate;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
-import org.apache.dolphinscheduler.plugin.task.api.TaskPluginManager;
 import org.apache.dolphinscheduler.plugin.task.api.enums.TaskExecutionStatus;
 import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
-import org.apache.dolphinscheduler.server.worker.registry.WorkerRegistryClient;
 import org.apache.dolphinscheduler.server.worker.rpc.WorkerMessageSender;
-import org.apache.dolphinscheduler.server.worker.rpc.WorkerRpcClient;
+import org.apache.dolphinscheduler.service.alert.AlertClientService;
+import org.apache.dolphinscheduler.service.storage.StorageOperate;
+import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class DefaultWorkerDelayTaskExecuteRunnableTest {
@@ -41,13 +44,27 @@ public class DefaultWorkerDelayTaskExecuteRunnableTest {
 
     private WorkerMessageSender workerMessageSender = Mockito.mock(WorkerMessageSender.class);
 
-    private WorkerRpcClient alertClientService = Mockito.mock(WorkerRpcClient.class);
+    private AlertClientService alertClientService = Mockito.mock(AlertClientService.class);
 
     private TaskPluginManager taskPluginManager = Mockito.mock(TaskPluginManager.class);
 
     private StorageOperate storageOperate = Mockito.mock(StorageOperate.class);
 
-    private WorkerRegistryClient workerRegistryClient = Mockito.mock(WorkerRegistryClient.class);
+    public String getTrackingUrl(String errorMsg) {
+        String trackingUrl = "";
+        String regex = "tracking_url=(.*)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(errorMsg);
+        if (matcher.find()) {
+            trackingUrl = matcher.group(1);
+        }
+        return trackingUrl;
+    }
+    @Test
+    public void test() {
+        String trackingUrl = getTrackingUrl("errCode = 2, detailMessage = Unknown column 'a' in 'table list'\n");
+        System.out.println(trackingUrl);
+    }
 
     @Test
     public void testDryRun() {
@@ -55,43 +72,20 @@ public class DefaultWorkerDelayTaskExecuteRunnableTest {
                 .dryRun(Constants.DRY_RUN_FLAG_YES)
                 .taskInstanceId(0)
                 .processDefineId(0)
-                .firstSubmitTime(System.currentTimeMillis())
+                .firstSubmitTime(new Date())
+                .taskLogName("TestLogName")
                 .build();
         WorkerTaskExecuteRunnable workerTaskExecuteRunnable = new DefaultWorkerDelayTaskExecuteRunnable(
                 taskExecutionContext,
                 workerConfig,
+                masterAddress,
                 workerMessageSender,
                 alertClientService,
                 taskPluginManager,
-                storageOperate,
-                workerRegistryClient);
+                storageOperate);
 
         Assertions.assertAll(workerTaskExecuteRunnable::run);
         Assertions.assertEquals(TaskExecutionStatus.SUCCESS, taskExecutionContext.getCurrentExecutionStatus());
     }
 
-    @Test
-    public void testErrorboundTestDataSource() {
-        TaskExecutionContext taskExecutionContext = TaskExecutionContext.builder()
-                .dryRun(Constants.DRY_RUN_FLAG_NO)
-                .testFlag(Constants.TEST_FLAG_YES)
-                .taskInstanceId(0)
-                .processDefineId(0)
-                .firstSubmitTime(System.currentTimeMillis())
-                .taskType("SQL")
-                .taskParams(
-                        "{\"localParams\":[],\"resourceList\":[],\"type\":\"POSTGRESQL\",\"datasource\":null,\"sql\":\"select * from t_ds_user\",\"sqlType\":\"0\",\"preStatements\":[],\"postStatements\":[],\"segmentSeparator\":\"\",\"displayRows\":10,\"conditionResult\":\"null\",\"dependence\":\"null\",\"switchResult\":\"null\",\"waitStartTimeout\":null}")
-                .build();
-        WorkerTaskExecuteRunnable workerTaskExecuteRunnable = new DefaultWorkerDelayTaskExecuteRunnable(
-                taskExecutionContext,
-                workerConfig,
-                workerMessageSender,
-                alertClientService,
-                taskPluginManager,
-                storageOperate,
-                workerRegistryClient);
-
-        Assertions.assertAll(workerTaskExecuteRunnable::run);
-        Assertions.assertEquals(TaskExecutionStatus.FAILURE, taskExecutionContext.getCurrentExecutionStatus());
-    }
 }

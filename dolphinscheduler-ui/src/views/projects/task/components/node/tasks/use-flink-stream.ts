@@ -53,8 +53,7 @@ export function useFlinkStream({
     slot: 1,
     taskManager: 2,
     parallelism: 1,
-    timeoutNotifyStrategy: ['WARN'],
-    yarnQueue: ''
+    timeoutNotifyStrategy: ['WARN']
   })
 
   return {
@@ -62,7 +61,6 @@ export function useFlinkStream({
       Fields.useName(from),
       ...Fields.useTaskDefinition({ projectCode, from, readonly, data, model }),
       Fields.useRunFlag(),
-      Fields.useCache(),
       Fields.useDescription(),
       Fields.useTaskPriority(),
       Fields.useWorkerGroup(),

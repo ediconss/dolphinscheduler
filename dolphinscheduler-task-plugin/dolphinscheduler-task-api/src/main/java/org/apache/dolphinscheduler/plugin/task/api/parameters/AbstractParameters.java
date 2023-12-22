@@ -199,7 +199,7 @@ public abstract class AbstractParameters implements IParameters {
         return new ResourceParametersHelper();
     }
 
-    public void addPropertyToValPool(Property property) {
+    private void addPropertyToValPool(Property property) {
         varPool.removeIf(p -> p.getProp().equals(property.getProp()));
         varPool.add(property);
     }

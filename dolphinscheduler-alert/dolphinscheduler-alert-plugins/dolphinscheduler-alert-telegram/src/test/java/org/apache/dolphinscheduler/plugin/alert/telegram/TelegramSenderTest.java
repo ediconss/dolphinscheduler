@@ -23,15 +23,15 @@ import org.apache.dolphinscheduler.alert.api.AlertResult;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TelegramSenderTest {
 
     private static Map<String, String> telegramConfig = new HashMap<>();
 
-    @BeforeEach
+    @Before
     public void initConfig() {
         telegramConfig.put(TelegramParamsConstants.NAME_TELEGRAM_WEB_HOOK,
                 "https://api.telegram.org/bot{botToken}/sendMessage");
@@ -52,7 +52,7 @@ public class TelegramSenderTest {
                 TelegramParamsConstants.NAME_TELEGRAM_BOT_TOKEN, "XXXXXXX");
         TelegramSender telegramSender = new TelegramSender(telegramConfig);
         AlertResult result = telegramSender.sendMessage(alertData);
-        Assertions.assertEquals("false", result.getStatus());
+        Assert.assertEquals("false", result.getStatus());
 
     }
 
@@ -65,7 +65,7 @@ public class TelegramSenderTest {
                 TelegramParamsConstants.NAME_TELEGRAM_CHAT_ID, "-XXXXXXX");
         TelegramSender telegramSender = new TelegramSender(telegramConfig);
         AlertResult result = telegramSender.sendMessage(alertData);
-        Assertions.assertEquals("false", result.getStatus());
+        Assert.assertEquals("false", result.getStatus());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class TelegramSenderTest {
         alertData.setContent("telegram test content");
         TelegramSender telegramSender = new TelegramSender(telegramConfig);
         AlertResult result = telegramSender.sendMessage(alertData);
-        Assertions.assertEquals("false", result.getStatus());
+        Assert.assertEquals("false", result.getStatus());
 
     }
 
@@ -89,7 +89,7 @@ public class TelegramSenderTest {
                 TelegramParamsConstants.NAME_TELEGRAM_PARSE_MODE, TelegramAlertConstants.PARSE_MODE_MARKDOWN);
         TelegramSender telegramSender = new TelegramSender(telegramConfig);
         AlertResult result = telegramSender.sendMessage(alertData);
-        Assertions.assertEquals("false", result.getStatus());
+        Assert.assertEquals("false", result.getStatus());
 
     }
 
@@ -102,7 +102,7 @@ public class TelegramSenderTest {
                 TelegramParamsConstants.NAME_TELEGRAM_PARSE_MODE, TelegramAlertConstants.PARSE_MODE_HTML);
         TelegramSender telegramSender = new TelegramSender(telegramConfig);
         AlertResult result = telegramSender.sendMessage(alertData);
-        Assertions.assertEquals("false", result.getStatus());
+        Assert.assertEquals("false", result.getStatus());
 
     }
 

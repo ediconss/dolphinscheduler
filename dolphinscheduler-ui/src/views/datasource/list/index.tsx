@@ -23,25 +23,28 @@ import {
   toRefs,
   watch
 } from 'vue'
-import { NButton, NIcon, NDataTable, NPagination, NSpace } from 'naive-ui'
+import {
+  NButton,
+  NInput,
+  NIcon,
+  NDataTable,
+  NPagination,
+  NSpace
+} from 'naive-ui'
 import { SearchOutlined } from '@vicons/antd'
 import { useI18n } from 'vue-i18n'
 import { useColumns } from './use-columns'
 import { useTable } from './use-table'
 import { DefaultTableWidth } from '@/common/column-width-config'
 import Card from '@/components/card'
-import Search from '@/components/input-search'
 import DetailModal from './detail'
 import type { TableColumns } from './types'
-import SourceModal from './source-modal'
 
 const list = defineComponent({
   name: 'list',
   setup() {
     const { t } = useI18n()
     const showDetailModal = ref(false)
-    const showSourceModal = ref(false)
-    const selectType = ref('MYSQL')
     const selectId = ref()
     const columns = ref({
       columns: [] as TableColumns,
@@ -50,38 +53,21 @@ const list = defineComponent({
     const { data, changePage, changePageSize, deleteRecord, updateList } =
       useTable()
 
-    const { getColumns } = useColumns(
-      (id: number, type: 'edit' | 'delete', row?: any) => {
-        if (type === 'edit') {
-          showDetailModal.value = true
-          selectId.value = id
-          selectType.value = row.type
-        } else {
-          deleteRecord(id)
-        }
+    const { getColumns } = useColumns((id: number, type: 'edit' | 'delete') => {
+      if (type === 'edit') {
+        showDetailModal.value = true
+        selectId.value = id
+      } else {
+        deleteRecord(id)
       }
-    )
+    })
 
     const onCreate = () => {
       selectId.value = null
-      showSourceModal.value = true
-    }
-
-    const trim = getCurrentInstance()?.appContext.config.globalProperties.trim
-
-    const handleSelectSourceType = (value: string) => {
-      selectType.value = value
-      showSourceModal.value = false
       showDetailModal.value = true
     }
 
-    const handleSourceModalOpen = () => {
-      showSourceModal.value = true
-    }
-
-    const handleSourceModalClose = () => {
-      showSourceModal.value = false
-    }
+    const trim = getCurrentInstance()?.appContext.config.globalProperties.trim
 
     onMounted(() => {
       changePage(1)
@@ -95,7 +81,6 @@ const list = defineComponent({
     return {
       t,
       showDetailModal,
-      showSourceModal,
       id: selectId,
       columns,
       ...toRefs(data),
@@ -103,11 +88,7 @@ const list = defineComponent({
       changePageSize,
       onCreate,
       onUpdatedList: updateList,
-      trim,
-      handleSelectSourceType,
-      selectType,
-      handleSourceModalOpen,
-      handleSourceModalClose
+      trim
     }
   },
   render() {
@@ -115,7 +96,6 @@ const list = defineComponent({
       t,
       id,
       showDetailModal,
-      showSourceModal,
       columns,
       list,
       page,
@@ -125,11 +105,7 @@ const list = defineComponent({
       changePage,
       changePageSize,
       onCreate,
-      onUpdatedList,
-      handleSelectSourceType,
-      selectType,
-      handleSourceModalOpen,
-      handleSourceModalClose
+      onUpdatedList
     } = this
 
     return (
@@ -145,10 +121,11 @@ const list = defineComponent({
               {t('datasource.create_datasource')}
             </NButton>
             <NSpace justify='end' wrap={false}>
-              <Search
-                v-model:value={this.searchVal}
-                placeholder={t('datasource.search_input_tips')}
-                onSearch={onUpdatedList}
+              <NInput
+                allowInput={this.trim}
+                v-model={[this.searchVal, 'value']}
+                size='small'
+                placeholder={`${t('datasource.search_input_tips')}`}
               />
               <NButton type='primary' size='small' onClick={onUpdatedList}>
                 <NIcon>
@@ -182,18 +159,11 @@ const list = defineComponent({
             </NSpace>
           </NSpace>
         </Card>
-        <SourceModal
-          show={showSourceModal}
-          onChange={handleSelectSourceType}
-          onMaskClick={handleSourceModalClose}
-        ></SourceModal>
         <DetailModal
           show={showDetailModal}
           id={id}
-          selectType={selectType}
           onCancel={() => void (this.showDetailModal = false)}
           onUpdate={onUpdatedList}
-          onOpen={handleSourceModalOpen}
         />
       </NSpace>
     )

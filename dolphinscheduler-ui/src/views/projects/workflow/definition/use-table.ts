@@ -31,8 +31,8 @@ import {
 } from '@/service/modules/process-definition'
 import TableAction from './components/table-action'
 import styles from './index.module.scss'
-import { NTag, NSpace, NIcon, NButton, NEllipsis, NTooltip } from 'naive-ui'
-import { CopyOutlined, UnorderedListOutlined } from '@vicons/antd'
+import { NTag, NSpace, NIcon, NButton, NEllipsis } from 'naive-ui'
+import { CopyOutlined } from '@vicons/antd'
 import ButtonLink from '@/components/button-link'
 import {
   COLUMN_WIDTH_CONFIG,
@@ -63,8 +63,7 @@ export function useTable() {
     timingShowRef: ref(false),
     versionShowRef: ref(false),
     copyShowRef: ref(false),
-    loadingRef: ref(false),
-    setTimingDialogShowRef: ref(false)
+    loadingRef: ref(false)
   })
 
   const createColumns = (variables: any) => {
@@ -85,11 +84,7 @@ export function useTable() {
         key: 'name',
         className: 'workflow-name',
         ...COLUMN_WIDTH_CONFIG['name'],
-        titleColSpan: 3,
-        resizable: true,
-        width: 300,
-        minWidth: 300,
-        maxWidth: 600,
+        titleColSpan: 2,
         render: (row) =>
           h(
             NSpace,
@@ -103,21 +98,17 @@ export function useTable() {
                 h(
                   ButtonLink,
                   {
-                    onClick: () => {
-                      const routeUrl = router.resolve({
+                    onClick: () =>
+                      void router.push({
                         name: 'workflow-definition-detail',
                         params: { code: row.code }
                       })
-                      window.open(routeUrl.href, '_blank')
-                    }
                   },
                   {
                     default: () =>
                       h(
                         NEllipsis,
-                        {
-                          style: 'max-width: 580px;line-height: 1.5'
-                        },
+                        COLUMN_WIDTH_CONFIG['linkEllipsis'],
                         () => row.name
                       )
                   }
@@ -130,50 +121,17 @@ export function useTable() {
         key: 'copy',
         ...COLUMN_WIDTH_CONFIG['copy'],
         render: (row) =>
-          h(NTooltip, null, {
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  quaternary: true,
-                  circle: true,
-                  type: 'info',
-                  size: 'tiny',
-                  onClick: () => void copy(row.name)
-                },
-                { icon: () => h(NIcon, { size: 16 }, () => h(CopyOutlined)) }
-              ),
-            default: () => t('project.workflow.copy_workflow_name')
-          })
-      },
-      {
-        title: 'Instances',
-        key: 'instances',
-        ...COLUMN_WIDTH_CONFIG['instances'],
-        render: (row) =>
-          h(NTooltip, null, {
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  quaternary: true,
-                  circle: true,
-                  type: 'info',
-                  size: 'tiny',
-                  onClick: () => {
-                    void router.push({
-                      name: 'workflow-instance-list',
-                      query: { processDefineCode: row.code }
-                    })
-                  }
-                },
-                {
-                  icon: () =>
-                    h(NIcon, { size: 18 }, () => h(UnorderedListOutlined))
-                }
-              ),
-            default: () => t('project.workflow.visit_workflow_instances')
-          })
+          h(
+            NButton,
+            {
+              quaternary: true,
+              circle: true,
+              type: 'info',
+              size: 'tiny',
+              onClick: () => void copy(row.name)
+            },
+            { icon: () => h(NIcon, { size: 16 }, () => h(CopyOutlined)) }
+          )
       },
       {
         title: t('project.workflow.status'),
@@ -182,19 +140,19 @@ export function useTable() {
         render: (row) =>
           row.releaseState === 'ONLINE'
             ? h(
-                NTag,
-                { type: 'success', size: 'small' },
-                {
-                  default: () => t('project.workflow.up_line')
-                }
-              )
+              NTag,
+              { type: 'success', size: 'small' },
+              {
+                default: () => t('project.workflow.up_line')
+              }
+            )
             : h(
-                NTag,
-                { type: 'warning', size: 'small' },
-                {
-                  default: () => t('project.workflow.down_line')
-                }
-              )
+              NTag,
+              { type: 'warning', size: 'small' },
+              {
+                default: () => t('project.workflow.down_line')
+              }
+            )
       },
       {
         title: t('project.workflow.schedule_publish_status'),
@@ -343,7 +301,7 @@ export function useTable() {
     })
   }
 
-  const batchCopyWorkflow = () => {}
+  const batchCopyWorkflow = () => { }
 
   const releaseWorkflow = (row: any) => {
     const data = {
@@ -352,14 +310,8 @@ export function useTable() {
         | 'OFFLINE'
         | 'ONLINE'
     }
-
     release(data, variables.projectCode, row.code).then(() => {
-      if (data.releaseState === 'ONLINE') {
-        variables.setTimingDialogShowRef = true
-        variables.row = row
-      } else {
-        window.$message.success(t('project.workflow.success'))
-      }
+      window.$message.success(t('project.workflow.success'))
       getTableData({
         pageSize: variables.pageSize,
         pageNo: variables.page,
@@ -455,7 +407,6 @@ export function useTable() {
     getTableData,
     batchDeleteWorkflow,
     batchExportWorkflow,
-    batchCopyWorkflow,
-    gotoTimingManage
+    batchCopyWorkflow
   }
 }

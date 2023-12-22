@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.dolphinscheduler</groupId>
         <artifactId>dolphinscheduler-task-plugin</artifactId>
-        <version>dev-SNAPSHOT</version>
+        <version>3.1.8-SNAPSHOT</version>
     </parent>
     <artifactId>dolphinscheduler-task-spark</artifactId>
     <packaging>jar</packaging>
@@ -36,10 +36,6 @@
             <groupId>org.apache.dolphinscheduler</groupId>
             <artifactId>dolphinscheduler-task-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>kubernetes-client</artifactId>
         </dependency>
     </dependencies>
 </project>

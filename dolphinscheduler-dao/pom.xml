@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.dolphinscheduler</groupId>
         <artifactId>dolphinscheduler</artifactId>
-        <version>dev-SNAPSHOT</version>
+        <version>3.1.8-SNAPSHOT</version>
     </parent>
     <artifactId>dolphinscheduler-dao</artifactId>
     <name>${project.artifactId}</name>
@@ -111,10 +111,6 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.dolphinscheduler</groupId>
-            <artifactId>dolphinscheduler-storage-api</artifactId>
         </dependency>
     </dependencies>
 

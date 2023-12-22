@@ -21,16 +21,12 @@
     <parent>
         <groupId>org.apache.dolphinscheduler</groupId>
         <artifactId>dolphinscheduler-alert-plugins</artifactId>
-        <version>dev-SNAPSHOT</version>
+        <version>3.1.8-SNAPSHOT</version>
     </parent>
     <artifactId>dolphinscheduler-alert-feishu</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.dolphinscheduler</groupId>
-            <artifactId>dolphinscheduler-alert-api</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>

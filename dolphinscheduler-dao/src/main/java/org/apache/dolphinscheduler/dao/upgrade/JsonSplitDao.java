@@ -17,6 +17,7 @@
 
 package org.apache.dolphinscheduler.dao.upgrade;
 
+import org.apache.dolphinscheduler.common.utils.ConnectionUtils;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinitionLog;
 import org.apache.dolphinscheduler.dao.entity.ProcessTaskRelationLog;
 import org.apache.dolphinscheduler.dao.entity.TaskDefinitionLog;
@@ -26,10 +27,12 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class JsonSplitDao {
+
+    public static final Logger logger = LoggerFactory.getLogger(JsonSplitDao.class);
 
     /**
      * executeJsonSplitProcessDefinition
@@ -39,10 +42,10 @@ public class JsonSplitDao {
      */
     public void executeJsonSplitProcessDefinition(Connection conn, List<ProcessDefinitionLog> processDefinitionLogs) {
         String updateSql =
-                "UPDATE t_ds_process_definition SET global_params=?,timeout=?,locations=?,update_time=? where id=?";
+                "UPDATE t_ds_process_definition SET global_params=?,timeout=?,tenant_id=?,locations=?,update_time=? where id=?";
         String insertLogSql =
                 "insert into t_ds_process_definition_log (code,name,version,description,project_code,release_state,user_id,"
-                        + "global_params,flag,locations,timeout,operator,operate_time,create_time,update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                        + "global_params,flag,locations,timeout,tenant_id,operator,operate_time,create_time,update_time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try {
             PreparedStatement processUpdate = conn.prepareStatement(updateSql);
             PreparedStatement insertLog = conn.prepareStatement(insertLogSql);
@@ -50,9 +53,10 @@ public class JsonSplitDao {
             for (ProcessDefinitionLog processDefinitionLog : processDefinitionLogs) {
                 processUpdate.setString(1, processDefinitionLog.getGlobalParams());
                 processUpdate.setInt(2, processDefinitionLog.getTimeout());
-                processUpdate.setString(3, processDefinitionLog.getLocations());
-                processUpdate.setDate(4, new Date(processDefinitionLog.getUpdateTime().getTime()));
-                processUpdate.setInt(5, processDefinitionLog.getId());
+                processUpdate.setInt(3, processDefinitionLog.getTenantId());
+                processUpdate.setString(4, processDefinitionLog.getLocations());
+                processUpdate.setDate(5, new Date(processDefinitionLog.getUpdateTime().getTime()));
+                processUpdate.setInt(6, processDefinitionLog.getId());
                 processUpdate.addBatch();
 
                 insertLog.setLong(1, processDefinitionLog.getCode());
@@ -66,10 +70,11 @@ public class JsonSplitDao {
                 insertLog.setInt(9, processDefinitionLog.getFlag().getCode());
                 insertLog.setString(10, processDefinitionLog.getLocations());
                 insertLog.setInt(11, processDefinitionLog.getTimeout());
-                insertLog.setInt(12, processDefinitionLog.getOperator());
-                insertLog.setDate(13, new Date(processDefinitionLog.getOperateTime().getTime()));
-                insertLog.setDate(14, new Date(processDefinitionLog.getCreateTime().getTime()));
-                insertLog.setDate(15, new Date(processDefinitionLog.getUpdateTime().getTime()));
+                insertLog.setInt(12, processDefinitionLog.getTenantId());
+                insertLog.setInt(13, processDefinitionLog.getOperator());
+                insertLog.setDate(14, new Date(processDefinitionLog.getOperateTime().getTime()));
+                insertLog.setDate(15, new Date(processDefinitionLog.getCreateTime().getTime()));
+                insertLog.setDate(16, new Date(processDefinitionLog.getUpdateTime().getTime()));
                 insertLog.addBatch();
 
                 i++;
@@ -85,8 +90,10 @@ public class JsonSplitDao {
             processUpdate.close();
             insertLog.close();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
+        } finally {
+            ConnectionUtils.releaseResource(conn);
         }
     }
 
@@ -151,8 +158,10 @@ public class JsonSplitDao {
             insert.close();
             insertLog.close();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
+        } finally {
+            ConnectionUtils.releaseResource(conn);
         }
     }
 
@@ -239,8 +248,10 @@ public class JsonSplitDao {
             insert.close();
             insertLog.close();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
+        } finally {
+            ConnectionUtils.releaseResource(conn);
         }
     }
 }

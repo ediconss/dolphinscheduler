@@ -22,19 +22,17 @@ import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.dao.BaseDaoTest;
 import org.apache.dolphinscheduler.dao.entity.AccessToken;
 import org.apache.dolphinscheduler.dao.entity.AlertGroup;
-import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
-import org.apache.dolphinscheduler.dao.entity.ProcessDefinitionLog;
 import org.apache.dolphinscheduler.dao.entity.Queue;
 import org.apache.dolphinscheduler.dao.entity.Tenant;
 import org.apache.dolphinscheduler.dao.entity.User;
-import org.apache.dolphinscheduler.dao.entity.UserWithProcessDefinitionCode;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -56,12 +54,6 @@ public class UserMapperTest extends BaseDaoTest {
 
     @Autowired
     private QueueMapper queueMapper;
-
-    @Autowired
-    private ProcessDefinitionMapper processDefinitionMapper;
-
-    @Autowired
-    private ProcessDefinitionLogMapper processDefinitionLogMapper;
 
     /**
      * insert one user
@@ -213,7 +205,7 @@ public class UserMapperTest extends BaseDaoTest {
         user.setUserName("user1_update");
         user.setUserType(UserType.ADMIN_USER);
         int update = userMapper.updateById(user);
-        Assertions.assertEquals(1, update);
+        Assert.assertEquals(update, 1);
     }
 
     /**
@@ -225,7 +217,7 @@ public class UserMapperTest extends BaseDaoTest {
         User user = insertOne();
         // delete
         int delete = userMapper.deleteById(user.getId());
-        Assertions.assertEquals(1, delete);
+        Assert.assertEquals(delete, 1);
     }
 
     /**
@@ -237,7 +229,7 @@ public class UserMapperTest extends BaseDaoTest {
         User user = insertOne();
         // query
         List<User> userList = userMapper.selectList(null);
-        Assertions.assertNotEquals(0, userList.size());
+        Assert.assertNotEquals(userList.size(), 0);
     }
 
     /**
@@ -249,7 +241,7 @@ public class UserMapperTest extends BaseDaoTest {
         User user = insertOne();
         // queryAllGeneralUser
         List<User> userList = userMapper.queryAllGeneralUser();
-        Assertions.assertNotEquals(0, userList.size());
+        Assert.assertNotEquals(userList.size(), 0);
     }
 
     /**
@@ -266,7 +258,7 @@ public class UserMapperTest extends BaseDaoTest {
         // queryUserPaging
         Page<User> page = new Page(1, 3);
         IPage<User> userIPage = userMapper.queryUserPaging(page, user.getUserName());
-        Assertions.assertNotEquals(0, userIPage.getTotal());
+        Assert.assertNotEquals(userIPage.getTotal(), 0);
     }
 
     /**
@@ -280,7 +272,7 @@ public class UserMapperTest extends BaseDaoTest {
         User user = insertOne(queue, tenant);
         // queryDetailsById
         User queryUser = userMapper.queryDetailsById(user.getId());
-        Assertions.assertEquals(user.getUserName(), queryUser.getUserName());
+        Assert.assertEquals(user.getUserName(), queryUser.getUserName());
     }
 
     /**
@@ -294,7 +286,7 @@ public class UserMapperTest extends BaseDaoTest {
         User user = insertOneUser(tenant);
         // queryTenantCodeByUserId
         User queryUser = userMapper.queryTenantCodeByUserId(user.getId());
-        Assertions.assertEquals(queryUser, user);
+        Assert.assertEquals(queryUser, user);
     }
 
     /**
@@ -309,7 +301,6 @@ public class UserMapperTest extends BaseDaoTest {
         // queryUserByToken
         User userToken = userMapper.queryUserByToken(accessToken.getToken(), new Date());
         Assertions.assertEquals(userToken.getId(), user.getId());
-
     }
 
     @Test
@@ -319,59 +310,14 @@ public class UserMapperTest extends BaseDaoTest {
         List<Integer> userIds = new ArrayList<>();
         userIds.add(user.getId());
         List<User> users = userMapper.selectByIds(userIds);
-        Assertions.assertFalse(users.isEmpty());
+        Assert.assertFalse(users.isEmpty());
     }
 
     @Test
     public void testExistUser() {
         String queueName = "queue";
-        Assertions.assertNull(userMapper.existUser(queueName));
+        Assert.assertNull(userMapper.existUser(queueName));
         insertOne();
-        Assertions.assertTrue(userMapper.existUser(queueName));
+        Assert.assertTrue(userMapper.existUser(queueName));
     }
-
-    @Test
-    public void testQueryUserWithProcessDefinitionCode() {
-        User user = insertOne();
-        insertProcessDefinition(user.getId());
-        ProcessDefinitionLog log = insertProcessDefinitionLog(user.getId());
-        long processDefinitionCode = log.getCode();
-        List<UserWithProcessDefinitionCode> userWithCodes = userMapper.queryUserWithProcessDefinitionCode(
-                null);
-        UserWithProcessDefinitionCode userWithCode = userWithCodes.stream()
-                .filter(code -> code.getProcessDefinitionCode() == processDefinitionCode)
-                .findAny().orElse(null);
-        assert userWithCode != null;
-        Assertions.assertEquals(userWithCode.getCreatorId(), user.getId());
-    }
-
-    private ProcessDefinitionLog insertProcessDefinitionLog(int operator) {
-        // insertOne
-        ProcessDefinitionLog processDefinitionLog = new ProcessDefinitionLog();
-        processDefinitionLog.setCode(199L);
-        processDefinitionLog.setName("def 1");
-        processDefinitionLog.setProjectCode(1L);
-        processDefinitionLog.setUserId(operator);
-        processDefinitionLog.setVersion(10);
-        processDefinitionLog.setUpdateTime(new Date());
-        processDefinitionLog.setCreateTime(new Date());
-        processDefinitionLog.setOperator(operator);
-        processDefinitionLogMapper.insert(processDefinitionLog);
-        return processDefinitionLog;
-    }
-
-    private ProcessDefinition insertProcessDefinition(int operator) {
-        // insertOne
-        ProcessDefinition processDefinition = new ProcessDefinition();
-        processDefinition.setCode(199L);
-        processDefinition.setName("process-name");
-        processDefinition.setProjectCode(1010L);
-        processDefinition.setVersion(10);
-        processDefinition.setUserId(operator);
-        processDefinition.setUpdateTime(new Date());
-        processDefinition.setCreateTime(new Date());
-        processDefinitionMapper.insert(processDefinition);
-        return processDefinition;
-    }
-
 }

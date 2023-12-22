@@ -22,8 +22,8 @@ import org.apache.dolphinscheduler.data.quality.config.Config;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ConfigUtilsTest {
 
@@ -41,6 +41,6 @@ public class ConfigUtilsTest {
         int expect = 1;
         int actual = result.entrySet().size();
 
-        Assertions.assertEquals(expect, actual);
+        Assert.assertEquals(expect, actual);
     }
 }

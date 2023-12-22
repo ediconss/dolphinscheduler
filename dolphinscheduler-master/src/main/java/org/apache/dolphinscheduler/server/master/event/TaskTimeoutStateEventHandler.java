@@ -23,21 +23,24 @@ import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.apache.dolphinscheduler.plugin.task.api.enums.TaskTimeoutStrategy;
 import org.apache.dolphinscheduler.server.master.metrics.TaskMetrics;
 import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteRunnable;
-import org.apache.dolphinscheduler.server.master.runner.execute.DefaultTaskExecuteRunnable;
+import org.apache.dolphinscheduler.server.master.runner.task.ITaskProcessor;
+import org.apache.dolphinscheduler.server.master.runner.task.TaskAction;
 
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.auto.service.AutoService;
 
 @AutoService(StateEventHandler.class)
-@Slf4j
 public class TaskTimeoutStateEventHandler implements StateEventHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskTimeoutStateEventHandler.class);
 
     @Override
     public boolean handleStateEvent(WorkflowExecuteRunnable workflowExecuteRunnable,
-                                    StateEvent stateEvent) throws StateEventHandleError, StateEventHandleException {
+                                    StateEvent stateEvent) throws StateEventHandleError {
         TaskStateEvent taskStateEvent = (TaskStateEvent) stateEvent;
 
         TaskMetrics.incTaskInstanceByState("timeout");
@@ -49,22 +52,22 @@ public class TaskTimeoutStateEventHandler implements StateEventHandler {
                                 "Cannot find the task instance from workflow execute runnable, taskInstanceId: %s",
                                 taskStateEvent.getTaskInstanceId())));
 
-        log.info("Handle task instance state timeout event, taskInstanceId: {}", taskStateEvent.getTaskInstanceId());
+        logger.info("Handle task instance state timout event, taskInstanceId: {}", taskStateEvent.getTaskInstanceId());
 
         if (TimeoutFlag.CLOSE == taskInstance.getTaskDefine().getTimeoutFlag()) {
             return true;
         }
         TaskTimeoutStrategy taskTimeoutStrategy = taskInstance.getTaskDefine()
                 .getTimeoutNotifyStrategy();
-        Map<Long, DefaultTaskExecuteRunnable> taskExecuteRunnableMap =
-                workflowExecuteRunnable.getTaskExecuteRunnableMap();
+        Map<Long, ITaskProcessor> activeTaskProcessMap = workflowExecuteRunnable
+                .getActiveTaskProcessMap();
         if ((TaskTimeoutStrategy.FAILED == taskTimeoutStrategy
                 || TaskTimeoutStrategy.WARNFAILED == taskTimeoutStrategy)) {
-            if (taskExecuteRunnableMap.containsKey(taskInstance.getTaskCode())) {
-                taskExecuteRunnableMap.get(taskInstance.getTaskCode()).timeout();
-                workflowExecuteRunnable.taskFinished(taskInstance);
+            if (activeTaskProcessMap.containsKey(taskInstance.getTaskCode())) {
+                ITaskProcessor taskProcessor = activeTaskProcessMap.get(taskInstance.getTaskCode());
+                taskProcessor.action(TaskAction.TIMEOUT);
             } else {
-                log.warn(
+                logger.warn(
                         "cannot find the task processor for task {}, so skip task processor action.",
                         taskInstance.getTaskCode());
             }

@@ -63,15 +63,10 @@ export const useForm = () => {
       runMode: 'RUN_MODE_SERIAL',
       processInstancePriority: 'MEDIUM',
       workerGroup: 'default',
-      tenantCode: 'default',
       environmentCode: null,
       startParams: null,
       expectedParallelismNumber: '',
-      dryRun: 0,
-      testFlag: 0,
-      version: null,
-      allLevelDependent: 'false',
-      executionOrder: 'DESC_ORDER',
+      dryRun: 0
     },
     saving: false,
     rules: {
@@ -109,7 +104,6 @@ export const useForm = () => {
       processInstancePriority: 'MEDIUM',
       warningGroupId: null as null | number,
       workerGroup: 'default',
-      tenantCode: 'default',
       environmentCode: null as null | string
     },
     saving: false

@@ -20,20 +20,21 @@ package org.apache.dolphinscheduler.server.master.runner;
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.lifecycle.ServerLifeCycleManager;
 import org.apache.dolphinscheduler.common.thread.BaseDaemonThread;
-import org.apache.dolphinscheduler.plugin.task.api.utils.LogUtils;
 import org.apache.dolphinscheduler.server.master.cache.ProcessInstanceExecCacheManager;
 import org.apache.dolphinscheduler.server.master.cache.StreamTaskInstanceExecCacheManager;
+import org.apache.dolphinscheduler.service.utils.LoggerUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class EventExecuteService extends BaseDaemonThread {
+
+    private static final Logger logger = LoggerFactory.getLogger(EventExecuteService.class);
 
     @Autowired
     private ProcessInstanceExecCacheManager processInstanceExecCacheManager;
@@ -53,9 +54,9 @@ public class EventExecuteService extends BaseDaemonThread {
 
     @Override
     public synchronized void start() {
-        log.info("Master Event execute service starting");
+        logger.info("Master Event execute service starting");
         super.start();
-        log.info("Master Event execute service started");
+        logger.info("Master Event execute service started");
     }
 
     @Override
@@ -66,11 +67,11 @@ public class EventExecuteService extends BaseDaemonThread {
                 streamTaskEventHandler();
                 TimeUnit.MILLISECONDS.sleep(Constants.SLEEP_TIME_MILLIS_SHORT);
             } catch (InterruptedException interruptedException) {
-                log.warn("Master event service interrupted, will exit this loop", interruptedException);
+                logger.warn("Master event service interrupted, will exit this loop", interruptedException);
                 Thread.currentThread().interrupt();
                 break;
             } catch (Exception e) {
-                log.error("Master event execute service error", e);
+                logger.error("Master event execute service error", e);
             }
         }
     }
@@ -78,12 +79,11 @@ public class EventExecuteService extends BaseDaemonThread {
     private void workflowEventHandler() {
         for (WorkflowExecuteRunnable workflowExecuteThread : this.processInstanceExecCacheManager.getAll()) {
             try {
-                LogUtils.setWorkflowInstanceIdMDC(
-                        workflowExecuteThread.getWorkflowExecuteContext().getWorkflowInstance().getId());
+                LoggerUtils.setWorkflowInstanceIdMDC(workflowExecuteThread.getProcessInstance().getId());
                 workflowExecuteThreadPool.executeEvent(workflowExecuteThread);
 
             } finally {
-                LogUtils.removeWorkflowInstanceIdMDC();
+                LoggerUtils.removeWorkflowInstanceIdMDC();
             }
         }
     }
@@ -91,11 +91,11 @@ public class EventExecuteService extends BaseDaemonThread {
     private void streamTaskEventHandler() {
         for (StreamTaskExecuteRunnable streamTaskExecuteRunnable : streamTaskInstanceExecCacheManager.getAll()) {
             try {
-                LogUtils.setTaskInstanceIdMDC(streamTaskExecuteRunnable.getTaskInstance().getId());
+                LoggerUtils.setTaskInstanceIdMDC(streamTaskExecuteRunnable.getTaskInstance().getId());
                 streamTaskExecuteThreadPool.executeEvent(streamTaskExecuteRunnable);
 
             } finally {
-                LogUtils.removeWorkflowInstanceIdMDC();
+                LoggerUtils.removeWorkflowInstanceIdMDC();
             }
         }
     }

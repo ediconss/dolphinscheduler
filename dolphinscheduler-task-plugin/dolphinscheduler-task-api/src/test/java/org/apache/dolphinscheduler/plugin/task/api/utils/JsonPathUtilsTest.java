@@ -19,8 +19,8 @@ package org.apache.dolphinscheduler.plugin.task.api.utils;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class JsonPathUtilsTest {
 
@@ -28,13 +28,13 @@ public class JsonPathUtilsTest {
     public void read() {
         String json = "{\"taskInstanceId\":\"123\",\"taskInstanceFinished\":true}";
         Optional<Boolean> optionalBoolean = JsonPathUtils.read(json, "$.taskInstanceFinished");
-        Assertions.assertTrue(optionalBoolean.get());
+        Assert.assertTrue(optionalBoolean.get());
     }
 
     @Test
     public void exist() {
         String json = "{\"taskInstanceId\":\"123\",\"taskInstanceFinished\":true}";
-        Assertions.assertTrue(JsonPathUtils.exist(json, "$.[?(@.taskInstanceFinished == true)]"));
-        Assertions.assertFalse(JsonPathUtils.exist(json, "$.[?(@.taskInstanceFinished == false)]"));
+        Assert.assertTrue(JsonPathUtils.exist(json, "$.[?(@.taskInstanceFinished == true)]"));
+        Assert.assertFalse(JsonPathUtils.exist(json, "$.[?(@.taskInstanceFinished == false)]"));
     }
 }

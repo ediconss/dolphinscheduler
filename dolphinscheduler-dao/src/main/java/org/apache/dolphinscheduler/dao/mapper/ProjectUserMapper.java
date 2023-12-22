@@ -29,7 +29,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface ProjectUserMapper extends BaseMapper<ProjectUser> {
 
     /**
-     * delete project user relation
+     * delte prject user relation
      *
      * @param projectId projectId
      * @param userId userId

@@ -20,22 +20,26 @@ package org.apache.dolphinscheduler.plugin.datasource.oracle;
 import org.apache.dolphinscheduler.plugin.datasource.oracle.param.OracleConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor("org.apache.dolphinscheduler.plugin.datasource.api.client.CommonDataSourceClient")
+@PrepareForTest({OracleDataSourceClient.class, OracleDataSourceChannel.class})
 public class OracleDataSourceChannelTest {
 
     @Test
     public void testCreateDataSourceClient() {
-        OracleDataSourceChannel sourceChannel = Mockito.mock(OracleDataSourceChannel.class);
-        OraclePooledDataSourceClient dataSourceClient = Mockito.mock(OraclePooledDataSourceClient.class);
-        Mockito.when(sourceChannel.createPooledDataSourceClient(Mockito.any(), Mockito.any()))
+        OracleDataSourceChannel sourceChannel = PowerMockito.mock(OracleDataSourceChannel.class);
+        OracleDataSourceClient dataSourceClient = PowerMockito.mock(OracleDataSourceClient.class);
+        PowerMockito.when(sourceChannel.createDataSourceClient(Mockito.any(), Mockito.any()))
                 .thenReturn(dataSourceClient);
-        Assertions
-                .assertNotNull(sourceChannel.createPooledDataSourceClient(new OracleConnectionParam(), DbType.ORACLE));
+        Assert.assertNotNull(sourceChannel.createDataSourceClient(new OracleConnectionParam(), DbType.ORACLE));
     }
 }

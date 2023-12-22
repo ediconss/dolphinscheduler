@@ -37,7 +37,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -55,7 +57,6 @@ import io.netty.handler.timeout.IdleStateHandler;
 /**
  * NettyClient
  */
-@Slf4j
 public class NettyClient {
 
     public static NettyClient getInstance() {
@@ -66,6 +67,8 @@ public class NettyClient {
 
         private static final NettyClient INSTANCE = new NettyClient(new NettyClientConfig());
     }
+
+    private final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
     /**
      * worker group
@@ -125,7 +128,7 @@ public class NettyClient {
                 return channel;
             }
         } catch (Exception ex) {
-            log.warn(String.format("connect to %s error", host), ex);
+            logger.warn(String.format("connect to %s error", host), ex);
         }
         return null;
     }
@@ -220,7 +223,7 @@ public class NettyClient {
             assert future != null;
             result = future.get();
         } catch (InterruptedException e) {
-            log.error("send msg error，service name is {}", serviceName, e);
+            logger.error("send msg error，service name is {}", serviceName, e);
             Thread.currentThread().interrupt();
         }
         return result;
@@ -237,9 +240,9 @@ public class NettyClient {
                     this.workerGroup.shutdownGracefully();
                 }
             } catch (Exception ex) {
-                log.error("netty client close exception", ex);
+                logger.error("netty client close exception", ex);
             }
-            log.info("netty client closed");
+            logger.info("netty client closed");
         }
     }
 

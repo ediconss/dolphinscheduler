@@ -19,8 +19,8 @@ package org.apache.dolphinscheduler.plugin.datasource.presto;
 
 import org.apache.dolphinscheduler.spi.datasource.DataSourceChannel;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class PrestoDataSourceChannelFactoryTest {
 
@@ -28,6 +28,6 @@ public class PrestoDataSourceChannelFactoryTest {
     public void testCreate() {
         PrestoDataSourceChannelFactory sourceChannelFactory = new PrestoDataSourceChannelFactory();
         DataSourceChannel dataSourceChannel = sourceChannelFactory.create();
-        Assertions.assertNotNull(dataSourceChannel);
+        Assert.assertNotNull(dataSourceChannel);
     }
 }

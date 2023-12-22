@@ -12,7 +12,7 @@ To prevent data loss by some miss-operation, it is recommended to back up data b
 
 ### Download the Latest Version Installation Package
 
-Download the latest binary distribute package from [download](https://dolphinscheduler.apache.org/en-us/download) and then put it in the different
+Download the latest binary distribute package from [download](/en-us/download/download.html) and then put it in the different
 directory where current service running. And all below command is running in this directory.
 
 ## Upgrade
@@ -23,10 +23,10 @@ Stop all services of dolphinscheduler according to your deployment method. If yo
 
 ### Upgrade Database
 
-Set the following environment variables ({user} and {password} are changed to your database username and password), and then run the upgrade script.
+Change configuration in `./bin/env/dolphinscheduler_env.sh` ({user} and {password} are changed to your database username and password), and then run the upgrade script.
 
 Using MySQL as an example, change the value if you use other databases. Please manually download the [mysql-connector-java driver jar](https://downloads.MySQL.com/archives/c-j/)
-jar package and add it to the `./tools/libs` directory, then export the following environment variables
+jar package and add it to the `./tools/libs` directory, then change `./bin/ env/dolphinscheduler_env.sh` file
 
         ```shell
         export DATABASE=${DATABASE:-mysql}
@@ -38,25 +38,9 @@ jar package and add it to the `./tools/libs` directory, then export the followin
 
 Execute database upgrade script: `sh ./tools/bin/upgrade-schema.sh`
 
-### Migrate Resource
-
-After refactoring resource center in version 3.2.0, original resources become unmanaged. You can assign a target tenant and execute one-time migration script. All resources will be migrated to directory `.migrate` of target tenant.
-
-#### Example
-
-Assign an existed target tenant `abc`, the base resource path is `/dolphinscheduler/abc/`.
-
-Execute script: `sh ./tools/bin/migrate-resource.sh abc`.
-
-Execution result:
-
-- The original file resource `a/b.sh` migrates to `/dolphinscheduler/abc/resources/.migrate/a/b.sh`.
-- The original UDF resource `x/y.jar` migrates to `/dolphinscheduler/abc/udf/.migrate/x/y.jar`.
-- Update UDF function's bound resource info.
-
 ### Upgrade Service
 
-#### Change Configuration `bin/env/install_env.sh`
+#### Change Configuration `bin/env/install_config.conf`
 
 - If you deploy with Pseudo-Cluster deployment, change it according to [Pseudo-Cluster](../installation/pseudo-cluster.md) section "Modify Configuration".
 - If you deploy with Cluster deployment, change it according to [Cluster](../installation/cluster.md) section "Modify Configuration".
@@ -74,16 +58,16 @@ The architecture of worker group is different between version before version 1.3
 
 #### How Can I Do When I Upgrade from 1.3.1 to version before 2.0.0
 
-- Check the backup database, search records in table `t_ds_worker_group` table and mainly focus on three columns: `id, name and IP`.
+* Check the backup database, search records in table `t_ds_worker_group` table and mainly focus on three columns: `id, name and IP`.
 
 | id |   name   |                     ip_list |
 |:---|:--------:|----------------------------:|
 | 1  | service1 |               192.168.xx.10 |
 | 2  | service2 | 192.168.xx.11,192.168.xx.12 |
 
-- Modify worker related configuration in `bin/env/install_env.sh`.
+* Modify worker related configuration in `bin/env/install_config.conf`.
 
-Assume below are the machine worker service to be deployed:
+Assume bellow are the machine worker service to be deployed:
 
 | hostname |      ip       |
 |:---------|:-------------:|
@@ -94,7 +78,7 @@ Assume below are the machine worker service to be deployed:
 To keep worker group config consistent with the previous version, we need to modify workers configuration as below:
 
 ```shell
-#worker service is deployed on which machine, and also specify which worker group this worker belongs to.
+#worker service is deployed on which machine, and also specify which worker group this worker belongs to. 
 workers="ds1:service1,ds2:service2,ds3:service2"
 ```
 

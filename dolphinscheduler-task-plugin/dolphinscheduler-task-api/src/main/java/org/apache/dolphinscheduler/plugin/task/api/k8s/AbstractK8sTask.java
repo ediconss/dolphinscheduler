@@ -37,7 +37,7 @@ public abstract class AbstractK8sTask extends AbstractRemoteTask {
      */
     protected AbstractK8sTask(TaskExecutionContext taskRequest) {
         super(taskRequest);
-        this.abstractK8sTaskExecutor = new K8sTaskExecutor(log, taskRequest);
+        this.abstractK8sTaskExecutor = new K8sTaskExecutor(logger, taskRequest);
     }
 
     // todo split handle to submit and track
@@ -48,9 +48,8 @@ public abstract class AbstractK8sTask extends AbstractRemoteTask {
             setExitStatusCode(response.getExitStatusCode());
             setAppIds(response.getAppIds());
         } catch (Exception e) {
-            log.error("k8s task submit failed with error");
             exitStatusCode = -1;
-            throw new TaskException("Execute k8s task error", e);
+            throw new TaskException("k8s process failure", e);
         }
     }
 

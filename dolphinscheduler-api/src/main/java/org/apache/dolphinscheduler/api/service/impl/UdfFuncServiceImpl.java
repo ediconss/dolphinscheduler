@@ -25,24 +25,23 @@ import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.enums.AuthorizationType;
 import org.apache.dolphinscheduler.common.enums.UdfType;
 import org.apache.dolphinscheduler.common.utils.PropertyUtils;
+import org.apache.dolphinscheduler.dao.entity.Resource;
 import org.apache.dolphinscheduler.dao.entity.UdfFunc;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.ResourceMapper;
 import org.apache.dolphinscheduler.dao.mapper.UDFUserMapper;
 import org.apache.dolphinscheduler.dao.mapper.UdfFuncMapper;
-import org.apache.dolphinscheduler.plugin.storage.api.StorageOperate;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +53,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
  * udf func service impl
  */
 @Service
-@Slf4j
 public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UdfFuncServiceImpl.class);
 
     @Autowired
     private ResourceMapper resourceMapper;
@@ -66,9 +66,6 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
     @Autowired
     private UDFUserMapper udfUserMapper;
 
-    @Autowired(required = false)
-    private StorageOperate storageOperate;
-
     /**
      * create udf function
      *
@@ -78,6 +75,7 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
      * @param argTypes argument types
      * @param database database
      * @param desc description
+     * @param resourceId resource id
      * @param className class name
      * @return create result code
      */
@@ -86,11 +84,11 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
     public Result<Object> createUdfFunction(User loginUser,
                                             String funcName,
                                             String className,
-                                            String fullName,
                                             String argTypes,
                                             String database,
                                             String desc,
-                                            UdfType type) {
+                                            UdfType type,
+                                            int resourceId) {
         Result<Object> result = new Result<>();
 
         boolean canOperatorPermissions = canOperatorPermissions(loginUser, null, AuthorizationType.UDF,
@@ -100,34 +98,25 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
             return result;
         }
         if (checkDescriptionLength(desc)) {
-            log.warn("Parameter description is too long.");
             putMsg(result, Status.DESCRIPTION_TOO_LONG_ERROR);
             return result;
         }
         // if resource upload startup
-        if (!PropertyUtils.isResourceStorageStartup()) {
-            log.error("Storage does not start up, resource upload startup state: {}.",
-                    PropertyUtils.isResourceStorageStartup());
+        if (!PropertyUtils.getResUploadStartupState()) {
+            logger.error("resource upload startup state: {}", PropertyUtils.getResUploadStartupState());
             putMsg(result, Status.HDFS_NOT_STARTUP);
             return result;
         }
 
         // verify udf func name exist
         if (checkUdfFuncNameExists(funcName)) {
-            log.warn("Udf function with the same name already exists.");
             putMsg(result, Status.UDF_FUNCTION_EXISTS);
             return result;
         }
 
-        Boolean existResource = false;
-        try {
-            existResource = storageOperate.exists(fullName);
-        } catch (IOException e) {
-            log.error("Check resource error: {}", fullName, e);
-        }
-
-        if (!existResource) {
-            log.error("resource full name {} is not exist", fullName);
+        Resource resource = resourceMapper.selectById(resourceId);
+        if (resource == null) {
+            logger.error("resourceId {} is not exist", resourceId);
             putMsg(result, Status.RESOURCE_NOT_EXIST);
             return result;
         }
@@ -145,18 +134,16 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
             udf.setDatabase(database);
         }
         udf.setDescription(desc);
-        // set resourceId to -1 because we do not store resource to db anymore, instead we use fullName
-        udf.setResourceId(-1);
-        udf.setResourceName(fullName);
+        udf.setResourceId(resourceId);
+        udf.setResourceName(resource.getFullName());
         udf.setType(type);
 
         udf.setCreateTime(now);
         udf.setUpdateTime(now);
 
         udfFuncMapper.insert(udf);
-        log.info("UDF function create complete, udfFuncName:{}.", udf.getFuncName());
         putMsg(result, Status.SUCCESS);
-        permissionPostHandle(AuthorizationType.UDF, loginUser.getId(), Collections.singletonList(udf.getId()), log);
+        permissionPostHandle(AuthorizationType.UDF, loginUser.getId(), Collections.singletonList(udf.getId()), logger);
         return result;
     }
 
@@ -187,7 +174,6 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
         }
         UdfFunc udfFunc = udfFuncMapper.selectById(id);
         if (udfFunc == null) {
-            log.error("Resource does not exist, udf func id:{}.", id);
             putMsg(result, Status.RESOURCE_NOT_EXIST);
             return result;
         }
@@ -205,7 +191,7 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
      * @param argTypes argument types
      * @param database data base
      * @param desc description
-     * @param fullName resource full name
+     * @param resourceId resource id
      * @param className class name
      * @return update result code
      */
@@ -218,7 +204,7 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
                                         String database,
                                         String desc,
                                         UdfType type,
-                                        String fullName) {
+                                        int resourceId) {
         Result<Object> result = new Result<>();
 
         boolean canOperatorPermissions = canOperatorPermissions(loginUser, new Object[]{udfFuncId},
@@ -228,7 +214,6 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
             return result;
         }
         if (checkDescriptionLength(desc)) {
-            log.warn("Parameter description is too long.");
             putMsg(result, Status.DESCRIPTION_TOO_LONG_ERROR);
             return result;
         }
@@ -236,16 +221,14 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
         UdfFunc udf = udfFuncMapper.selectUdfById(udfFuncId);
 
         if (udf == null) {
-            log.error("UDF function does not exist, udfFuncId:{}.", udfFuncId);
             result.setCode(Status.UDF_FUNCTION_NOT_EXIST.getCode());
             result.setMsg(Status.UDF_FUNCTION_NOT_EXIST.getMsg());
             return result;
         }
 
         // if resource upload startup
-        if (!PropertyUtils.isResourceStorageStartup()) {
-            log.error("Storage does not start up, resource upload startup state: {}.",
-                    PropertyUtils.isResourceStorageStartup());
+        if (!PropertyUtils.getResUploadStartupState()) {
+            logger.error("resource upload startup state: {}", PropertyUtils.getResUploadStartupState());
             putMsg(result, Status.HDFS_NOT_STARTUP);
             return result;
         }
@@ -253,30 +236,20 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
         // verify udfFuncName is exist
         if (!funcName.equals(udf.getFuncName())) {
             if (checkUdfFuncNameExists(funcName)) {
-                log.warn("Udf function exists, can not create again, udfFuncName:{}.", funcName);
+                logger.error("UdfFuncRequest {} has exist, can't create again.", funcName);
                 result.setCode(Status.UDF_FUNCTION_EXISTS.getCode());
                 result.setMsg(Status.UDF_FUNCTION_EXISTS.getMsg());
                 return result;
             }
         }
 
-        Boolean doesResExist = false;
-        try {
-            doesResExist = storageOperate.exists(fullName);
-        } catch (Exception e) {
-            log.error("udf resource checking error", fullName);
+        Resource resource = resourceMapper.selectById(resourceId);
+        if (resource == null) {
+            logger.error("resourceId {} is not exist", resourceId);
             result.setCode(Status.RESOURCE_NOT_EXIST.getCode());
             result.setMsg(Status.RESOURCE_NOT_EXIST.getMsg());
             return result;
         }
-
-        if (!doesResExist) {
-            log.error("resource full name {} is not exist", fullName);
-            result.setCode(Status.RESOURCE_NOT_EXIST.getCode());
-            result.setMsg(Status.RESOURCE_NOT_EXIST.getMsg());
-            return result;
-        }
-
         Date now = new Date();
         udf.setFuncName(funcName);
         udf.setClassName(className);
@@ -285,15 +258,13 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
             udf.setDatabase(database);
         }
         udf.setDescription(desc);
-        // set resourceId to -1 because we do not store resource to db anymore, instead we use fullName
-        udf.setResourceId(-1);
-        udf.setResourceName(fullName);
+        udf.setResourceId(resourceId);
+        udf.setResourceName(resource.getFullName());
         udf.setType(type);
 
         udf.setUpdateTime(now);
 
         udfFuncMapper.updateById(udf);
-        log.info("UDF function update complete, udfFuncId:{}, udfFuncName:{}.", udfFuncId, funcName);
         putMsg(result, Status.SUCCESS);
         return result;
     }
@@ -336,7 +307,7 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
      */
     private IPage<UdfFunc> getUdfFuncsPage(User loginUser, String searchVal, Integer pageSize, int pageNo) {
         Set<Integer> udfFuncIds = resourcePermissionCheckService.userOwnedResourceIdsAcquisition(AuthorizationType.UDF,
-                loginUser.getId(), log);
+                loginUser.getId(), logger);
         Page<UdfFunc> page = new Page<>(pageNo, pageSize);
         if (udfFuncIds.isEmpty()) {
             return page;
@@ -362,7 +333,7 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
             return result;
         }
         Set<Integer> udfFuncIds = resourcePermissionCheckService.userOwnedResourceIdsAcquisition(AuthorizationType.UDF,
-                loginUser.getId(), log);
+                loginUser.getId(), logger);
         if (udfFuncIds.isEmpty()) {
             result.setData(Collections.emptyList());
             putMsg(result, Status.SUCCESS);
@@ -394,7 +365,6 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
         }
         udfFuncMapper.deleteById(id);
         udfUserMapper.deleteByUdfFuncId(id);
-        log.info("UDF function delete complete, udfFuncId:{}.", id);
         putMsg(result, Status.SUCCESS);
         return result;
     }
@@ -416,7 +386,6 @@ public class UdfFuncServiceImpl extends BaseServiceImpl implements UdfFuncServic
         }
 
         if (checkUdfFuncNameExists(name)) {
-            log.warn("Udf function with the same already exists.");
             putMsg(result, Status.UDF_FUNCTION_EXISTS);
         } else {
             putMsg(result, Status.SUCCESS);

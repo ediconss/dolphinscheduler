@@ -17,7 +17,6 @@
 export type TaskType =
   | 'SHELL'
   | 'SUB_PROCESS'
-  | 'DYNAMIC'
   | 'PROCEDURE'
   | 'SQL'
   | 'SPARK'
@@ -40,34 +39,22 @@ export type TaskType =
   | 'MLFLOW'
   | 'OPENMLDB'
   | 'DVC'
-  | 'JAVA'
   | 'DINKY'
   | 'SAGEMAKER'
   | 'CHUNJUN'
   | 'FLINK_STREAM'
   | 'PYTORCH'
   | 'HIVECLI'
-  | 'DMS'
-  | 'DATASYNC'
-  | 'KUBEFLOW'
-  | 'LINKIS'
-  | 'DATA_FACTORY'
-  | 'REMOTESHELL'
+  | 'XUANWU_CDC'
 
 export type TaskExecuteType = 'STREAM' | 'BATCH'
 
 export const TASK_TYPES_MAP = {
-  JAVA: {
-    alias: 'JAVA'
-  },
   SHELL: {
     alias: 'SHELL'
   },
   SUB_PROCESS: {
     alias: 'SUB_PROCESS'
-  },
-  DYNAMIC: {
-    alias: 'DYNAMIC'
   },
   PROCEDURE: {
     alias: 'PROCEDURE'
@@ -96,6 +83,9 @@ export const TASK_TYPES_MAP = {
   },
   DATAX: {
     alias: 'DataX'
+  },
+  XUANWU_CDC: {
+    alias: 'XUANWU_CDC'
   },
   PIGEON: {
     alias: 'PIGEON'
@@ -169,30 +159,6 @@ export const TASK_TYPES_MAP = {
   },
   HIVECLI: {
     alias: 'HIVECLI',
-    helperLinkDisable: true
-  },
-  DMS: {
-    alias: 'DMS',
-    helperLinkDisable: true
-  },
-  DATASYNC: {
-    alias: 'DATASYNC',
-    helperLinkDisable: true
-  },
-  KUBEFLOW: {
-    alias: 'KUBEFLOW',
-    helperLinkDisable: true
-  },
-  LINKIS: {
-    alias: 'LINKIS',
-    helperLinkDisable: true
-  },
-  DATA_FACTORY: {
-    alias: 'DATA_FACTORY',
-    helperLinkDisable: true
-  },
-  REMOTESHELL: {
-    alias: 'REMOTESHELL',
     helperLinkDisable: true
   }
 } as {

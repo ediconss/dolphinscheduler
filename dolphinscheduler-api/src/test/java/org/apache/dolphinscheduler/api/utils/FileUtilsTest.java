@@ -17,18 +17,20 @@
 
 package org.apache.dolphinscheduler.api.utils;
 
+import static org.junit.Assert.*;
+
 import org.apache.http.entity.ContentType;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +42,24 @@ public class FileUtilsTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtilsTest.class);
 
-    @TempDir
-    public Path folder;
+    @Rule
+    public TemporaryFolder folder = null;
 
-    private String rootPath;
+    private String rootPath = null;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
-        rootPath = folder.toString();
+
+        folder = new TemporaryFolder();
+        folder.create();
+
+        rootPath = folder.getRoot().getAbsolutePath();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+        folder.delete();
     }
 
     /**
@@ -75,7 +87,7 @@ public class FileUtilsTest {
 
         // Test file exists
         File destFile = new File(destFilename);
-        Assertions.assertTrue(destFile.exists());
+        assertTrue(destFile.exists());
 
     }
 
@@ -83,28 +95,26 @@ public class FileUtilsTest {
     public void testFile2Resource() throws IOException {
 
         // Define dest file path
-        String destFilename = rootPath + System.getProperty("file.separator") + "resource.txt";
+        String destFilename = rootPath + System.getProperty("file.separator") + "data.txt";
         logger.info("destFilename: " + destFilename);
 
         // Define test resource
-        File file = new File(destFilename);
-        org.apache.commons.io.FileUtils.writeStringToFile(file, "test data", Charset.defaultCharset());
+        File file = folder.newFile("resource.txt");
 
         // Invoke file2Resource and test not null
-        Resource resource = FileUtils.file2Resource(file.toString());
-        Assertions.assertNotNull(resource);
+        Resource resource = FileUtils.file2Resource(file.getAbsolutePath());
+        assertNotNull(resource);
 
         // Invoke file2Resource and test null
-        Resource resource1 = FileUtils.file2Resource(file + "abc");
-        Assertions.assertNull(resource1);
+        Resource resource1 = FileUtils.file2Resource(file.getAbsolutePath() + "abc");
+        assertNull(resource1);
 
     }
 
     @Test
     public void testFile2String() throws IOException {
         String content = "123";
-        org.apache.commons.io.FileUtils.writeStringToFile(new File("/tmp/task.json"), content,
-                Charset.defaultCharset());
+        org.apache.commons.io.FileUtils.writeStringToFile(new File("/tmp/task.json"), content);
 
         File file = new File("/tmp/task.json");
         FileInputStream fileInputStream = new FileInputStream("/tmp/task.json");
@@ -113,10 +123,10 @@ public class FileUtilsTest {
 
         String resultStr = FileUtils.file2String(multipartFile);
 
-        Assertions.assertEquals(content, resultStr);
+        Assert.assertEquals(content, resultStr);
 
         boolean delete = file.delete();
 
-        Assertions.assertTrue(delete);
+        Assert.assertTrue(delete);
     }
 }

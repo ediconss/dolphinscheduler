@@ -17,9 +17,6 @@
 # limitations under the License.
 #
 
-if [ -d "dist" ];then
-rm -rf dist
-fi
 mkdir dist || true
 
 tar -zxf dolphinscheduler-dist/target/apache-dolphinscheduler*-bin.tar.gz --strip=1 -C dist

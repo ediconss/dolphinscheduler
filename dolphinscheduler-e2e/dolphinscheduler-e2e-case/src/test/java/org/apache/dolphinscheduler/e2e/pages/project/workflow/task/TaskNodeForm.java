@@ -32,7 +32,6 @@ import org.openqa.selenium.support.pagefactory.ByChained;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -117,7 +116,7 @@ public abstract class TaskNodeForm {
 
         final By optionsLocator = By.className("option-pre-tasks");
 
-        new WebDriverWait(parent.driver(), Duration.ofSeconds(20))
+        new WebDriverWait(parent.driver(), 10)
                 .until(ExpectedConditions.visibilityOfElementLocated(optionsLocator));
 
         List<WebElement> webElements =  parent.driver().findElements(optionsLocator);

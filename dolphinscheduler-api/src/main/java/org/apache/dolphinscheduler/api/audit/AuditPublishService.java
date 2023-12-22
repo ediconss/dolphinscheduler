@@ -17,7 +17,7 @@
 
 package org.apache.dolphinscheduler.api.audit;
 
-import org.apache.dolphinscheduler.api.configuration.ApiConfig;
+import org.apache.dolphinscheduler.api.configuration.AuditConfiguration;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -25,29 +25,30 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.PostConstruct;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
 public class AuditPublishService {
 
-    private final BlockingQueue<AuditMessage> auditMessageQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<AuditMessage> auditMessageQueue = new LinkedBlockingQueue<>();
 
     @Autowired
     private List<AuditSubscriber> subscribers;
 
     @Autowired
-    private ApiConfig apiConfig;
+    private AuditConfiguration auditConfiguration;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuditPublishService.class);
 
     /**
      * create a daemon thread to process the message queue
      */
     @PostConstruct
     private void init() {
-        if (apiConfig.isAuditEnable()) {
+        if (auditConfiguration.getEnabled()) {
             Thread thread = new Thread(this::doPublish);
             thread.setDaemon(true);
             thread.setName("Audit-Log-Consume-Thread");
@@ -61,8 +62,8 @@ public class AuditPublishService {
      * @param message audit message
      */
     public void publish(AuditMessage message) {
-        if (apiConfig.isAuditEnable() && !auditMessageQueue.offer(message)) {
-            log.error("Publish audit message failed, message:{}", message);
+        if (auditConfiguration.getEnabled() && !auditMessageQueue.offer(message)) {
+            logger.error("add audit message failed {}", message);
         }
     }
 
@@ -78,11 +79,11 @@ public class AuditPublishService {
                     try {
                         subscriber.execute(message);
                     } catch (Exception e) {
-                        log.error("Consume audit message failed, message:{}", message, e);
+                        logger.error("consume audit message {} failed, error detail {}", message, e);
                     }
                 }
             } catch (InterruptedException e) {
-                log.error("Consume audit message failed, message:{}", message, e);
+                logger.error("consume audit message failed {}.", message, e);
                 Thread.currentThread().interrupt();
                 break;
             }

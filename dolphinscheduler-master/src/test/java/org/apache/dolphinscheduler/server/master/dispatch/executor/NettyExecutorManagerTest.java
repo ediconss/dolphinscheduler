@@ -24,29 +24,29 @@ import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.remote.NettyRemotingServer;
-import org.apache.dolphinscheduler.remote.command.Message;
-import org.apache.dolphinscheduler.remote.command.task.TaskDispatchRequest;
+import org.apache.dolphinscheduler.remote.command.Command;
+import org.apache.dolphinscheduler.remote.command.TaskDispatchCommand;
 import org.apache.dolphinscheduler.remote.config.NettyServerConfig;
 import org.apache.dolphinscheduler.remote.utils.Host;
 import org.apache.dolphinscheduler.server.master.builder.TaskExecutionContextBuilder;
 import org.apache.dolphinscheduler.server.master.dispatch.context.ExecutionContext;
 import org.apache.dolphinscheduler.server.master.dispatch.enums.ExecutorType;
 import org.apache.dolphinscheduler.server.master.dispatch.exceptions.ExecuteException;
-import org.apache.dolphinscheduler.server.worker.processor.WorkerTaskDispatchProcessor;
+import org.apache.dolphinscheduler.server.worker.processor.TaskDispatchProcessor;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * netty executor manager test
  */
-@ExtendWith(SpringExtension.class)
-@Disabled
+@RunWith(SpringJUnit4ClassRunner.class)
+@Ignore
 public class NettyExecutorManagerTest {
 
     @Autowired
@@ -56,7 +56,9 @@ public class NettyExecutorManagerTest {
         final NettyServerConfig serverConfig = new NettyServerConfig();
         serverConfig.setListenPort(30000);
         NettyRemotingServer nettyRemotingServer = new NettyRemotingServer(serverConfig);
-        nettyRemotingServer.registerProcessor(new WorkerTaskDispatchProcessor());
+        nettyRemotingServer.registerProcessor(
+                org.apache.dolphinscheduler.remote.command.CommandType.TASK_DISPATCH_REQUEST,
+                new TaskDispatchProcessor());
         nettyRemotingServer.start();
         TaskInstance taskInstance = Mockito.mock(TaskInstance.class);
         ProcessDefinition processDefinition = Mockito.mock(ProcessDefinition.class);
@@ -70,12 +72,13 @@ public class NettyExecutorManagerTest {
                 .create();
         ExecutionContext executionContext = new ExecutionContext(toCommand(context), ExecutorType.WORKER, taskInstance);
         executionContext.setHost(Host.of(NetUtils.getAddr(serverConfig.getListenPort())));
-        Assertions.assertDoesNotThrow(() -> nettyExecutorManager.execute(executionContext));
+        Boolean execute = nettyExecutorManager.execute(executionContext);
+        Assert.assertTrue(execute);
         nettyRemotingServer.close();
     }
 
-    @Test
-    public void testExecuteWithException() {
+    @Test(expected = ExecuteException.class)
+    public void testExecuteWithException() throws ExecuteException {
         TaskInstance taskInstance = Mockito.mock(TaskInstance.class);
         ProcessDefinition processDefinition = Mockito.mock(ProcessDefinition.class);
         ProcessInstance processInstance = new ProcessInstance();
@@ -88,13 +91,14 @@ public class NettyExecutorManagerTest {
                 .create();
         ExecutionContext executionContext = new ExecutionContext(toCommand(context), ExecutorType.WORKER, taskInstance);
         executionContext.setHost(Host.of(NetUtils.getAddr(4444)));
-        Assertions.assertThrows(ExecuteException.class, () -> {
-            nettyExecutorManager.execute(executionContext);
-        });
+        nettyExecutorManager.execute(executionContext);
 
     }
-    private Message toCommand(TaskExecutionContext taskExecutionContext) {
-        TaskDispatchRequest requestCommand = new TaskDispatchRequest(taskExecutionContext);
+    private Command toCommand(TaskExecutionContext taskExecutionContext) {
+        TaskDispatchCommand requestCommand = new TaskDispatchCommand(taskExecutionContext,
+                "127.0.0.1:5678",
+                "127.0.0.1:1234",
+                System.currentTimeMillis());
         return requestCommand.convert2Command();
     }
 }

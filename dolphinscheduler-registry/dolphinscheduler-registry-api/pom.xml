@@ -23,15 +23,8 @@
     <parent>
         <groupId>org.apache.dolphinscheduler</groupId>
         <artifactId>dolphinscheduler-registry</artifactId>
-        <version>dev-SNAPSHOT</version>
+        <version>3.1.8-SNAPSHOT</version>
     </parent>
 
     <artifactId>dolphinscheduler-registry-api</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.dolphinscheduler</groupId>
-            <artifactId>dolphinscheduler-common</artifactId>
-        </dependency>
-    </dependencies>
 </project>

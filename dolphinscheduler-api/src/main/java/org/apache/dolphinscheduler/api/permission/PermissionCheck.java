@@ -24,7 +24,7 @@ import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
 import org.apache.dolphinscheduler.service.exceptions.ServiceException;
 import org.apache.dolphinscheduler.service.process.ProcessService;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 
@@ -172,15 +172,15 @@ public class PermissionCheck<T> {
             // get user type in order to judge whether the user is admin
             User user = processService.getUserById(userId);
             if (user == null) {
-                logger.error("User does not exist, userId:{}.", userId);
+                logger.error("user id {} doesn't exist", userId);
                 throw new ServiceException(String.format("user %s doesn't exist", userId));
             }
             if (user.getUserType() != UserType.ADMIN_USER) {
                 List<T> unauthorizedList = processService.listUnauthorized(userId, needChecks, authorizationType);
                 // if exist unauthorized resource
                 if (CollectionUtils.isNotEmpty(unauthorizedList)) {
-                    logger.error("User does not have {} permission for {}, userName:{}.",
-                            authorizationType.getDescp(), unauthorizedList, user.getUserName());
+                    logger.error("user {} doesn't have permission of {}: {}", user.getUserName(),
+                            authorizationType.getDescp(), unauthorizedList);
                     throw new ServiceException(String.format("user %s doesn't have permission of %s %s",
                             user.getUserName(), authorizationType.getDescp(), unauthorizedList.get(0)));
                 }

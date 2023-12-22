@@ -152,6 +152,7 @@ const TenantModal = defineComponent({
                   path='description'
                 >
                   <NInput
+                    allowInput={this.trim}
                     class='input-description'
                     placeholder={t('security.tenant.description_tips')}
                     v-model={[this.model.description, 'value']}

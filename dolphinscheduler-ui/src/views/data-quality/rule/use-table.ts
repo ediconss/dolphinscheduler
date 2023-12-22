@@ -34,7 +34,7 @@ export function useTable(viewRuleEntry = (unusedRuleJson: string): void => {}) {
     page: ref(1),
     pageSize: ref(10),
     state: ref(null),
-    searchVal: '',
+    searchVal: ref(null),
     totalPage: ref(1),
     loadingRef: ref(false)
   })

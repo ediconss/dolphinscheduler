@@ -19,8 +19,8 @@ package org.apache.dolphinscheduler.plugin.datasource.postgresql;
 
 import org.apache.dolphinscheduler.spi.datasource.DataSourceChannel;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class PostgreSQLDataSourceChannelFactoryTest {
 
@@ -28,6 +28,6 @@ public class PostgreSQLDataSourceChannelFactoryTest {
     public void testCreate() {
         PostgreSQLDataSourceChannelFactory sourceChannelFactory = new PostgreSQLDataSourceChannelFactory();
         DataSourceChannel dataSourceChannel = sourceChannelFactory.create();
-        Assertions.assertNotNull(dataSourceChannel);
+        Assert.assertNotNull(dataSourceChannel);
     }
 }

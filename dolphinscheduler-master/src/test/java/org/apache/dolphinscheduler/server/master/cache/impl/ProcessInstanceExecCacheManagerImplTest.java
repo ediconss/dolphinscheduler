@@ -21,18 +21,16 @@ import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteRunnable;
 
 import java.util.Collection;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class ProcessInstanceExecCacheManagerImplTest {
 
     @InjectMocks
@@ -41,39 +39,40 @@ public class ProcessInstanceExecCacheManagerImplTest {
     @Mock
     private WorkflowExecuteRunnable workflowExecuteThread;
 
-    @BeforeEach
+    @Before
     public void before() {
+        Mockito.when(workflowExecuteThread.getKey()).thenReturn("workflowExecuteThread1");
         processInstanceExecCacheManager.cache(1, workflowExecuteThread);
     }
 
     @Test
     public void testGetByProcessInstanceId() {
         WorkflowExecuteRunnable workflowExecuteThread = processInstanceExecCacheManager.getByProcessInstanceId(1);
-        Assertions.assertNotNull(workflowExecuteThread);
+        Assert.assertEquals("workflowExecuteThread1", workflowExecuteThread.getKey());
     }
 
     @Test
     public void testContains() {
-        Assertions.assertTrue(processInstanceExecCacheManager.contains(1));
+        Assert.assertTrue(processInstanceExecCacheManager.contains(1));
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void testCacheNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> processInstanceExecCacheManager.cache(2, null));
+        processInstanceExecCacheManager.cache(2, null);
         WorkflowExecuteRunnable workflowExecuteThread = processInstanceExecCacheManager.getByProcessInstanceId(2);
-        Assertions.assertNull(workflowExecuteThread);
+        Assert.assertNull(workflowExecuteThread);
     }
 
     @Test
     public void testRemoveByProcessInstanceId() {
         processInstanceExecCacheManager.removeByProcessInstanceId(1);
         WorkflowExecuteRunnable workflowExecuteThread = processInstanceExecCacheManager.getByProcessInstanceId(1);
-        Assertions.assertNull(workflowExecuteThread);
+        Assert.assertNull(workflowExecuteThread);
     }
 
     @Test
     public void testGetAll() {
         Collection<WorkflowExecuteRunnable> workflowExecuteThreads = processInstanceExecCacheManager.getAll();
-        Assertions.assertEquals(1, workflowExecuteThreads.size());
+        Assert.assertEquals(1, workflowExecuteThreads.size());
     }
 }

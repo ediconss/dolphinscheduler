@@ -32,7 +32,8 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * analysis of DAG
@@ -40,8 +41,9 @@ import lombok.extern.slf4j.Slf4j;
  * NodeInfo：node description information
  * EdgeInfo: edge description information
  */
-@Slf4j
 public class DAG<Node, NodeInfo, EdgeInfo> {
+
+    private static final Logger logger = LoggerFactory.getLogger(DAG.class);
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -121,7 +123,7 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
         try {
             // Whether an edge can be successfully added(fromNode -> toNode)
             if (!isLegalAddEdge(fromNode, toNode, createNode)) {
-                log.error("serious error: add edge({} -> {}) is invalid, cause cycle！", fromNode, toNode);
+                logger.error("serious error: add edge({} -> {}) is invalid, cause cycle！", fromNode, toNode);
                 return false;
             }
 
@@ -379,13 +381,13 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
      */
     private boolean isLegalAddEdge(Node fromNode, Node toNode, boolean createNode) {
         if (fromNode.equals(toNode)) {
-            log.error("edge fromNode({}) can't equals toNode({})", fromNode, toNode);
+            logger.error("edge fromNode({}) can't equals toNode({})", fromNode, toNode);
             return false;
         }
 
         if (!createNode) {
             if (!containsNode(fromNode) || !containsNode(toNode)) {
-                log.error("edge fromNode({}) or toNode({}) is not in vertices map", fromNode, toNode);
+                logger.error("edge fromNode({}) or toNode({}) is not in vertices map", fromNode, toNode);
                 return false;
             }
         }
@@ -494,15 +496,6 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
 
         // if notZeroIndegreeNodeMap is empty,there is no ring!
         return new AbstractMap.SimpleEntry<>(notZeroIndegreeNodeMap.size() == 0, topoResultList);
-    }
-
-    /**
-     * Get all the nodes that are in the graph
-     *
-     * @return all nodes in the graph
-     */
-    public Set<Node> getAllNodesList() {
-        return nodesMap.keySet();
     }
 
     @Override

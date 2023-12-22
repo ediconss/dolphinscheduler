@@ -16,7 +16,7 @@
  */
 package org.apache.dolphinscheduler.api.dto.resources.filter;
 
-import org.apache.dolphinscheduler.plugin.storage.api.StorageEntity;
+import org.apache.dolphinscheduler.dao.entity.Resource;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,7 +36,7 @@ public class ResourceFilter implements IFilter {
     /**
      * resource list
      */
-    private List<StorageEntity> resourceList;
+    private List<Resource> resourceList;
 
     /**
      * parent list
@@ -48,7 +48,7 @@ public class ResourceFilter implements IFilter {
      * @param suffix        resource suffix
      * @param resourceList  resource list
      */
-    public ResourceFilter(String suffix, List<StorageEntity> resourceList) {
+    public ResourceFilter(String suffix, List<Resource> resourceList) {
         this.suffix = suffix;
         this.resourceList = resourceList;
     }
@@ -57,31 +57,44 @@ public class ResourceFilter implements IFilter {
      * file filter
      * @return file filtered by suffix
      */
-    public Set<StorageEntity> fileFilter() {
-        return resourceList.stream().filter(t -> t.getFullName().endsWith(suffix)).collect(Collectors.toSet());
+    public Set<Resource> fileFilter() {
+        return resourceList.stream().filter(t -> {
+            String alias = t.getAlias();
+            return alias.endsWith(suffix);
+        }).collect(Collectors.toSet());
     }
 
     /**
      * list all parent dir
      * @return parent resource dir set
      */
-    Set<StorageEntity> listAllParent() {
-        Set<StorageEntity> parentList = new HashSet<>();
-        Set<StorageEntity> filterFileList = fileFilter();
-        for (StorageEntity file : filterFileList) {
-            String fullName = file.getFullName();
-            for (StorageEntity resource : resourceList) {
-                if (fullName.startsWith(resource.getFullName())) {
-                    parentList.add(resource);
-                }
+    Set<Resource> listAllParent() {
+        Set<Resource> parentList = new HashSet<>();
+        Set<Resource> filterFileList = fileFilter();
+        for (Resource file : filterFileList) {
+            parentList.add(file);
+            setAllParent(file, parentList);
+        }
+        return parentList;
+
+    }
+
+    /**
+     * list all parent dir
+     * @param resource  resource
+     * @return parent resource dir set
+     */
+    private void setAllParent(Resource resource, Set<Resource> parentList) {
+        for (Resource resourceTemp : resourceList) {
+            if (resourceTemp.getId() == resource.getPid()) {
+                parentList.add(resourceTemp);
+                setAllParent(resourceTemp, parentList);
             }
         }
-
-        return parentList;
     }
 
     @Override
-    public List<StorageEntity> filter() {
+    public List<Resource> filter() {
         return new ArrayList<>(listAllParent());
     }
 }

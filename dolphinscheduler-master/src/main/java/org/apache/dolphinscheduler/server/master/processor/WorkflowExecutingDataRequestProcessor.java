@@ -18,50 +18,50 @@
 package org.apache.dolphinscheduler.server.master.processor;
 
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
-import org.apache.dolphinscheduler.remote.command.Message;
-import org.apache.dolphinscheduler.remote.command.MessageType;
-import org.apache.dolphinscheduler.remote.command.workflow.WorkflowExecutingDataRequest;
-import org.apache.dolphinscheduler.remote.command.workflow.WorkflowExecutingDataResponse;
+import org.apache.dolphinscheduler.remote.command.Command;
+import org.apache.dolphinscheduler.remote.command.CommandType;
+import org.apache.dolphinscheduler.remote.command.WorkflowExecutingDataRequestCommand;
+import org.apache.dolphinscheduler.remote.command.WorkflowExecutingDataResponseCommand;
 import org.apache.dolphinscheduler.remote.dto.WorkflowExecuteDto;
-import org.apache.dolphinscheduler.remote.processor.MasterRpcProcessor;
+import org.apache.dolphinscheduler.remote.processor.NettyRequestProcessor;
 import org.apache.dolphinscheduler.server.master.service.ExecutingService;
 
 import java.util.Optional;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 
 /**
  * workflow executing data process from api/master
  */
 @Component
-@Slf4j
-public class WorkflowExecutingDataRequestProcessor implements MasterRpcProcessor {
+public class WorkflowExecutingDataRequestProcessor implements NettyRequestProcessor {
+
+    private final Logger logger = LoggerFactory.getLogger(WorkflowExecutingDataRequestProcessor.class);
 
     @Autowired
     private ExecutingService executingService;
 
     @Override
-    public void process(Channel channel, Message message) {
-        WorkflowExecutingDataRequest requestCommand =
-                JSONUtils.parseObject(message.getBody(), WorkflowExecutingDataRequest.class);
+    public void process(Channel channel, Command command) {
+        Preconditions.checkArgument(CommandType.WORKFLOW_EXECUTING_DATA_REQUEST == command.getType(),
+                String.format("invalid command type: %s", command.getType()));
 
-        log.info("received command, processInstanceId:{}", requestCommand.getProcessInstanceId());
+        WorkflowExecutingDataRequestCommand requestCommand =
+                JSONUtils.parseObject(command.getBody(), WorkflowExecutingDataRequestCommand.class);
+
+        logger.info("received command, processInstanceId:{}", requestCommand.getProcessInstanceId());
 
         Optional<WorkflowExecuteDto> workflowExecuteDtoOptional =
                 executingService.queryWorkflowExecutingData(requestCommand.getProcessInstanceId());
 
-        WorkflowExecutingDataResponse responseCommand = new WorkflowExecutingDataResponse();
+        WorkflowExecutingDataResponseCommand responseCommand = new WorkflowExecutingDataResponseCommand();
         workflowExecuteDtoOptional.ifPresent(responseCommand::setWorkflowExecuteDto);
-        channel.writeAndFlush(responseCommand.convert2Command(message.getOpaque()));
-    }
-
-    @Override
-    public MessageType getCommandType() {
-        return MessageType.WORKFLOW_EXECUTING_DATA_REQUEST;
+        channel.writeAndFlush(responseCommand.convert2Command(command.getOpaque()));
     }
 }

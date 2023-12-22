@@ -25,14 +25,16 @@ import org.apache.dolphinscheduler.plugin.task.api.parameters.AbstractParameters
 import org.apache.dolphinscheduler.plugin.task.api.parameters.ParametersNode;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.resource.ResourceParametersHelper;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class PigeonTaskChannel implements TaskChannel {
+
+    private static final Logger logger = LoggerFactory.getLogger(PigeonTaskChannel.class);
 
     @Override
     public void cancelApplication(boolean status) {
-        log.info("pigeon task cancel");
+        logger.info("pigeon task cancel");
     }
 
     @Override

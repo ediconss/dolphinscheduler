@@ -18,7 +18,6 @@
 import { defineComponent } from 'vue'
 import { useMessage } from 'naive-ui'
 import Dag from '../../components/dag'
-import { DynamicDag } from '@/views/projects/workflow/components/dynamic-dag'
 import { useThemeStore } from '@/store/theme/theme'
 import { useRoute, useRouter } from 'vue-router'
 import {
@@ -42,6 +41,7 @@ export default defineComponent({
   name: 'WorkflowDefinitionCreate',
   setup() {
     const theme = useThemeStore()
+
     const message = useMessage()
     const { t } = useI18n()
     const route = useRoute()
@@ -58,7 +58,7 @@ export default defineComponent({
         return {
           prop: p.key,
           value: p.value,
-          direct: p.direct,
+          direct: 'IN',
           type: 'VARCHAR'
         }
       })
@@ -69,6 +69,7 @@ export default defineComponent({
           taskRelationJson: JSON.stringify(connects),
           locations: JSON.stringify(locations),
           name: saveForm.name,
+          tenantCode: saveForm.tenantCode,
           executionType: saveForm.executionType,
           description: saveForm.description,
           globalParams: JSON.stringify(globalParams),
@@ -88,11 +89,7 @@ export default defineComponent({
           theme.darkTheme ? Styles['dark'] : Styles['light']
         ]}
       >
-        {route.query.dynamic === 'true' ? (
-          <DynamicDag />
-        ) : (
-          <Dag projectCode={projectCode} onSave={onSave} />
-        )}
+        <Dag projectCode={projectCode} onSave={onSave} />
       </div>
     )
   }

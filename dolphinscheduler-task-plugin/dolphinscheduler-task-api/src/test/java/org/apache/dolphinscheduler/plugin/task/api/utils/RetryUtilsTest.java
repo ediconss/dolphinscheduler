@@ -19,24 +19,21 @@ package org.apache.dolphinscheduler.plugin.task.api.utils;
 
 import java.util.function.Supplier;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class RetryUtilsTest {
 
-    @Test
+    @Test(expected = RuntimeException.class)
     public void retryFunction() {
         Boolean retrySuccess = RetryUtils.retryFunction(() -> true);
-        Assertions.assertTrue(retrySuccess);
+        Assert.assertTrue(retrySuccess);
 
-        Assertions.assertThrows(RuntimeException.class, () -> {
-            RetryUtils.retryFunction((Supplier<Boolean>) () -> {
-                throw new RuntimeException("Test failed function");
-            });
-            // make sure RuntimeException thrown
-            Assertions.fail();
+        RetryUtils.retryFunction((Supplier<Boolean>) () -> {
+            throw new RuntimeException("Test failed function");
         });
-
+        // should throw runtime exception
+        Assert.fail();
     }
 
 }

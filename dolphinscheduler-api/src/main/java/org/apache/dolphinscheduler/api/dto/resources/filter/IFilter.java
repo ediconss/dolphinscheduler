@@ -16,7 +16,7 @@
  */
 package org.apache.dolphinscheduler.api.dto.resources.filter;
 
-import org.apache.dolphinscheduler.plugin.storage.api.StorageEntity;
+import org.apache.dolphinscheduler.dao.entity.Resource;
 
 import java.util.List;
 
@@ -25,5 +25,5 @@ import java.util.List;
  */
 public interface IFilter {
 
-    List<StorageEntity> filter();
+    List<Resource> filter();
 }

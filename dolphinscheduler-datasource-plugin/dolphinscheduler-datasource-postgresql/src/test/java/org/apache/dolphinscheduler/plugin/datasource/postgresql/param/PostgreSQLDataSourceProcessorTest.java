@@ -20,22 +20,28 @@ package org.apache.dolphinscheduler.plugin.datasource.postgresql.param;
 import static org.apache.dolphinscheduler.common.constants.DataSourceConstants.ORG_POSTGRESQL_DRIVER;
 import static org.apache.dolphinscheduler.common.constants.DataSourceConstants.POSTGRESQL_VALIDATION_QUERY;
 
+import org.apache.dolphinscheduler.plugin.datasource.api.plugin.DataSourceClientProvider;
+import org.apache.dolphinscheduler.plugin.datasource.api.utils.CommonUtils;
+import org.apache.dolphinscheduler.plugin.datasource.api.utils.DataSourceUtils;
 import org.apache.dolphinscheduler.plugin.datasource.api.utils.PasswordUtils;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
+import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.ImmutableMap;
-
-@ExtendWith(MockitoExtension.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Class.class, DriverManager.class, DataSourceUtils.class, CommonUtils.class,
+        DataSourceClientProvider.class, PasswordUtils.class})
 public class PostgreSQLDataSourceProcessorTest {
 
     private PostgreSQLDataSourceProcessor postgreSqlDatasourceProcessor = new PostgreSQLDataSourceProcessor();
@@ -51,14 +57,13 @@ public class PostgreSQLDataSourceProcessorTest {
         postgreSqlDatasourceParamDTO.setPort(3308);
         postgreSqlDatasourceParamDTO.setDatabase("default");
         postgreSqlDatasourceParamDTO.setOther(props);
-        try (MockedStatic<PasswordUtils> mockedStaticPasswordUtils = Mockito.mockStatic(PasswordUtils.class)) {
-            mockedStaticPasswordUtils.when(() -> PasswordUtils.encodePassword(Mockito.anyString())).thenReturn("test");
-            PostgreSQLConnectionParam connectionParams = (PostgreSQLConnectionParam) postgreSqlDatasourceProcessor
-                    .createConnectionParams(postgreSqlDatasourceParamDTO);
-            Assertions.assertEquals("jdbc:postgresql://localhost:3308", connectionParams.getAddress());
-            Assertions.assertEquals("jdbc:postgresql://localhost:3308/default", connectionParams.getJdbcUrl());
-            Assertions.assertEquals("root", connectionParams.getUser());
-        }
+        PowerMockito.mockStatic(PasswordUtils.class);
+        PowerMockito.when(PasswordUtils.encodePassword(Mockito.anyString())).thenReturn("test");
+        PostgreSQLConnectionParam connectionParams = (PostgreSQLConnectionParam) postgreSqlDatasourceProcessor
+                .createConnectionParams(postgreSqlDatasourceParamDTO);
+        Assert.assertEquals("jdbc:postgresql://localhost:3308", connectionParams.getAddress());
+        Assert.assertEquals("jdbc:postgresql://localhost:3308/default", connectionParams.getJdbcUrl());
+        Assert.assertEquals("root", connectionParams.getUser());
     }
 
     @Test
@@ -68,8 +73,8 @@ public class PostgreSQLDataSourceProcessorTest {
                         + ",\"database\":\"default\",\"jdbcUrl\":\"jdbc:postgresql://localhost:3308/default\"}";
         PostgreSQLConnectionParam connectionParams = (PostgreSQLConnectionParam) postgreSqlDatasourceProcessor
                 .createConnectionParams(connectionJson);
-        Assertions.assertNotNull(connectionParams);
-        Assertions.assertEquals("root", connectionParams.getUser());
+        Assert.assertNotNull(connectionParams);
+        Assert.assertEquals("root", connectionParams.getUser());
     }
 
     @Test
@@ -81,19 +86,16 @@ public class PostgreSQLDataSourceProcessorTest {
     public void testGetJdbcUrl() {
         PostgreSQLConnectionParam postgreSqlConnectionParam = new PostgreSQLConnectionParam();
         postgreSqlConnectionParam.setJdbcUrl("jdbc:postgresql://localhost:3308/default");
-        ImmutableMap<String, String> map = new ImmutableMap.Builder<String, String>()
-                .put("other", "other")
-                .build();
-        postgreSqlConnectionParam.setOther(map);
+        postgreSqlConnectionParam.setOther("other");
 
         String jdbcUrl = postgreSqlDatasourceProcessor.getJdbcUrl(postgreSqlConnectionParam);
-        Assertions.assertEquals("jdbc:postgresql://localhost:3308/default?other=other", jdbcUrl);
+        Assert.assertEquals("jdbc:postgresql://localhost:3308/default?other", jdbcUrl);
 
     }
 
     @Test
     public void testGetDbType() {
-        Assertions.assertEquals(DbType.POSTGRESQL, postgreSqlDatasourceProcessor.getDbType());
+        Assert.assertEquals(DbType.POSTGRESQL, postgreSqlDatasourceProcessor.getDbType());
     }
 
     @Test

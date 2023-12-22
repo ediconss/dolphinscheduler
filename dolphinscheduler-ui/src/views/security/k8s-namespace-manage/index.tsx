@@ -22,13 +22,19 @@ import {
   toRefs,
   watch
 } from 'vue'
-import { NButton, NDataTable, NIcon, NPagination, NSpace } from 'naive-ui'
+import {
+  NButton,
+  NDataTable,
+  NIcon,
+  NInput,
+  NPagination,
+  NSpace
+} from 'naive-ui'
 import { SearchOutlined } from '@vicons/antd'
 import { useI18n } from 'vue-i18n'
 import { useTable } from './use-table'
 import K8sNamespaceModal from './components/k8s-namespace-modal'
 import Card from '@/components/card'
-import Search from '@/components/input-search'
 
 const k8sNamespaceManage = defineComponent({
   name: 'k8s-namespace-manage',
@@ -111,10 +117,12 @@ const k8sNamespaceManage = defineComponent({
               {t('security.k8s_namespace.create_namespace')}
             </NButton>
             <NSpace>
-              <Search
-                v-model:value={this.searchVal}
+              <NInput
+                allowInput={this.trim}
+                size='small'
+                clearable
+                v-model={[this.searchVal, 'value']}
                 placeholder={t('security.k8s_namespace.search_tips')}
-                onSearch={onSearch}
               />
               <NButton size='small' type='primary' onClick={onSearch}>
                 <NIcon>

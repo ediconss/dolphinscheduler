@@ -25,7 +25,6 @@ import lombok.Getter;
 import org.apache.dolphinscheduler.e2e.pages.common.NavBarPage;
 
 import java.security.Key;
-import java.time.Duration;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -57,11 +56,6 @@ public class DataSourcePage extends NavBarPage implements NavBarPage.NavBarItem 
     })
     private WebElement buttonConfirm;
 
-    @FindBys({
-        @FindBy(className = "dialog-source-modal"),
-    })
-    private WebElement dataSourceModal;
-
     private final CreateDataSourceForm createDataSourceForm;
 
     public DataSourcePage(RemoteWebDriver driver) {
@@ -74,12 +68,19 @@ public class DataSourcePage extends NavBarPage implements NavBarPage.NavBarItem 
                                            String jdbcParams) {
         buttonCreateDataSource().click();
 
-        new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOfElementLocated(
-            new By.ByClassName("dialog-source-modal")));
+        new WebDriverWait(driver, 10).until(ExpectedConditions.visibilityOfElementLocated(
+            new By.ByClassName("dialog-create-data-source")));
 
-        dataSourceModal().findElement(By.className(dataSourceType.toUpperCase()+"-box")).click();
+        createDataSourceForm().btnDataSourceTypeDropdown().click();
 
-        new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.textToBePresentInElement(driver.findElement(By.className("dialog-create-data-source")), dataSourceType.toUpperCase()));
+        new WebDriverWait(driver, 10).until(ExpectedConditions.textToBePresentInElement(driver.findElement(By.className("dialog-create-data-source")), dataSourceType.toUpperCase()));
+
+        createDataSourceForm().selectDataSourceType()
+            .stream()
+            .filter(it -> it.getText().contains(dataSourceType.toUpperCase()))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException(String.format("No %s in data source type list", dataSourceType.toUpperCase())))
+            .click();
 
         createDataSourceForm().inputDataSourceName().sendKeys(dataSourceName);
         createDataSourceForm().inputDataSourceDescription().sendKeys(dataSourceDescription);

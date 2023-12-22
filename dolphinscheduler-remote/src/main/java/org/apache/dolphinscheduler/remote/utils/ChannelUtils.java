@@ -21,14 +21,17 @@ import org.apache.dolphinscheduler.common.utils.NetUtils;
 
 import java.net.InetSocketAddress;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.channel.Channel;
 
 /**
  * channel utils
  */
-@Slf4j
 public class ChannelUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelUtils.class);
 
     private ChannelUtils() {
         throw new IllegalStateException(ChannelUtils.class.getName());
@@ -64,7 +67,7 @@ public class ChannelUtils {
         InetSocketAddress socketAddress = ((InetSocketAddress) channel.remoteAddress());
         if (socketAddress == null) {
             // the remote channel already closed
-            log.warn("The channel is already closed");
+            LOGGER.warn("The channel is already closed");
             return Host.EMPTY;
         }
         return new Host(NetUtils.getHost(socketAddress.getAddress()), socketAddress.getPort());

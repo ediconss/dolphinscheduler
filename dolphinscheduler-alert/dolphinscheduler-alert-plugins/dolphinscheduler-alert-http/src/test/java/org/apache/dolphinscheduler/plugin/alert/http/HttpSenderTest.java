@@ -17,37 +17,27 @@
 
 package org.apache.dolphinscheduler.plugin.alert.http;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-
 import org.apache.dolphinscheduler.alert.api.AlertResult;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class HttpSenderTest {
 
     @Test
-    public void sendTest() throws IOException {
+    public void sendTest() {
         Map<String, String> paramsMap = new HashMap<>();
-        String url = "https://www.dolphinscheduler-not-exists-web.com:12345";
-        String contentField = "content";
-        paramsMap.put(HttpAlertConstants.NAME_URL, url);
-        paramsMap.put(HttpAlertConstants.NAME_REQUEST_TYPE, "GET");
+        paramsMap.put(HttpAlertConstants.NAME_URL,
+                "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=3d5519b0-741c-43fd-825a-4f64d543f03a");
+        paramsMap.put(HttpAlertConstants.NAME_REQUEST_TYPE, "POST");
         paramsMap.put(HttpAlertConstants.NAME_HEADER_PARAMS, "{\"Content-Type\":\"application/json\"}");
-        paramsMap.put(HttpAlertConstants.NAME_BODY_PARAMS, "{\"number\":\"123456\"}");
-        paramsMap.put(HttpAlertConstants.NAME_CONTENT_FIELD, contentField);
-
-        HttpSender httpSender = spy(new HttpSender(paramsMap));
-        doReturn("success").when(httpSender).getResponseString(any());
-        AlertResult alertResult = httpSender.send("Fault tolerance warning");
-        Assertions.assertEquals("true", alertResult.getStatus());
-        Assertions.assertTrue(httpSender.getRequestUrl().contains(url));
-        Assertions.assertTrue(httpSender.getRequestUrl().contains(contentField));
+        paramsMap.put(HttpAlertConstants.NAME_BODY_PARAMS, "{     \"msgtype\":\"text\",  \"text\":{ } }");
+        paramsMap.put(HttpAlertConstants.NAME_CONTENT_FIELD, "text.content");
+        HttpSender httpSender = new HttpSender(paramsMap);
+        AlertResult alertResult = httpSender.send("{\"Content-Type\":\"application/json\"}");
+        Assert.assertEquals("true", alertResult.getStatus());
     }
 }

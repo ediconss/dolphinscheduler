@@ -18,23 +18,29 @@
 package org.apache.dolphinscheduler.plugin.datasource.oracle.param;
 
 import org.apache.dolphinscheduler.common.constants.DataSourceConstants;
+import org.apache.dolphinscheduler.plugin.datasource.api.plugin.DataSourceClientProvider;
+import org.apache.dolphinscheduler.plugin.datasource.api.utils.CommonUtils;
+import org.apache.dolphinscheduler.plugin.datasource.api.utils.DataSourceUtils;
 import org.apache.dolphinscheduler.plugin.datasource.api.utils.PasswordUtils;
 import org.apache.dolphinscheduler.spi.enums.DbConnectType;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
+import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.ImmutableMap;
-
-@ExtendWith(MockitoExtension.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Class.class, DriverManager.class, DataSourceUtils.class, CommonUtils.class,
+        DataSourceClientProvider.class, PasswordUtils.class})
 public class OracleDataSourceProcessorTest {
 
     private OracleDataSourceProcessor oracleDatasourceProcessor = new OracleDataSourceProcessor();
@@ -51,15 +57,13 @@ public class OracleDataSourceProcessorTest {
         oracleDatasourceParamDTO.setPassword("123456");
         oracleDatasourceParamDTO.setDatabase("default");
         oracleDatasourceParamDTO.setOther(props);
-
-        try (MockedStatic<PasswordUtils> mockedStaticPasswordUtils = Mockito.mockStatic(PasswordUtils.class)) {
-            mockedStaticPasswordUtils.when(() -> PasswordUtils.encodePassword(Mockito.anyString())).thenReturn("test");
-            OracleConnectionParam connectionParams = (OracleConnectionParam) oracleDatasourceProcessor
-                    .createConnectionParams(oracleDatasourceParamDTO);
-            Assertions.assertNotNull(connectionParams);
-            Assertions.assertEquals("jdbc:oracle:thin:@localhost:3308", connectionParams.getAddress());
-            Assertions.assertEquals("jdbc:oracle:thin:@localhost:3308:default", connectionParams.getJdbcUrl());
-        }
+        PowerMockito.mockStatic(PasswordUtils.class);
+        PowerMockito.when(PasswordUtils.encodePassword(Mockito.anyString())).thenReturn("test");
+        OracleConnectionParam connectionParams = (OracleConnectionParam) oracleDatasourceProcessor
+                .createConnectionParams(oracleDatasourceParamDTO);
+        Assert.assertNotNull(connectionParams);
+        Assert.assertEquals("jdbc:oracle:thin:@localhost:3308", connectionParams.getAddress());
+        Assert.assertEquals("jdbc:oracle:thin:@localhost:3308:default", connectionParams.getJdbcUrl());
     }
 
     @Test
@@ -69,8 +73,8 @@ public class OracleDataSourceProcessorTest {
                         + ",\"database\":\"default\",\"jdbcUrl\":\"jdbc:oracle:thin:@localhost:3308:default\",\"connectType\":\"ORACLE_SID\"}";
         OracleConnectionParam connectionParams = (OracleConnectionParam) oracleDatasourceProcessor
                 .createConnectionParams(connectionJson);
-        Assertions.assertNotNull(connectionParams);
-        Assertions.assertEquals("root", connectionParams.getUser());
+        Assert.assertNotNull(connectionParams);
+        Assert.assertEquals("root", connectionParams.getUser());
     }
 
     @Test
@@ -83,17 +87,14 @@ public class OracleDataSourceProcessorTest {
     public void testGetJdbcUrl() {
         OracleConnectionParam oracleConnectionParam = new OracleConnectionParam();
         oracleConnectionParam.setJdbcUrl("jdbc:oracle:thin:@localhost:3308:default");
-        ImmutableMap<String, String> map = new ImmutableMap.Builder<String, String>()
-                .put("other", "other")
-                .build();
-        oracleConnectionParam.setOther(map);
-        Assertions.assertEquals("jdbc:oracle:thin:@localhost:3308:default?other=other",
+        oracleConnectionParam.setOther("other=other");
+        Assert.assertEquals("jdbc:oracle:thin:@localhost:3308:default?other=other",
                 oracleDatasourceProcessor.getJdbcUrl(oracleConnectionParam));
     }
 
     @Test
     public void getDbType() {
-        Assertions.assertEquals(DbType.ORACLE, oracleDatasourceProcessor.getDbType());
+        Assert.assertEquals(DbType.ORACLE, oracleDatasourceProcessor.getDbType());
     }
 
     @Test

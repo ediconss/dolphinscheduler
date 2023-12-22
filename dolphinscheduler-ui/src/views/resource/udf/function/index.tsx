@@ -24,13 +24,19 @@ import {
   watch,
   getCurrentInstance
 } from 'vue'
-import { NIcon, NSpace, NDataTable, NButton, NPagination } from 'naive-ui'
+import {
+  NIcon,
+  NSpace,
+  NDataTable,
+  NButton,
+  NPagination,
+  NInput
+} from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { SearchOutlined } from '@vicons/antd'
 import { useTable } from './use-table'
 import Card from '@/components/card'
 import FolderModal from './components/function-modal'
-import Search from '@/components/input-search'
 import styles from './index.module.scss'
 
 export default defineComponent({
@@ -41,7 +47,6 @@ export default defineComponent({
     const requestData = () => {
       getTableData({
         id: variables.id,
-        fullName: variables.fullName,
         pageSize: variables.pageSize,
         pageNo: variables.page,
         searchVal: variables.searchVal
@@ -109,10 +114,11 @@ export default defineComponent({
               {t('resource.function.create_udf_function')}
             </NButton>
             <NSpace>
-              <Search
+              <NInput
+                allowInput={this.trim}
+                size='small'
                 placeholder={t('resource.function.enter_keyword_tips')}
-                v-model:value={this.searchVal}
-                onSearch={this.handleSearch}
+                v-model={[this.searchVal, 'value']}
               />
               <NButton type='primary' size='small' onClick={this.handleSearch}>
                 <NIcon>

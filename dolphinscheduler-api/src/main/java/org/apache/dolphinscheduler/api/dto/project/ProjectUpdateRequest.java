@@ -21,7 +21,7 @@ import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * project update request
@@ -31,9 +31,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Data
 public class ProjectUpdateRequest {
 
-    @Schema(example = "pro123", required = true)
+    @ApiModelProperty(example = "admin", required = true)
+    private String userName;
+
+    @ApiModelProperty(example = "pro123", required = true)
     private String projectName;
 
-    @Schema(example = "this is a project")
+    @ApiModelProperty(example = "this is a project")
     private String description;
 }

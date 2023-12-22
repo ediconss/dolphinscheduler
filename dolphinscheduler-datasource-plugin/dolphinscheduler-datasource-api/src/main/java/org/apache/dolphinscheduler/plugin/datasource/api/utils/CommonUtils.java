@@ -28,7 +28,6 @@ import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.LOGIN_US
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.LOGIN_USER_KEY_TAB_USERNAME;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.RESOURCE_UPLOAD_PATH;
 
-import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.ResUploadType;
 import org.apache.dolphinscheduler.common.utils.PropertyUtils;
 
@@ -45,15 +44,6 @@ public class CommonUtils {
 
     private CommonUtils() {
         throw new UnsupportedOperationException("Construct CommonUtils");
-    }
-
-    private static final boolean IS_DEVELOP_MODE = PropertyUtils.getBoolean(Constants.DEVELOPMENT_STATE, true);
-
-    /**
-     * @return is develop mode
-     */
-    public static boolean isDevelopMode() {
-        return IS_DEVELOP_MODE;
     }
 
     /**
@@ -84,14 +74,13 @@ public class CommonUtils {
     /**
      * load kerberos configuration
      *
-     * @param javaSecurityKrb5Conf    javaSecurityKrb5Conf
+     * @param javaSecurityKrb5Conf javaSecurityKrb5Conf
      * @param loginUserKeytabUsername loginUserKeytabUsername
-     * @param loginUserKeytabPath     loginUserKeytabPath
+     * @param loginUserKeytabPath loginUserKeytabPath
      * @throws IOException errors
      */
-    public static synchronized void loadKerberosConf(String javaSecurityKrb5Conf,
-                                                     String loginUserKeytabUsername,
-                                                     String loginUserKeytabPath) throws IOException {
+    public static void loadKerberosConf(String javaSecurityKrb5Conf, String loginUserKeytabUsername,
+                                        String loginUserKeytabPath) throws IOException {
         Configuration configuration = new Configuration();
         configuration.setClassLoader(configuration.getClass().getClassLoader());
         loadKerberosConf(javaSecurityKrb5Conf, loginUserKeytabUsername, loginUserKeytabPath, configuration);

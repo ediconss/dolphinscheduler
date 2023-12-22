@@ -47,7 +47,8 @@ import java.util.Objects;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -55,9 +56,9 @@ import lombok.extern.slf4j.Slf4j;
  *     https://open.dingtalk.com/document/robots/customize-robot-security-settings
  * </p>
  */
-@Slf4j
 public final class DingTalkSender {
 
+    private static final Logger logger = LoggerFactory.getLogger(DingTalkSender.class);
     private final String url;
     private final String keyword;
     private final String secret;
@@ -126,13 +127,13 @@ public final class DingTalkSender {
 
         if (null == result) {
             alertResult.setMessage("send ding talk msg error");
-            log.info("send ding talk msg error,ding talk server resp is null");
+            logger.info("send ding talk msg error,ding talk server resp is null");
             return alertResult;
         }
         DingTalkSendMsgResponse sendMsgResponse = JSONUtils.parseObject(result, DingTalkSendMsgResponse.class);
         if (null == sendMsgResponse) {
             alertResult.setMessage("send ding talk msg fail");
-            log.info("send ding talk msg error,resp error");
+            logger.info("send ding talk msg error,resp error");
             return alertResult;
         }
         if (sendMsgResponse.errcode == 0) {
@@ -141,7 +142,7 @@ public final class DingTalkSender {
             return alertResult;
         }
         alertResult.setMessage(String.format("alert send ding talk msg error : %s", sendMsgResponse.getErrmsg()));
-        log.info("alert send ding talk msg error : {}", sendMsgResponse.getErrmsg());
+        logger.info("alert send ding talk msg error : {}", sendMsgResponse.getErrmsg());
         return alertResult;
     }
 
@@ -158,7 +159,7 @@ public final class DingTalkSender {
             String resp = sendMsg(title, content);
             return checkSendDingTalkSendMsgResult(resp);
         } catch (Exception e) {
-            log.info("send ding talk alert msg  exception : {}", e.getMessage());
+            logger.info("send ding talk alert msg  exception : {}", e.getMessage());
             alertResult = new AlertResult();
             alertResult.setStatus("false");
             alertResult.setMessage("send ding talk alert fail.");
@@ -192,7 +193,7 @@ public final class DingTalkSender {
             } finally {
                 response.close();
             }
-            log.info("Ding Talk send msg :{}, resp: {}", msg, resp);
+            logger.info("Ding Talk send msg :{}, resp: {}", msg, resp);
             return resp;
         } finally {
             httpClient.close();
@@ -319,7 +320,7 @@ public final class DingTalkSender {
             byte[] signData = mac.doFinal(stringToSign.getBytes("UTF-8"));
             sign = URLEncoder.encode(new String(Base64.encodeBase64(signData)), "UTF-8");
         } catch (Exception e) {
-            log.error("generate sign error, message:{}", e);
+            logger.error("generate sign error, message:{}", e);
         }
         return url + "&timestamp=" + timestamp + "&sign=" + sign;
     }

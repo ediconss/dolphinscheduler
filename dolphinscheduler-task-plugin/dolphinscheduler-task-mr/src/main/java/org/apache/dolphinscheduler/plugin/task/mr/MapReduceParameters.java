@@ -54,9 +54,9 @@ public class MapReduceParameters extends AbstractParameters {
     private String appName;
 
     /**
-     * The YARN queue to submit to
+     * queue
      */
-    private String yarnQueue;
+    private String queue;
 
     /**
      * resource list
@@ -101,12 +101,12 @@ public class MapReduceParameters extends AbstractParameters {
         this.appName = appName;
     }
 
-    public String getYarnQueue() {
-        return yarnQueue;
+    public String getQueue() {
+        return queue;
     }
 
-    public void setYarnQueue(String yarnQueue) {
-        this.yarnQueue = yarnQueue;
+    public void setQueue(String queue) {
+        this.queue = queue;
     }
 
     public List<ResourceInfo> getResourceList() {
@@ -152,7 +152,7 @@ public class MapReduceParameters extends AbstractParameters {
         return "mainJar= " + mainJar
                 + "mainClass=" + mainClass
                 + "mainArgs=" + mainArgs
-                + "yarnQueue=" + yarnQueue
+                + "queue=" + queue
                 + "other mainArgs=" + others;
     }
 }

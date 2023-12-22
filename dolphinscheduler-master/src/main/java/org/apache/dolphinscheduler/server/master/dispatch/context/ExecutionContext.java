@@ -20,19 +20,16 @@ package org.apache.dolphinscheduler.server.master.dispatch.context;
 import static org.apache.dolphinscheduler.common.constants.Constants.DEFAULT_WORKER_GROUP;
 
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
-import org.apache.dolphinscheduler.remote.command.Message;
+import org.apache.dolphinscheduler.remote.command.Command;
 import org.apache.dolphinscheduler.remote.utils.Host;
 import org.apache.dolphinscheduler.server.master.dispatch.enums.ExecutorType;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+/**
+ *  execution context
+ */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ExecutionContext {
 
     /**
@@ -43,23 +40,26 @@ public class ExecutionContext {
     /**
      * command
      */
-    private Message message;
+    private final Command command;
 
-    private TaskInstance taskInstance;
+    private final TaskInstance taskInstance;
 
-    private ExecutorType executorType;
+    /**
+     * executor type : worker or client
+     */
+    private final ExecutorType executorType;
 
     /**
      * worker group
      */
-    private String workerGroup;
+    private final String workerGroup;
 
-    public ExecutionContext(Message message, ExecutorType executorType, TaskInstance taskInstance) {
-        this(message, executorType, DEFAULT_WORKER_GROUP, taskInstance);
+    public ExecutionContext(Command command, ExecutorType executorType, TaskInstance taskInstance) {
+        this(command, executorType, DEFAULT_WORKER_GROUP, taskInstance);
     }
 
-    public ExecutionContext(Message message, ExecutorType executorType, String workerGroup, TaskInstance taskInstance) {
-        this.message = message;
+    public ExecutionContext(Command command, ExecutorType executorType, String workerGroup, TaskInstance taskInstance) {
+        this.command = command;
         this.executorType = executorType;
         this.workerGroup = workerGroup;
         this.taskInstance = taskInstance;

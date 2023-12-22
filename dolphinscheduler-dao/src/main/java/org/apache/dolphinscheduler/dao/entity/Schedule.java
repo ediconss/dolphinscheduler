@@ -134,18 +134,7 @@ public class Schedule {
     private String workerGroup;
 
     /**
-     * tenant code
-     */
-    private String tenantCode;
-
-    /**
      * environment code
      */
     private Long environmentCode;
-
-    /**
-     * environment name
-     */
-    @TableField(exist = false)
-    private String environmentName;
 }

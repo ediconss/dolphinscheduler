@@ -22,8 +22,8 @@ import org.apache.dolphinscheduler.spi.params.base.PluginParams;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * ScriptAlertChannelFactoryTest
@@ -34,13 +34,13 @@ public class ScriptAlertChannelFactoryTest {
     public void testGetParams() {
         ScriptAlertChannelFactory scriptAlertChannelFactory = new ScriptAlertChannelFactory();
         List<PluginParams> params = scriptAlertChannelFactory.params();
-        Assertions.assertEquals(3, params.size());
+        Assert.assertEquals(3, params.size());
     }
 
     @Test
     public void testCreate() {
         ScriptAlertChannelFactory scriptAlertChannelFactory = new ScriptAlertChannelFactory();
         AlertChannel alertChannel = scriptAlertChannelFactory.create();
-        Assertions.assertNotNull(alertChannel);
+        Assert.assertNotNull(alertChannel);
     }
 }

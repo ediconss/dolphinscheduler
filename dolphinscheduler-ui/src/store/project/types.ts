@@ -23,7 +23,6 @@ type TaskExecuteType = 'STREAM' | 'BATCH'
 type TaskType =
   | 'SHELL'
   | 'SUB_PROCESS'
-  | 'DYNAMIC'
   | 'PROCEDURE'
   | 'SQL'
   | 'SPARK'
@@ -57,8 +56,7 @@ type TaskType =
   | 'DATASYNC'
   | 'KUBEFLOW'
   | 'LINKIS'
-  | 'DATA_FACTORY'
-  | 'REMOTESHELL'
+  | 'XUANWU_CDC'
 
 type ProgramType = 'JAVA' | 'SCALA' | 'PYTHON'
 
@@ -89,20 +87,6 @@ interface TaskNodeState {
   name: string
   dependentResult: DependentResultType
 }
-
-interface ITaskType {
-  alias: string
-  helperLinkDisable?: boolean
-  taskDefinitionDisable?: boolean
-  taskExecuteType?: TaskExecuteType
-}
-interface ITaskTypeItem extends ITaskType {
-  type: TaskType
-}
-interface TaskTypeState {
-  types: ITaskTypeItem[]
-}
-
 export {
   TaskNodeState,
   EditWorkflowDefinition,
@@ -111,10 +95,5 @@ export {
   ProgramType,
   DependentResultType,
   BDependentResultType,
-  IMainJar,
-  TaskType,
-  ITaskType,
-  ITaskTypeItem,
-  TaskTypeState,
-  TaskExecuteType
+  IMainJar
 }

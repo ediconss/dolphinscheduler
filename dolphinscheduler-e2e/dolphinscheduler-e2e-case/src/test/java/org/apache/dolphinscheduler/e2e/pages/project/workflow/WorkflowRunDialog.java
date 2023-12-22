@@ -24,9 +24,6 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 import lombok.Getter;
-
-import java.time.Duration;
-
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -44,7 +41,7 @@ public final class WorkflowRunDialog {
     }
 
     public WorkflowDefinitionTab submit() {
-        new WebDriverWait(parent().driver(), Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(buttonSubmit()));
+        new WebDriverWait(parent().driver(), 5).until(ExpectedConditions.elementToBeClickable(buttonSubmit()));
 
         buttonSubmit().click();
 

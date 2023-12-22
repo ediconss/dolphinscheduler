@@ -229,9 +229,9 @@ public final class ZookeeperRegistry implements Registry {
         } catch (Exception e) {
             try {
                 interProcessMutex.release();
-                throw new RegistryException(String.format("zookeeper get lock: %s error", key), e);
+                throw new RegistryException("zookeeper get lock error", e);
             } catch (Exception exception) {
-                throw new RegistryException(String.format("zookeeper get lock: %s error", key), e);
+                throw new RegistryException("zookeeper release lock error", e);
             }
         }
     }

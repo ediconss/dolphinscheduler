@@ -60,5 +60,4 @@ public interface ProcessInstanceMapMapper extends BaseMapper<ProcessInstanceMap>
      */
     List<Integer> querySubIdListByParentId(@Param("parentInstanceId") int parentInstanceId);
 
-    void deleteByParentId(@Param("parentWorkflowInstanceId") int workflowInstanceId);
 }

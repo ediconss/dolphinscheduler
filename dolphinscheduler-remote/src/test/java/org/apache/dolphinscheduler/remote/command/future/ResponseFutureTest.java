@@ -26,8 +26,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ResponseFutureTest {
 
@@ -54,7 +54,7 @@ public class ResponseFutureTest {
         ResponseFuture future = new ResponseFuture(1, 2000, invokeCallback, null);
         try {
             latch.await(5000, TimeUnit.MILLISECONDS);
-            Assertions.assertNull(ResponseFuture.getFuture(1));
+            Assert.assertNull(ResponseFuture.getFuture(1));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

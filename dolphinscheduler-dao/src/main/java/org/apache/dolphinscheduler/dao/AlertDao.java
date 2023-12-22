@@ -37,8 +37,6 @@ import org.apache.dolphinscheduler.dao.mapper.AlertPluginInstanceMapper;
 import org.apache.dolphinscheduler.dao.mapper.AlertSendStatusMapper;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -49,21 +47,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 @Component
-@Slf4j
 public class AlertDao {
-
-    private static final int QUERY_ALERT_THRESHOLD = 100;
 
     @Value("${alert.alarm-suppression.crash:60}")
     private Integer crashAlarmSuppression;
@@ -87,16 +81,9 @@ public class AlertDao {
      * @return add alert result
      */
     public int addAlert(Alert alert) {
-        if (null == alert.getAlertGroupId() || NumberUtils.INTEGER_ZERO.equals(alert.getAlertGroupId())) {
-            log.warn("the value of alertGroupId is null or 0 ");
-            return 0;
-        }
-
         String sign = generateSign(alert);
         alert.setSign(sign);
-        int count = alertMapper.insert(alert);
-        log.info("add alert to db , alert: {}", alert);
-        return count;
+        return alertMapper.insert(alert);
     }
 
     /**
@@ -149,19 +136,12 @@ public class AlertDao {
         return alertSendStatusMapper.insert(alertSendStatus);
     }
 
-    public int insertAlertSendStatus(List<AlertSendStatus> alertSendStatuses) {
-        if (CollectionUtils.isEmpty(alertSendStatuses)) {
-            return 0;
-        }
-        return alertSendStatusMapper.batchInsert(alertSendStatuses);
-    }
-
     /**
      * MasterServer or WorkerServer stopped
      *
      * @param alertGroupId alertGroupId
-     * @param host         host
-     * @param serverType   serverType
+     * @param host host
+     * @param serverType serverType
      */
     public void sendServerStoppedAlert(int alertGroupId, String host, String serverType) {
         ServerAlertContent serverStopAlertContent = ServerAlertContent.newBuilder().type(serverType)
@@ -273,11 +253,13 @@ public class AlertDao {
      * List alerts that are pending for execution
      */
     public List<Alert> listPendingAlerts() {
-        return alertMapper.listingAlertByStatus(AlertStatus.WAIT_EXECUTION.getCode(), QUERY_ALERT_THRESHOLD);
+        LambdaQueryWrapper<Alert> wrapper = new QueryWrapper<>(new Alert()).lambda()
+                .eq(Alert::getAlertStatus, AlertStatus.WAIT_EXECUTION);
+        return alertMapper.selectList(wrapper);
     }
 
     public List<Alert> listAlerts(int processInstanceId) {
-        LambdaQueryWrapper<Alert> wrapper = new LambdaQueryWrapper<Alert>()
+        LambdaQueryWrapper<Alert> wrapper = new QueryWrapper<>(new Alert()).lambda()
                 .eq(Alert::getProcessInstanceId, processInstanceId);
         return alertMapper.selectList(wrapper);
     }
@@ -327,21 +309,5 @@ public class AlertDao {
 
     public void setCrashAlarmSuppression(Integer crashAlarmSuppression) {
         this.crashAlarmSuppression = crashAlarmSuppression;
-    }
-
-    public void deleteByWorkflowInstanceId(Integer processInstanceId) {
-        if (processInstanceId == null) {
-            return;
-        }
-        List<Alert> alertList = alertMapper.selectByWorkflowInstanceId(processInstanceId);
-        if (CollectionUtils.isEmpty(alertList)) {
-            return;
-        }
-        alertMapper.deleteByWorkflowInstanceId(processInstanceId);
-        List<Integer> alertIds = alertList
-                .stream()
-                .map(Alert::getId)
-                .collect(Collectors.toList());
-        alertSendStatusMapper.deleteByAlertIds(alertIds);
     }
 }

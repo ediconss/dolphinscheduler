@@ -17,11 +17,9 @@
 
 package org.apache.dolphinscheduler.server.master.builder;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.dolphinscheduler.common.constants.Constants.SEC_2_MINUTES_TIME_UNIT;
 
 import org.apache.dolphinscheduler.common.enums.TimeoutFlag;
-import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
 import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
 import org.apache.dolphinscheduler.dao.entity.TaskDefinition;
@@ -36,13 +34,9 @@ import org.apache.dolphinscheduler.plugin.task.api.parameters.resource.ResourceP
 
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  *  TaskExecutionContext builder
  */
-
-@Slf4j
 public class TaskExecutionContextBuilder {
 
     public static TaskExecutionContextBuilder get() {
@@ -60,8 +54,8 @@ public class TaskExecutionContextBuilder {
     public TaskExecutionContextBuilder buildTaskInstanceRelatedInfo(TaskInstance taskInstance) {
         taskExecutionContext.setTaskInstanceId(taskInstance.getId());
         taskExecutionContext.setTaskName(taskInstance.getName());
-        taskExecutionContext.setFirstSubmitTime(DateUtils.dateToTimeStamp(taskInstance.getFirstSubmitTime()));
-        taskExecutionContext.setStartTime(DateUtils.dateToTimeStamp(taskInstance.getStartTime()));
+        taskExecutionContext.setFirstSubmitTime(taskInstance.getFirstSubmitTime());
+        taskExecutionContext.setStartTime(taskInstance.getStartTime());
         taskExecutionContext.setTaskType(taskInstance.getTaskType());
         taskExecutionContext.setLogPath(taskInstance.getLogPath());
         taskExecutionContext.setWorkerGroup(taskInstance.getWorkerGroup());
@@ -71,7 +65,6 @@ public class TaskExecutionContextBuilder {
         taskExecutionContext.setDelayTime(taskInstance.getDelayTime());
         taskExecutionContext.setVarPool(taskInstance.getVarPool());
         taskExecutionContext.setDryRun(taskInstance.getDryRun());
-        taskExecutionContext.setTestFlag(taskInstance.getTestFlag());
         taskExecutionContext.setCurrentExecutionStatus(TaskExecutionStatus.SUBMITTED_SUCCESS);
         taskExecutionContext.setCpuQuota(taskInstance.getCpuQuota());
         taskExecutionContext.setMemoryMax(taskInstance.getMemoryMax());
@@ -101,11 +94,12 @@ public class TaskExecutionContextBuilder {
      */
     public TaskExecutionContextBuilder buildProcessInstanceRelatedInfo(ProcessInstance processInstance) {
         taskExecutionContext.setProcessInstanceId(processInstance.getId());
-        taskExecutionContext.setScheduleTime(DateUtils.dateToTimeStamp(processInstance.getScheduleTime()));
+        taskExecutionContext.setScheduleTime(processInstance.getScheduleTime());
         taskExecutionContext.setGlobalParams(processInstance.getGlobalParams());
         taskExecutionContext.setExecutorId(processInstance.getExecutorId());
         taskExecutionContext.setCmdTypeIfComplement(processInstance.getCmdTypeIfComplement().getCode());
         taskExecutionContext.setTenantCode(processInstance.getTenantCode());
+        taskExecutionContext.setQueue(processInstance.getQueue());
         return this;
     }
 
@@ -131,7 +125,6 @@ public class TaskExecutionContextBuilder {
         taskExecutionContext.setResourceParametersHelper(parametersHelper);
         return this;
     }
-
     /**
      * build k8sTask related info
      *
@@ -146,7 +139,6 @@ public class TaskExecutionContextBuilder {
 
     /**
      * build global and local params
-     *
      * @param propertyMap
      * @return
      */
@@ -157,17 +149,11 @@ public class TaskExecutionContextBuilder {
 
     /**
      * build business params
-     *
      * @param businessParamsMap
      * @return
      */
     public TaskExecutionContextBuilder buildBusinessParamsMap(Map<String, Property> businessParamsMap) {
         taskExecutionContext.setParamsMap(businessParamsMap);
-        return this;
-    }
-
-    public TaskExecutionContextBuilder buildWorkflowInstanceHost(String masterHost) {
-        taskExecutionContext.setWorkflowInstanceHost(masterHost);
         return this;
     }
 
@@ -178,7 +164,6 @@ public class TaskExecutionContextBuilder {
      */
 
     public TaskExecutionContext create() {
-        checkNotNull(taskExecutionContext.getWorkflowInstanceHost(), "The workflow instance host cannot be empty");
         return taskExecutionContext;
     }
 

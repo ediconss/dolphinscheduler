@@ -62,10 +62,6 @@ export function useTargetType(
         if (srcQueryType === '1') {
           return [
             {
-              label: 'HIVE',
-              value: 'HIVE'
-            },
-            {
               label: 'HDFS',
               value: 'HDFS'
             }

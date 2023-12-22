@@ -25,11 +25,20 @@ import org.apache.dolphinscheduler.plugin.task.api.ShellCommandExecutor;
 import org.apache.dolphinscheduler.plugin.task.api.TaskCallBack;
 import org.apache.dolphinscheduler.plugin.task.api.TaskException;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
+import org.apache.dolphinscheduler.plugin.task.api.model.Property;
 import org.apache.dolphinscheduler.plugin.task.api.model.TaskResponse;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.AbstractParameters;
-import org.apache.dolphinscheduler.plugin.task.api.shell.IShellInterceptorBuilder;
-import org.apache.dolphinscheduler.plugin.task.api.shell.ShellInterceptorBuilderFactory;
-import org.apache.dolphinscheduler.plugin.task.api.utils.ParameterUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParamUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParameterUtils;
+import org.apache.dolphinscheduler.plugin.task.api.utils.FileUtils;
+
+import org.apache.commons.lang3.SystemUtils;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Map;
 
 /**
  * shell task
@@ -62,39 +71,36 @@ public class ShellTask extends AbstractTask {
         this.taskExecutionContext = taskExecutionContext;
         this.shellCommandExecutor = new ShellCommandExecutor(this::logHandle,
                 taskExecutionContext,
-                log);
+                logger);
     }
 
     @Override
     public void init() {
+        logger.info("shell task params {}", taskExecutionContext.getTaskParams());
 
         shellParameters = JSONUtils.parseObject(taskExecutionContext.getTaskParams(), ShellParameters.class);
-        log.info("Initialize shell task params {}", JSONUtils.toPrettyJsonString(shellParameters));
 
-        if (shellParameters == null || !shellParameters.checkParameters()) {
-            throw new TaskException("shell task params is not valid");
+        if (!shellParameters.checkParameters()) {
+            throw new RuntimeException("shell task params is not valid");
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void handle(TaskCallBack taskCallBack) throws TaskException {
         try {
-            IShellInterceptorBuilder<?, ?> shellActuatorBuilder = ShellInterceptorBuilderFactory.newBuilder()
-                    .properties(ParameterUtils.convert(shellParameters.getLocalParametersMap()))
-                    .appendScript(shellParameters.getRawScript());
-
-            TaskResponse commandExecuteResult = shellCommandExecutor.run(shellActuatorBuilder, taskCallBack);
+            // construct process
+            String command = buildCommand();
+            TaskResponse commandExecuteResult = shellCommandExecutor.run(command);
             setExitStatusCode(commandExecuteResult.getExitStatusCode());
             setProcessId(commandExecuteResult.getProcessId());
             shellParameters.dealOutParam(shellCommandExecutor.getVarPool());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("The current Shell task has been interrupted", e);
+            logger.error("The current Shell task has been interrupted", e);
             setExitStatusCode(EXIT_CODE_FAILURE);
             throw new TaskException("The current Shell task has been interrupted", e);
         } catch (Exception e) {
-            log.error("shell task error", e);
+            logger.error("shell task error", e);
             setExitStatusCode(EXIT_CODE_FAILURE);
             throw new TaskException("Execute shell task error", e);
         }
@@ -110,9 +116,48 @@ public class ShellTask extends AbstractTask {
         }
     }
 
+    /**
+     * create command
+     *
+     * @return file name
+     * @throws Exception exception
+     */
+    private String buildCommand() throws Exception {
+        // generate scripts
+        String fileName = String.format("%s/%s_node.%s",
+                taskExecutionContext.getExecutePath(),
+                taskExecutionContext.getTaskAppId(), SystemUtils.IS_OS_WINDOWS ? "bat" : "sh");
+
+        File file = new File(fileName);
+        Path path = file.toPath();
+
+        if (Files.exists(path)) {
+            // this shouldn't happen
+            logger.warn("The command file: {} is already exist", path);
+            return fileName;
+        }
+
+        String script = shellParameters.getRawScript().replaceAll("\\r\\n", "\n");
+        script = parseScript(script);
+        shellParameters.setRawScript(script);
+
+        logger.info("raw script : {}", shellParameters.getRawScript());
+        logger.info("task execute path : {}", taskExecutionContext.getExecutePath());
+
+        FileUtils.createFileWith755(path);
+        Files.write(path, shellParameters.getRawScript().getBytes(), StandardOpenOption.APPEND);
+
+        return fileName;
+    }
+
     @Override
     public AbstractParameters getParameters() {
         return shellParameters;
     }
 
+    private String parseScript(String script) {
+        // combining local and global parameters
+        Map<String, Property> paramsMap = taskExecutionContext.getPrepareParamsMap();
+        return ParameterUtils.convertParameterPlaceholders(script, ParamUtils.convert(paramsMap));
+    }
 }

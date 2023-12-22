@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -39,8 +39,9 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
 @Component
-@Slf4j
 public class TaskExecuteThreadPool extends ThreadPoolTaskExecutor {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskExecuteThreadPool.class);
 
     private final ConcurrentHashMap<String, TaskExecuteRunnable> multiThreadFilterMap = new ConcurrentHashMap<>();
 
@@ -82,7 +83,7 @@ public class TaskExecuteThreadPool extends ThreadPoolTaskExecutor {
             return;
         }
         if (!processInstanceExecCacheManager.contains(taskEvent.getProcessInstanceId())) {
-            log.warn("Cannot find workflowExecuteThread from cacheManager, event: {}", taskEvent);
+            logger.warn("Cannot find workflowExecuteThread from cacheManager, event: {}", taskEvent);
             return;
         }
         TaskExecuteRunnable taskExecuteRunnable = taskExecuteThreadMap.computeIfAbsent(taskEvent.getProcessInstanceId(),
@@ -110,10 +111,10 @@ public class TaskExecuteThreadPool extends ThreadPoolTaskExecutor {
             @Override
             public void onFailure(Throwable ex) {
                 Integer processInstanceId = taskExecuteThread.getProcessInstanceId();
-                log.error("[WorkflowInstance-{}] persist event failed", processInstanceId, ex);
+                logger.error("[WorkflowInstance-{}] persist event failed", processInstanceId, ex);
                 if (!processInstanceExecCacheManager.contains(processInstanceId)) {
                     taskExecuteThreadMap.remove(processInstanceId);
-                    log.info(
+                    logger.info(
                             "[WorkflowInstance-{}] Cannot find processInstance from cacheManager, remove process instance from threadMap",
                             processInstanceId);
                 }
@@ -123,10 +124,10 @@ public class TaskExecuteThreadPool extends ThreadPoolTaskExecutor {
             @Override
             public void onSuccess(Object result) {
                 Integer processInstanceId = taskExecuteThread.getProcessInstanceId();
-                log.info("[WorkflowInstance-{}] persist events succeeded", processInstanceId);
+                logger.info("[WorkflowInstance-{}] persist events succeeded", processInstanceId);
                 if (!processInstanceExecCacheManager.contains(processInstanceId)) {
                     taskExecuteThreadMap.remove(processInstanceId);
-                    log.info(
+                    logger.info(
                             "[WorkflowInstance-{}] Cannot find processInstance from cacheManager, remove process instance from threadMap",
                             processInstanceId);
                 }

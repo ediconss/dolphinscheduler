@@ -26,8 +26,8 @@ import org.apache.dolphinscheduler.dao.entity.User;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class UDFUserMapperTest extends BaseDaoTest {
@@ -120,7 +120,7 @@ public class UDFUserMapperTest extends BaseDaoTest {
         udfUser.setUserId(2);
         udfUser.setUdfId(2);
         int update = udfUserMapper.updateById(udfUser);
-        Assertions.assertEquals(update, 1);
+        Assert.assertEquals(update, 1);
 
     }
 
@@ -136,7 +136,7 @@ public class UDFUserMapperTest extends BaseDaoTest {
         // insertOne
         UDFUser udfUser = insertOne(user, udfFunc);
         int delete = udfUserMapper.deleteById(udfUser.getId());
-        Assertions.assertEquals(delete, 1);
+        Assert.assertEquals(delete, 1);
     }
 
     /**
@@ -148,7 +148,7 @@ public class UDFUserMapperTest extends BaseDaoTest {
         UDFUser udfUser = insertOne();
         // query
         List<UDFUser> udfUserList = udfUserMapper.selectList(null);
-        Assertions.assertNotEquals(0, udfUserList.size());
+        Assert.assertNotEquals(udfUserList.size(), 0);
     }
 
     /**
@@ -163,7 +163,7 @@ public class UDFUserMapperTest extends BaseDaoTest {
         // insertOne
         UDFUser udfUser = insertOne(user, udfFunc);
         int delete = udfUserMapper.deleteByUserId(user.getId());
-        Assertions.assertEquals(1, delete);
+        Assert.assertEquals(delete, 1);
 
     }
 
@@ -179,6 +179,6 @@ public class UDFUserMapperTest extends BaseDaoTest {
         // insertOne
         UDFUser udfUser = insertOne(user, udfFunc);
         int delete = udfUserMapper.deleteByUdfFuncId(udfFunc.getId());
-        Assertions.assertEquals(1, delete);
+        Assert.assertEquals(delete, 1);
     }
 }

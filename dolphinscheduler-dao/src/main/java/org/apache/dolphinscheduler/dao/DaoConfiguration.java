@@ -26,6 +26,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableAutoConfiguration
-@MapperScan(basePackages = "org.apache.dolphinscheduler.dao.mapper", sqlSessionFactoryRef = "sqlSessionFactory")
+@MapperScan("org.apache.dolphinscheduler.dao.mapper")
 public class DaoConfiguration {
 }

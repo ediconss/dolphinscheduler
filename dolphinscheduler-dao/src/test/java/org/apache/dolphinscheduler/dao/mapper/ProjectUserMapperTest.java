@@ -17,14 +17,17 @@
 
 package org.apache.dolphinscheduler.dao.mapper;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+
 import org.apache.dolphinscheduler.dao.BaseDaoTest;
 import org.apache.dolphinscheduler.dao.entity.ProjectUser;
 
 import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ProjectUserMapperTest extends BaseDaoTest {
@@ -56,7 +59,7 @@ public class ProjectUserMapperTest extends BaseDaoTest {
         projectUser.setCreateTime(new Date());
         // update
         int update = projectUserMapper.updateById(projectUser);
-        Assertions.assertEquals(update, 1);
+        Assert.assertEquals(update, 1);
     }
 
     /**
@@ -66,7 +69,7 @@ public class ProjectUserMapperTest extends BaseDaoTest {
     public void testDelete() {
         ProjectUser projectUserMap = insertOne();
         int delete = projectUserMapper.deleteById(projectUserMap.getId());
-        Assertions.assertEquals(delete, 1);
+        Assert.assertEquals(delete, 1);
     }
 
     /**
@@ -77,7 +80,7 @@ public class ProjectUserMapperTest extends BaseDaoTest {
         ProjectUser projectUser = insertOne();
         // query
         List<ProjectUser> projectUsers = projectUserMapper.selectList(null);
-        Assertions.assertNotEquals(0, projectUsers.size());
+        Assert.assertNotEquals(projectUsers.size(), 0);
     }
 
     /**
@@ -88,7 +91,7 @@ public class ProjectUserMapperTest extends BaseDaoTest {
 
         ProjectUser projectUser = insertOne();
         int delete = projectUserMapper.deleteProjectRelation(projectUser.getProjectId(), projectUser.getUserId());
-        Assertions.assertTrue(delete >= 1);
+        assertThat(delete, greaterThanOrEqualTo(1));
 
     }
 
@@ -100,7 +103,7 @@ public class ProjectUserMapperTest extends BaseDaoTest {
         ProjectUser projectUser = insertOne();
         ProjectUser projectUser1 =
                 projectUserMapper.queryProjectRelation(projectUser.getProjectId(), projectUser.getUserId());
-        Assertions.assertNotEquals(null, projectUser1);
+        Assert.assertNotEquals(projectUser1, null);
 
     }
 }

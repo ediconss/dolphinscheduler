@@ -25,14 +25,15 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Collections;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TIS parameter
  */
-@Slf4j
 public class PigeonParameters extends AbstractParameters {
 
+    private static final Logger logger = LoggerFactory.getLogger(PigeonParameters.class);
     /**
      * Pigeon target job name
      */
@@ -49,7 +50,7 @@ public class PigeonParameters extends AbstractParameters {
     @Override
     public boolean checkParameters() {
         if (StringUtils.isBlank(this.targetJobName)) {
-            log.error("checkParameters faild targetJobName can not be null");
+            logger.error("checkParameters faild targetJobName can not be null");
             return false;
         }
         return true;

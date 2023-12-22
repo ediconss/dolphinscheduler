@@ -17,29 +17,30 @@
 
 package org.apache.dolphinscheduler.plugin.task.api.enums.dp;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class DqTaskStateTest {
 
     @Test
     public void testGetCode() {
-        Assertions.assertEquals(0, DqTaskState.DEFAULT.getCode());
-        Assertions.assertEquals(1, DqTaskState.SUCCESS.getCode());
-        Assertions.assertEquals(2, DqTaskState.FAILURE.getCode());
+        assertEquals(0, DqTaskState.DEFAULT.getCode());
+        assertEquals(1, DqTaskState.SUCCESS.getCode());
+        assertEquals(2, DqTaskState.FAILURE.getCode());
     }
 
     @Test
     public void testGetDescription() {
-        Assertions.assertEquals("default", DqTaskState.DEFAULT.getDescription());
-        Assertions.assertEquals("success", DqTaskState.SUCCESS.getDescription());
-        Assertions.assertEquals("failure", DqTaskState.FAILURE.getDescription());
+        assertEquals("default", DqTaskState.DEFAULT.getDescription());
+        assertEquals("success", DqTaskState.SUCCESS.getDescription());
+        assertEquals("failure", DqTaskState.FAILURE.getDescription());
     }
 
     @Test
     public void testOf() {
-        Assertions.assertEquals(DqTaskState.DEFAULT, DqTaskState.of(0));
-        Assertions.assertEquals(DqTaskState.SUCCESS, DqTaskState.of(1));
-        Assertions.assertEquals(DqTaskState.FAILURE, DqTaskState.of(2));
+        assertEquals(DqTaskState.DEFAULT, DqTaskState.of(0));
+        assertEquals(DqTaskState.SUCCESS, DqTaskState.of(1));
+        assertEquals(DqTaskState.FAILURE, DqTaskState.of(2));
     }
 }

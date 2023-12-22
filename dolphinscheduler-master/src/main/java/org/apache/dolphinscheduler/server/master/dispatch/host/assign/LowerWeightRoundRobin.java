@@ -18,12 +18,9 @@
 package org.apache.dolphinscheduler.server.master.dispatch.host.assign;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
 
@@ -52,16 +49,11 @@ public class LowerWeightRoundRobin extends AbstractSelector<HostWeight> {
                 lowWeight = hostWeight.getCurrentWeight();
             }
         }
-        if (lowerNode != null) {
-            lowerNode.setCurrentWeight(lowerNode.getCurrentWeight() + totalWeight);
-        }
+        lowerNode.setCurrentWeight(lowerNode.getCurrentWeight() + totalWeight);
         return lowerNode;
     }
 
     private List<HostWeight> canAssignTaskHost(Collection<HostWeight> sources) {
-        if (CollectionUtils.isEmpty(sources)) {
-            return Collections.emptyList();
-        }
         List<HostWeight> zeroWaitingTask =
                 sources.stream().filter(h -> h.getWaitingTaskCount() == 0).collect(Collectors.toList());
         if (!zeroWaitingTask.isEmpty()) {

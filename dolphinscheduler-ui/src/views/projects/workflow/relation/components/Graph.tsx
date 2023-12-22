@@ -70,6 +70,7 @@ const GraphChart = defineComponent({
     const option: any = {
       tooltip: {
         confine: true,
+        backgroundColor: '#fff',
         formatter: (params: any) => {
           if (!params.data.name) {
             return false

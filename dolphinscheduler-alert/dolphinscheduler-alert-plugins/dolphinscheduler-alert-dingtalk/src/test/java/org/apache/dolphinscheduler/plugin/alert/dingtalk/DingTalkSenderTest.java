@@ -22,15 +22,15 @@ import org.apache.dolphinscheduler.alert.api.AlertResult;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DingTalkSenderTest {
 
     private static final Map<String, String> dingTalkConfig = new HashMap<>();
 
-    @BeforeEach
+    @Before
     public void initDingTalkConfig() {
 
         dingTalkConfig.put(DingTalkParamsConstants.NAME_DING_TALK_KEYWORD, "keyword");
@@ -51,7 +51,7 @@ public class DingTalkSenderTest {
         dingTalkConfig.put(DingTalkParamsConstants.NAME_DING_TALK_PROXY_ENABLE, "true");
         dingTalkSender = new DingTalkSender(dingTalkConfig);
         AlertResult alertResult = dingTalkSender.sendDingTalkMsg("title", "content test");
-        Assertions.assertEquals("false", alertResult.getStatus());
+        Assert.assertEquals("false", alertResult.getStatus());
     }
 
 }

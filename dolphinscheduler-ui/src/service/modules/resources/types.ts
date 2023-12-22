@@ -32,12 +32,12 @@ interface NameReq {
   name: string
 }
 
-interface FileNameReq {
-  fileName: string
+interface PathReq {
+  path: string
 }
 
-interface TenantCodeReq {
-  tenantCode: string
+interface FileNameReq {
+  fileName: string
 }
 
 interface FullNameReq {
@@ -84,7 +84,11 @@ interface ViewResourceReq {
   skipLineNum: number
 }
 
-interface UdfFuncReq extends UdfTypeReq, DescriptionReq, FullNameReq {
+interface ResourceIdReq {
+  resourceId: number
+}
+
+interface UdfFuncReq extends UdfTypeReq, DescriptionReq, ResourceIdReq {
   className: string
   funcName: string
   argTypes?: string
@@ -101,8 +105,8 @@ interface ResourceFile {
   directory: boolean
   fileName: string
   fullName: string
+  description: string
   size: number
-  createTime: string
   updateTime: string
 }
 
@@ -126,7 +130,6 @@ export {
   NameReq,
   FileNameReq,
   FullNameReq,
-  TenantCodeReq,
   IdReq,
   ContentReq,
   DescriptionReq,
@@ -136,8 +139,9 @@ export {
   ProgramTypeReq,
   ListReq,
   ViewResourceReq,
+  ResourceIdReq,
   UdfFuncReq,
   ResourceListRes,
   ResourceViewRes,
-  ResourceFile
+  ResourceFile, PathReq
 }

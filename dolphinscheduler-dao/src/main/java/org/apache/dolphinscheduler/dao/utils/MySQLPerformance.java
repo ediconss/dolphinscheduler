@@ -28,13 +28,15 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * MySQL performance
  */
-@Slf4j
 public class MySQLPerformance extends BaseDBPerformance {
+
+    private static Logger logger = LoggerFactory.getLogger(MySQLPerformance.class);
 
     /**
      * get monitor record
@@ -70,7 +72,7 @@ public class MySQLPerformance extends BaseDBPerformance {
             }
         } catch (Exception e) {
             monitorRecord.setState(Flag.NO);
-            log.error("SQLException ", e);
+            logger.error("SQLException ", e);
         }
         return monitorRecord;
     }

@@ -35,12 +35,11 @@ public interface ExecutorManager<T> {
 
     /**
      * execute task
-     *
      * @param context context
      * @return T
      * @throws ExecuteException if error throws ExecuteException
      */
-    void execute(ExecutionContext context) throws ExecuteException;
+    T execute(ExecutionContext context) throws ExecuteException;
 
     /**
      * execute task directly without retry

@@ -35,11 +35,12 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class FileUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
     private FileUtils() {
     }
 
@@ -98,8 +99,8 @@ public class FileUtils {
 
     private static void writeStringToFile(File file, String content, StandardOpenOption standardOpenOption) {
         try {
-            log.info("Writing content: " + content);
-            log.info("To file: " + file.getAbsolutePath());
+            LOGGER.info("Writing content: " + content);
+            LOGGER.info("To file: " + file.getAbsolutePath());
             Files.write(file.getAbsoluteFile().toPath(), content.getBytes(StandardCharsets.UTF_8), standardOpenOption);
         } catch (IOException e) {
             throw new RuntimeException("Error writing file: " + file.getAbsoluteFile(), e);

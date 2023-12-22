@@ -31,6 +31,8 @@ import { useSeaTunnel } from './use-sea-tunnel'
 import { useSwitch } from './use-switch'
 import { useConditions } from './use-conditions'
 import { useDataX } from './use-datax'
+import { useXuanwuCDC } from './use-xuanwu-cdc'
+
 import { useDependent } from './use-dependent'
 import { useDataQuality } from './use-data-quality'
 import { useEmr } from './use-emr'
@@ -40,24 +42,15 @@ import { useJupyter } from './use-jupyter'
 import { useMlflow } from './use-mlflow'
 import { useOpenmldb } from './use-openmldb'
 import { useDvc } from './use-dvc'
-import { useJava } from './use-java'
 import { useDinky } from './use-dinky'
 import { userSagemaker } from './use-sagemaker'
 import { useChunjun } from './use-chunjun'
 import { usePytorch } from './use-pytorch'
 import { useHiveCli } from './use-hive-cli'
-import { useDms } from './use-dms'
-import { useDatasync } from './use-datasync'
-import { useKubeflow } from './use-kubeflow'
-import { useLinkis } from './use-linkis'
-import { useDataFactory } from './use-data-factory'
-import { useRemoteShell } from './use-remote-shell'
-import { useDynamic } from './use-dynamic'
 
 export default {
   SHELL: useShell,
   SUB_PROCESS: useSubProcess,
-  DYNAMIC: useDynamic,
   PYTHON: usePython,
   SPARK: useSpark,
   MR: useMr,
@@ -71,6 +64,7 @@ export default {
   SWITCH: useSwitch,
   CONDITIONS: useConditions,
   DATAX: useDataX,
+  XUANWU_CDC: useXuanwuCDC,
   DEPENDENT: useDependent,
   DATA_QUALITY: useDataQuality,
   EMR: useEmr,
@@ -84,13 +78,6 @@ export default {
   SAGEMAKER: userSagemaker,
   CHUNJUN: useChunjun,
   FLINK_STREAM: useFlinkStream,
-  JAVA: useJava,
   PYTORCH: usePytorch,
-  HIVECLI: useHiveCli,
-  DMS: useDms,
-  DATASYNC: useDatasync,
-  KUBEFLOW: useKubeflow,
-  LINKIS: useLinkis,
-  DATA_FACTORY: useDataFactory,
-  REMOTESHELL: useRemoteShell
+  HIVECLI: useHiveCli
 }

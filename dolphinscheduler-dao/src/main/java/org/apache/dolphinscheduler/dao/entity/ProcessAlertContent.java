@@ -93,5 +93,7 @@ public class ProcessAlertContent implements Serializable {
     private String taskHost;
     @JsonProperty("logPath")
     private String logPath;
+    @JsonProperty("errorMsg")
+    private String errorMsg;
 
 }

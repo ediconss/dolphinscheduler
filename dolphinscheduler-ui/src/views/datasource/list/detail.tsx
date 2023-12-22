@@ -36,9 +36,8 @@ import {
 } from 'naive-ui'
 import Modal from '@/components/modal'
 import { useI18n } from 'vue-i18n'
-import { useForm, datasourceType } from './use-form'
+import { useForm, datasourceType, datasourceTypeList } from './use-form'
 import { useDetail } from './use-detail'
-import styles from './index.module.scss'
 
 const props = {
   show: {
@@ -47,17 +46,13 @@ const props = {
   },
   id: {
     type: Number as PropType<number>
-  },
-  selectType: {
-    type: String as PropType<any>,
-    default: 'MYSQL'
   }
 }
 
 const DetailModal = defineComponent({
   name: 'DetailModal',
   props,
-  emits: ['cancel', 'update', 'open'],
+  emits: ['cancel', 'update'],
   setup(props, ctx) {
     const { t } = useI18n()
 
@@ -97,16 +92,9 @@ const DetailModal = defineComponent({
 
     const trim = getCurrentInstance()?.appContext.config.globalProperties.trim
 
-    const handleSourceModalOpen = () => {
-      ctx.emit('open')
-    }
-
     watch(
       () => props.show,
       async () => {
-        state.detailForm.type = props.selectType
-        state.detailForm.label =
-          props.selectType === 'HIVE' ? 'HIVE/IMPALA' : props.selectType
         props.show &&
           state.detailForm.type &&
           (await changeType(
@@ -114,20 +102,6 @@ const DetailModal = defineComponent({
             datasourceType[state.detailForm.type]
           ))
         props.show && props.id && setFieldsValue(await queryById(props.id))
-      }
-    )
-
-    watch(
-      () => props.selectType,
-      async () => {
-        state.detailForm.type = props.selectType
-        state.detailForm.label =
-          props.selectType === 'HIVE' ? 'HIVE/IMPALA' : props.selectType
-        state.detailForm.type &&
-          (await changeType(
-            state.detailForm.type,
-            datasourceType[state.detailForm.type]
-          ))
       }
     )
 
@@ -140,8 +114,7 @@ const DetailModal = defineComponent({
       onSubmit,
       onTest,
       onCancel,
-      trim,
-      handleSourceModalOpen
+      trim
     }
   },
   render() {
@@ -155,23 +128,16 @@ const DetailModal = defineComponent({
       showHost,
       showPort,
       showAwsRegion,
-      showCompatibleMode,
       showConnectType,
       showPrincipal,
-      showMode,
-      showDataBaseName,
-      showJDBCConnectParameters,
-      showPublicKey,
-      modeOptions,
-      redShitModeOptions,
       loading,
       saving,
       testing,
+      onChangeType,
       onChangePort,
       onCancel,
       onTest,
-      onSubmit,
-      handleSourceModalOpen
+      onSubmit
     } = this
     return (
       <Modal
@@ -200,20 +166,13 @@ const DetailModal = defineComponent({
                   path='type'
                   show-require-mark
                 >
-                  <div class={[styles.typeBox, !!id && styles.disabledBox]}>
-                    <div v-model={[detailForm.type, 'value']}>
-                      {detailForm.label}
-                    </div>
-                    <div
-                      class={[
-                        styles['text-color'],
-                        'btn-data-source-type-drop-down'
-                      ]}
-                      onClick={handleSourceModalOpen}
-                    >
-                      {t('datasource.select')}
-                    </div>
-                  </div>
+                  <NSelect
+                    class='btn-data-source-type-drop-down'
+                    v-model={[detailForm.type, 'value']}
+                    options={datasourceTypeList}
+                    disabled={!!id}
+                    on-update:value={onChangeType}
+                  />
                 </NFormItem>
                 <NFormItem
                   label={t('datasource.datasource_name')}
@@ -230,6 +189,7 @@ const DetailModal = defineComponent({
                 </NFormItem>
                 <NFormItem label={t('datasource.description')} path='note'>
                   <NInput
+                    allowInput={this.trim}
                     class='input-data-source-description'
                     v-model={[detailForm.note, 'value']}
                     type='textarea'
@@ -255,9 +215,7 @@ const DetailModal = defineComponent({
                   v-show={showPort}
                   label={t('datasource.port')}
                   path='port'
-                  show-require-mark={
-                    !(showMode && detailForm.mode === 'IAM-accessKey')
-                  }
+                  show-require-mark
                 >
                   <NInputNumber
                     class='input-port'
@@ -293,207 +251,6 @@ const DetailModal = defineComponent({
                     placeholder={t('datasource.krb5_conf_tips')}
                   />
                 </NFormItem>
-                {/* 验证条件选择 */}
-                <NFormItem
-                  v-show={showMode}
-                  label={t('datasource.validation')}
-                  path='mode'
-                  show-require-mark
-                >
-                  <NSelect
-                    v-model={[detailForm.mode, 'value']}
-                    options={
-                      detailForm.type === 'REDSHIFT'
-                        ? redShitModeOptions
-                        : modeOptions
-                    }
-                  ></NSelect>
-                </NFormItem>
-                {/* SqlPassword */}
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'SqlPassword'}
-                  label={t('datasource.database_username')}
-                  path='userName'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.userName, 'value']}
-                    type='text'
-                    placeholder={t('datasource.database_username')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'SqlPassword'}
-                  label={t('datasource.database_password')}
-                  path='password'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.password, 'value']}
-                    type='password'
-                    placeholder={t('datasource.database_password')}
-                  />
-                </NFormItem>
-                {/* ActiveDirectoryPassword */}
-                <NFormItem
-                  v-show={
-                    showMode && detailForm.mode === 'ActiveDirectoryPassword'
-                  }
-                  label={t('datasource.Azure_AD_username')}
-                  path='userName'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.userName, 'value']}
-                    type='text'
-                    placeholder={t('datasource.Azure_AD_username')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={
-                    showMode && detailForm.mode === 'ActiveDirectoryPassword'
-                  }
-                  label={t('datasource.Azure_AD_password')}
-                  path='password'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.password, 'value']}
-                    type='password'
-                    placeholder={t('datasource.Azure_AD_password')}
-                  />
-                </NFormItem>
-                {/* ActiveDirectoryMSI */}
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'ActiveDirectoryMSI'}
-                  label={t('datasource.MSIClientId')}
-                  path='MSIClientId'
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.MSIClientId, 'value']}
-                    type='password'
-                    placeholder={t('datasource.MSIClientId')}
-                  />
-                </NFormItem>
-                {/* ActiveDirectoryServicePrincipal */}
-                <NFormItem
-                  v-show={
-                    showMode &&
-                    detailForm.mode === 'ActiveDirectoryServicePrincipal'
-                  }
-                  label={t('datasource.clientId')}
-                  path='userName'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.userName, 'value']}
-                    type='text'
-                    placeholder={t('datasource.clientId')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={
-                    showMode &&
-                    detailForm.mode === 'ActiveDirectoryServicePrincipal'
-                  }
-                  label={t('datasource.clientSecret')}
-                  path='password'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.password, 'value']}
-                    type='password'
-                    placeholder={t('datasource.clientSecret')}
-                  />
-                </NFormItem>
-                {/* accessToken */}
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'accessToken'}
-                  label={t('datasource.clientId')}
-                  path='userName'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.userName, 'value']}
-                    type='text'
-                    placeholder={t('datasource.clientId')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'accessToken'}
-                  label={t('datasource.clientSecret')}
-                  path='password'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.password, 'value']}
-                    type='password'
-                    placeholder={t('datasource.clientSecret')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'accessToken'}
-                  label={t('datasource.OAuth_token_endpoint')}
-                  path='endpoint'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.endpoint, 'value']}
-                    type='text'
-                    placeholder={t('datasource.OAuth_token_endpoint')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'IAM-accessKey'}
-                  label={t('datasource.AccessKeyID')}
-                  path='userName'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.userName, 'value']}
-                    type='text'
-                    maxlength={60}
-                    placeholder={t('datasource.AccessKeyID_tips')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'IAM-accessKey'}
-                  label={t('datasource.SecretAccessKey')}
-                  path='password'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.password, 'value']}
-                    type='password'
-                    placeholder={t('datasource.SecretAccessKey_tips')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={showMode && detailForm.mode === 'IAM-accessKey'}
-                  label={t('datasource.dbUser')}
-                  path='dbUser'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    class='input-dbUser'
-                    v-model={[detailForm.dbUser, 'value']}
-                    type='text'
-                    placeholder={t('datasource.dbUser_tips')}
-                  />
-                </NFormItem>
                 <NFormItem
                   v-show={showPrincipal}
                   label='keytab.username'
@@ -519,7 +276,6 @@ const DetailModal = defineComponent({
                   />
                 </NFormItem>
                 <NFormItem
-                  v-show={!showMode || detailForm.mode === 'password'}
                   label={t('datasource.user_name')}
                   path='userName'
                   show-require-mark
@@ -534,7 +290,6 @@ const DetailModal = defineComponent({
                   />
                 </NFormItem>
                 <NFormItem
-                  v-show={!showMode || detailForm.mode === 'password'}
                   label={t('datasource.user_password')}
                   path='password'
                 >
@@ -547,21 +302,20 @@ const DetailModal = defineComponent({
                   />
                 </NFormItem>
                 <NFormItem
-                  v-show={showAwsRegion}
-                  label={t('datasource.aws_region')}
-                  path='awsRegion'
-                  show-require-mark
+                    v-show={showAwsRegion}
+                    label={t('datasource.aws_region')}
+                    path='awsRegion'
+                    show-require-mark
                 >
                   <NInput
-                    allowInput={this.trim}
-                    v-model={[detailForm.awsRegion, 'value']}
-                    type='text'
-                    maxlength={60}
-                    placeholder={t('datasource.aws_region_tips')}
+                      allowInput={this.trim}
+                      v-model={[detailForm.awsRegion, 'value']}
+                      type='text'
+                      maxlength={60}
+                      placeholder={t('datasource.aws_region_tips')}
                   />
                 </NFormItem>
                 <NFormItem
-                  v-show={showDataBaseName}
                   label={t('datasource.database_name')}
                   path='database'
                   show-require-mark={requiredDataBase}
@@ -575,21 +329,6 @@ const DetailModal = defineComponent({
                     placeholder={t('datasource.database_name_tips')}
                   />
                 </NFormItem>
-                {detailForm.type === 'SNOWFLAKE' && (
-                  <NFormItem
-                    label={t('datasource.datawarehouse')}
-                    path='datawarehouse'
-                    show-require-mark
-                  >
-                    <NInput
-                      allowInput={this.trim}
-                      class='input-datawarehouse'
-                      v-model={[detailForm.datawarehouse, 'value']}
-                      maxlength={60}
-                      placeholder={t('datasource.datawarehouse_tips')}
-                    />
-                  </NFormItem>
-                )}
                 <NFormItem
                   v-show={showConnectType}
                   label={t('datasource.oracle_connect_type')}
@@ -608,22 +347,6 @@ const DetailModal = defineComponent({
                   </NRadioGroup>
                 </NFormItem>
                 <NFormItem
-                  v-show={showCompatibleMode}
-                  label={t('datasource.compatible_mode')}
-                  path='compatibleMode'
-                  show-require-mark
-                >
-                  <NInput
-                    allowInput={this.trim}
-                    class='input-data-base'
-                    v-model={[detailForm.compatibleMode, 'value']}
-                    type='text'
-                    maxlength={60}
-                    placeholder={t('datasource.compatible_mode_tips')}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={showJDBCConnectParameters}
                   label={t('datasource.jdbc_connect_parameters')}
                   path='other'
                 >
@@ -640,19 +363,6 @@ const DetailModal = defineComponent({
                     )} {"key1":"value1","key2":"value2"...} ${t(
                       'datasource.connection_parameter'
                     )}`}
-                  />
-                </NFormItem>
-                <NFormItem
-                  v-show={showPublicKey}
-                  label='PublicKey'
-                  path='publicKey'
-                >
-                  <NInput
-                    v-model={[detailForm.publicKey, 'value']}
-                    type='textarea'
-                    autosize={{
-                      minRows: 4
-                    }}
                   />
                 </NFormItem>
               </NForm>

@@ -18,10 +18,8 @@
 package org.apache.dolphinscheduler.api.service;
 
 import org.apache.dolphinscheduler.api.utils.Result;
-import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.apache.dolphinscheduler.dao.entity.User;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +28,7 @@ import java.util.Map;
 public interface WorkerGroupService {
 
     /**
-     * Create or update a worker group
+     * create or update a worker group
      *
      * @param loginUser login user
      * @param id worker group id
@@ -44,7 +42,7 @@ public interface WorkerGroupService {
                                         String otherParamsJson);
 
     /**
-     * Query worker group paging
+     * query worker group paging
      *
      * @param loginUser login user
      * @param pageNo page number
@@ -55,40 +53,25 @@ public interface WorkerGroupService {
     Result queryAllGroupPaging(User loginUser, Integer pageNo, Integer pageSize, String searchVal);
 
     /**
-     * Query all worker group
+     * query all worker group
      *
-     * @param loginUser login user
+     * @param loginUser
      * @return all worker group list
      */
     Map<String, Object> queryAllGroup(User loginUser);
 
     /**
-     * Delete worker group by id
-     * @param loginUser login user
+     * delete worker group by id
      * @param id worker group id
      * @return delete result code
      */
     Map<String, Object> deleteWorkerGroupById(User loginUser, Integer id);
 
     /**
-     * Query all worker address list
+     * query all worker address list
      *
      * @return all worker address list
      */
     Map<String, Object> getWorkerAddressList();
-
-    /**
-     * Get task instance's worker group
-     * @param taskInstance task instance
-     * @return worker group
-     */
-    String getTaskWorkerGroup(TaskInstance taskInstance);
-
-    /**
-     * Query worker group by process definition codes
-     * @param processDefinitionCodeList processDefinitionCodeList
-     * @return worker group map
-     */
-    Map<Long, String> queryWorkerGroupByProcessDefinitionCodes(List<Long> processDefinitionCodeList);
 
 }

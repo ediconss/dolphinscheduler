@@ -57,8 +57,7 @@ export function useDataQuality({
     numExecutors: 2,
     executorMemory: '2G',
     executorCores: 2,
-    others: '--conf spark.yarn.maxAppAttempts=1',
-    yarnQueue: ''
+    others: '--conf spark.yarn.maxAppAttempts=1'
   } as INodeData)
 
   return {
@@ -66,7 +65,6 @@ export function useDataQuality({
       Fields.useName(from),
       ...Fields.useTaskDefinition({ projectCode, from, readonly, data, model }),
       Fields.useRunFlag(),
-      Fields.useCache(),
       Fields.useDescription(),
       Fields.useTaskPriority(),
       Fields.useWorkerGroup(),
@@ -85,7 +83,6 @@ export function useDataQuality({
       Fields.useExecutorNumber(),
       Fields.useExecutorMemory(),
       Fields.useExecutorCores(),
-      Fields.useYarnQueue(),
       {
         type: 'input',
         field: 'others',

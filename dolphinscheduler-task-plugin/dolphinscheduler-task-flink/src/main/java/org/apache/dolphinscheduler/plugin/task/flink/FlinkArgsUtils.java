@@ -20,8 +20,9 @@ package org.apache.dolphinscheduler.plugin.task.flink;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.model.Property;
 import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParamUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParameterUtils;
 import org.apache.dolphinscheduler.plugin.task.api.utils.ArgsUtils;
-import org.apache.dolphinscheduler.plugin.task.api.utils.ParameterUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -128,8 +129,6 @@ public class FlinkArgsUtils {
         if (FlinkDeployMode.LOCAL == deployMode) {
             // execution.target
             initOptions.add(String.format(FlinkConstants.FLINK_FORMAT_EXECUTION_TARGET, FlinkConstants.FLINK_LOCAL));
-        } else if (FlinkDeployMode.STANDALONE == deployMode) {
-            // standalone exec
         } else {
             // execution.target
             initOptions.add(
@@ -163,9 +162,12 @@ public class FlinkArgsUtils {
             }
 
             // yarn.application.queue
-            String yarnQueue = flinkParameters.getYarnQueue();
-            if (StringUtils.isNotEmpty(yarnQueue)) {
-                initOptions.add(String.format(FlinkConstants.FLINK_FORMAT_YARN_APPLICATION_QUEUE, yarnQueue));
+            String others = flinkParameters.getOthers();
+            if (StringUtils.isEmpty(others) || !others.contains(FlinkConstants.FLINK_QUEUE)) {
+                String queue = flinkParameters.getQueue();
+                if (StringUtils.isNotEmpty(queue)) {
+                    initOptions.add(String.format(FlinkConstants.FLINK_FORMAT_YARN_APPLICATION_QUEUE, queue));
+                }
             }
         }
 
@@ -205,9 +207,6 @@ public class FlinkArgsUtils {
                 args.add(FlinkConstants.FLINK_YARN_APPLICATION); // yarn-application
                 break;
             case LOCAL:
-                args.add(FlinkConstants.FLINK_RUN); // run
-                break;
-            case STANDALONE:
                 args.add(FlinkConstants.FLINK_RUN); // run
                 break;
         }
@@ -250,10 +249,15 @@ public class FlinkArgsUtils {
                     args.add(taskManagerMemory);
                 }
 
+                if (StringUtils.isEmpty(others) || !others.contains(FlinkConstants.FLINK_QUEUE)) {
+                    String queue = flinkParameters.getQueue();
+                    if (StringUtils.isNotEmpty(queue)) { // -yqu
+                        args.add(FlinkConstants.FLINK_QUEUE);
+                        args.add(queue);
+                    }
+                }
                 break;
             case LOCAL:
-                break;
-            case STANDALONE:
                 break;
         }
 
@@ -286,49 +290,15 @@ public class FlinkArgsUtils {
             if (ProgramType.PYTHON == programType) {
                 args.add(FlinkConstants.FLINK_PYTHON);
             }
-            args.add(taskExecutionContext.getResources().get(mainJar.getResourceName()));
+            args.add(mainJar.getRes());
         }
 
         String mainArgs = flinkParameters.getMainArgs();
         if (StringUtils.isNotEmpty(mainArgs)) {
             Map<String, Property> paramsMap = taskExecutionContext.getPrepareParamsMap();
-            args.add(ParameterUtils.convertParameterPlaceholders(mainArgs, ParameterUtils.convert(paramsMap)));
+            args.add(ParameterUtils.convertParameterPlaceholders(mainArgs, ParamUtils.convert(paramsMap)));
         }
 
-        // determine yarn queue
-        determinedYarnQueue(args, flinkParameters, deployMode, flinkVersion);
         return args;
     }
-
-    private static void determinedYarnQueue(List<String> args, FlinkParameters flinkParameters,
-                                            FlinkDeployMode deployMode, String flinkVersion) {
-        switch (deployMode) {
-            case CLUSTER:
-                if (FLINK_VERSION_AFTER_OR_EQUALS_1_12.equals(flinkVersion)
-                        || FLINK_VERSION_AFTER_OR_EQUALS_1_13.equals(flinkVersion)) {
-                    doAddQueue(args, flinkParameters, FlinkConstants.FLINK_YARN_QUEUE_FOR_TARGETS);
-                } else {
-                    doAddQueue(args, flinkParameters, FlinkConstants.FLINK_YARN_QUEUE_FOR_MODE);
-                }
-            case APPLICATION:
-                doAddQueue(args, flinkParameters, FlinkConstants.FLINK_YARN_QUEUE_FOR_TARGETS);
-        }
-    }
-
-    private static void doAddQueue(List<String> args, FlinkParameters flinkParameters, String option) {
-        String others = flinkParameters.getOthers();
-        if (StringUtils.isEmpty(others) || !others.contains(option)) {
-            String yarnQueue = flinkParameters.getYarnQueue();
-            if (StringUtils.isNotEmpty(yarnQueue)) {
-                switch (option) {
-                    case FlinkConstants.FLINK_YARN_QUEUE_FOR_TARGETS:
-                        args.add(String.format(FlinkConstants.FLINK_YARN_QUEUE_FOR_TARGETS + "=%s", yarnQueue));
-                    case FlinkConstants.FLINK_YARN_QUEUE_FOR_MODE:
-                        args.add(FlinkConstants.FLINK_YARN_QUEUE_FOR_MODE);
-                        args.add(yarnQueue);
-                }
-            }
-        }
-    }
-
 }

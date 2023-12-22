@@ -20,8 +20,8 @@ package org.apache.dolphinscheduler.plugin.alert.slack;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class SlackSenderTest {
 
@@ -34,6 +34,6 @@ public class SlackSenderTest {
 
         SlackSender slackSender = new SlackSender(alertparam);
         String response = slackSender.sendMessage("test title", "test content");
-        Assertions.assertNotEquals("ok", response);
+        Assert.assertNotEquals("ok", response);
     }
 }

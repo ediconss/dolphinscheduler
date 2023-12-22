@@ -31,8 +31,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -93,7 +93,16 @@ public class UdfFuncMapperTest extends BaseDaoTest {
      * @return User
      */
     private User insertOneUser() {
-        return insertOneUser("user1");
+        User user = new User();
+        user.setUserName("user1");
+        user.setUserPassword("1");
+        user.setEmail("xx@123.com");
+        user.setUserType(UserType.GENERAL_USER);
+        user.setCreateTime(new Date());
+        user.setTenantId(1);
+        user.setUpdateTime(new Date());
+        userMapper.insert(user);
+        return user;
     }
 
     /**
@@ -102,15 +111,6 @@ public class UdfFuncMapperTest extends BaseDaoTest {
      * @return User
      */
     private User insertOneUser(String userName) {
-        return createGeneralUser(userName);
-    }
-
-    /**
-     * create general user
-     *
-     * @return User
-     */
-    private User createGeneralUser(String userName) {
         User user = new User();
         user.setUserName(userName);
         user.setUserPassword("1");
@@ -141,6 +141,24 @@ public class UdfFuncMapperTest extends BaseDaoTest {
     }
 
     /**
+     * create general user
+     *
+     * @return User
+     */
+    private User createGeneralUser(String userName) {
+        User user = new User();
+        user.setUserName(userName);
+        user.setUserPassword("1");
+        user.setEmail("xx@123.com");
+        user.setUserType(UserType.GENERAL_USER);
+        user.setCreateTime(new Date());
+        user.setTenantId(1);
+        user.setUpdateTime(new Date());
+        userMapper.insert(user);
+        return user;
+    }
+
+    /**
      * test update
      */
     @Test
@@ -153,7 +171,7 @@ public class UdfFuncMapperTest extends BaseDaoTest {
         udfFunc.setUpdateTime(new Date());
         // update
         int update = udfFuncMapper.updateById(udfFunc);
-        Assertions.assertEquals(update, 1);
+        Assert.assertEquals(update, 1);
 
     }
 
@@ -166,7 +184,7 @@ public class UdfFuncMapperTest extends BaseDaoTest {
         UdfFunc udfFunc = insertOne("func2");
         // delete
         int delete = udfFuncMapper.deleteById(udfFunc.getId());
-        Assertions.assertEquals(delete, 1);
+        Assert.assertEquals(delete, 1);
     }
 
     /**
@@ -181,7 +199,7 @@ public class UdfFuncMapperTest extends BaseDaoTest {
         Integer[] idArray = new Integer[]{udfFunc.getId(), udfFunc1.getId()};
         // queryUdfByIdStr
         List<UdfFunc> udfFuncList = udfFuncMapper.queryUdfByIdStr(idArray, "");
-        Assertions.assertNotEquals(0, udfFuncList.size());
+        Assert.assertNotEquals(udfFuncList.size(), 0);
     }
 
     /**
@@ -198,7 +216,7 @@ public class UdfFuncMapperTest extends BaseDaoTest {
 
         IPage<UdfFunc> udfFuncIPage =
                 udfFuncMapper.queryUdfFuncPaging(page, Collections.singletonList(udfFunc.getId()), "");
-        Assertions.assertNotEquals(0, udfFuncIPage.getTotal());
+        Assert.assertNotEquals(udfFuncIPage.getTotal(), 0);
 
     }
 
@@ -214,7 +232,7 @@ public class UdfFuncMapperTest extends BaseDaoTest {
         // getUdfFuncByType
         List<UdfFunc> udfFuncList =
                 udfFuncMapper.getUdfFuncByType(Collections.singletonList(udfFunc.getId()), udfFunc.getType().ordinal());
-        Assertions.assertNotEquals(0, udfFuncList.size());
+        Assert.assertNotEquals(udfFuncList.size(), 0);
 
     }
 
@@ -230,7 +248,7 @@ public class UdfFuncMapperTest extends BaseDaoTest {
         UdfFunc udfFunc1 = insertOne(user1);
         UdfFunc udfFunc2 = insertOne(user2);
         List<UdfFunc> udfFuncList = udfFuncMapper.queryUdfFuncExceptUserId(user1.getId());
-        Assertions.assertNotEquals(0, udfFuncList.size());
+        Assert.assertNotEquals(udfFuncList.size(), 0);
 
     }
 
@@ -249,7 +267,7 @@ public class UdfFuncMapperTest extends BaseDaoTest {
         UDFUser udfUser = insertOneUDFUser(user, udfFunc);
         // queryAuthedUdfFunc
         List<UdfFunc> udfFuncList = udfFuncMapper.queryAuthedUdfFunc(user.getId());
-        Assertions.assertNotEquals(0, udfFuncList.size());
+        Assert.assertNotEquals(udfFuncList.size(), 0);
     }
 
     @Test
@@ -267,15 +285,15 @@ public class UdfFuncMapperTest extends BaseDaoTest {
 
         List<UdfFunc> authorizedUdfFunc = udfFuncMapper.listAuthorizedUdfFunc(generalUser1.getId(), udfFuncIds);
 
-        Assertions.assertEquals(generalUser1.getId().intValue(), udfFunc.getUserId());
-        Assertions.assertNotEquals(generalUser1.getId().intValue(), unauthorizdUdfFunc.getUserId());
-        Assertions.assertFalse(authorizedUdfFunc.stream().map(t -> t.getId()).collect(toList())
+        Assert.assertEquals(generalUser1.getId().intValue(), udfFunc.getUserId());
+        Assert.assertNotEquals(generalUser1.getId().intValue(), unauthorizdUdfFunc.getUserId());
+        Assert.assertFalse(authorizedUdfFunc.stream().map(t -> t.getId()).collect(toList())
                 .containsAll(Arrays.asList(udfFuncIds)));
 
         // authorize object unauthorizdUdfFunc to generalUser1
         insertOneUDFUser(generalUser1, unauthorizdUdfFunc);
         authorizedUdfFunc = udfFuncMapper.listAuthorizedUdfFunc(generalUser1.getId(), udfFuncIds);
-        Assertions.assertTrue(authorizedUdfFunc.stream().map(t -> t.getId()).collect(toList())
+        Assert.assertTrue(authorizedUdfFunc.stream().map(t -> t.getId()).collect(toList())
                 .containsAll(Arrays.asList(udfFuncIds)));
     }
 
@@ -287,7 +305,7 @@ public class UdfFuncMapperTest extends BaseDaoTest {
         udfFunc.setResourceName("/updateTest");
         List<UdfFunc> udfFuncList = new ArrayList<>();
         udfFuncList.add(udfFunc);
-        Assertions.assertTrue(udfFuncMapper.batchUpdateUdfFunc(udfFuncList) > 0);
+        Assert.assertTrue(udfFuncMapper.batchUpdateUdfFunc(udfFuncList) > 0);
 
     }
 }

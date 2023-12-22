@@ -17,26 +17,27 @@
 
 package org.apache.dolphinscheduler.plugin.task.api.enums.dp;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class DqFailureStrategyTest {
 
     @Test
     public void testGetCode() {
-        Assertions.assertEquals(0, DqFailureStrategy.ALERT.getCode());
-        Assertions.assertEquals(1, DqFailureStrategy.BLOCK.getCode());
+        assertEquals(0, DqFailureStrategy.ALERT.getCode());
+        assertEquals(1, DqFailureStrategy.BLOCK.getCode());
     }
 
     @Test
     public void testGetDescription() {
-        Assertions.assertEquals("alert", DqFailureStrategy.ALERT.getDescription());
-        Assertions.assertEquals("block", DqFailureStrategy.BLOCK.getDescription());
+        assertEquals("alert", DqFailureStrategy.ALERT.getDescription());
+        assertEquals("block", DqFailureStrategy.BLOCK.getDescription());
     }
 
     @Test
     public void testOf() {
-        Assertions.assertEquals(DqFailureStrategy.ALERT, DqFailureStrategy.of(0));
-        Assertions.assertEquals(DqFailureStrategy.BLOCK, DqFailureStrategy.of(1));
+        assertEquals(DqFailureStrategy.ALERT, DqFailureStrategy.of(0));
+        assertEquals(DqFailureStrategy.BLOCK, DqFailureStrategy.of(1));
     }
 }

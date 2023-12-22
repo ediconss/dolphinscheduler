@@ -26,10 +26,10 @@ import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -48,13 +48,13 @@ public class ClusterControllerTest extends AbstractControllerTest {
     private static final Logger logger = LoggerFactory.getLogger(ClusterControllerTest.class);
     private String clusterCode;
 
-    @BeforeEach
+    @Before
     public void before() throws Exception {
         testCreateCluster();
     }
 
     @Override
-    @AfterEach
+    @After
     public void after() throws Exception {
         testDeleteCluster();
     }
@@ -77,8 +77,8 @@ public class ClusterControllerTest extends AbstractControllerTest {
                 new TypeReference<Result<String>>() {
                 });
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
-        Assertions.assertNotNull(result.getData());
+        Assert.assertTrue(result != null && result.isSuccess());
+        Assert.assertNotNull(result.getData());
         logger.info("create cluster return result:{}", mvcResult.getResponse().getContentAsString());
 
         clusterCode = (String) result.getData();
@@ -101,7 +101,7 @@ public class ClusterControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info("update cluster return result:{}", mvcResult.getResponse().getContentAsString());
 
     }
@@ -120,7 +120,7 @@ public class ClusterControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info(mvcResult.getResponse().getContentAsString());
         logger.info("query cluster by id :{}, return result:{}", clusterCode,
                 mvcResult.getResponse().getContentAsString());
@@ -143,7 +143,7 @@ public class ClusterControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info("query list-paging cluster return result:{}", mvcResult.getResponse().getContentAsString());
     }
 
@@ -160,7 +160,7 @@ public class ClusterControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info("query all cluster return result:{}", mvcResult.getResponse().getContentAsString());
 
     }
@@ -179,7 +179,7 @@ public class ClusterControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result.isStatus(Status.CLUSTER_NAME_EXISTS));
+        Assert.assertTrue(result.isStatus(Status.CLUSTER_NAME_EXISTS));
         logger.info("verify cluster return result:{}", mvcResult.getResponse().getContentAsString());
 
     }
@@ -199,7 +199,7 @@ public class ClusterControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info("delete cluster return result:{}", mvcResult.getResponse().getContentAsString());
     }
 }

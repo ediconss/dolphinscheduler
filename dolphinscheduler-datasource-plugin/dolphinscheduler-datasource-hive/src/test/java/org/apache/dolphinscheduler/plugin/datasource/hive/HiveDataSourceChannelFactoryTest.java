@@ -19,8 +19,8 @@ package org.apache.dolphinscheduler.plugin.datasource.hive;
 
 import org.apache.dolphinscheduler.spi.datasource.DataSourceChannel;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class HiveDataSourceChannelFactoryTest {
 
@@ -28,6 +28,6 @@ public class HiveDataSourceChannelFactoryTest {
     public void testCreate() {
         HiveDataSourceChannelFactory sourceChannelFactory = new HiveDataSourceChannelFactory();
         DataSourceChannel dataSourceChannel = sourceChannelFactory.create();
-        Assertions.assertNotNull(dataSourceChannel);
+        Assert.assertNotNull(dataSourceChannel);
     }
 }

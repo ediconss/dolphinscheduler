@@ -23,8 +23,8 @@ import org.apache.dolphinscheduler.dao.entity.DatasourceUser;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DataSourceUserMapperTest extends BaseDaoTest {
@@ -59,7 +59,7 @@ public class DataSourceUserMapperTest extends BaseDaoTest {
         // update
         dataSourceUser.setUpdateTime(new Date());
         int update = dataSourceUserMapper.updateById(dataSourceUser);
-        Assertions.assertEquals(update, 1);
+        Assert.assertEquals(update, 1);
     }
 
     /**
@@ -70,7 +70,7 @@ public class DataSourceUserMapperTest extends BaseDaoTest {
 
         DatasourceUser dataSourceUser = insertOne();
         int delete = dataSourceUserMapper.deleteById(dataSourceUser.getId());
-        Assertions.assertEquals(delete, 1);
+        Assert.assertEquals(delete, 1);
     }
 
     /**
@@ -81,7 +81,7 @@ public class DataSourceUserMapperTest extends BaseDaoTest {
         DatasourceUser dataSourceUser = insertOne();
         // query
         List<DatasourceUser> dataSources = dataSourceUserMapper.selectList(null);
-        Assertions.assertNotEquals(0, dataSources.size());
+        Assert.assertNotEquals(dataSources.size(), 0);
     }
 
     /**
@@ -91,7 +91,7 @@ public class DataSourceUserMapperTest extends BaseDaoTest {
     public void testDeleteByUserId() {
         DatasourceUser dataSourceUser = insertOne();
         int delete = dataSourceUserMapper.deleteByUserId(dataSourceUser.getUserId());
-        Assertions.assertNotEquals(0, delete);
+        Assert.assertNotEquals(delete, 0);
     }
 
     /**
@@ -101,6 +101,6 @@ public class DataSourceUserMapperTest extends BaseDaoTest {
     public void testDeleteByDatasourceId() {
         DatasourceUser dataSourceUser = insertOne();
         int delete = dataSourceUserMapper.deleteByDatasourceId(dataSourceUser.getDatasourceId());
-        Assertions.assertNotEquals(0, delete);
+        Assert.assertNotEquals(delete, 0);
     }
 }

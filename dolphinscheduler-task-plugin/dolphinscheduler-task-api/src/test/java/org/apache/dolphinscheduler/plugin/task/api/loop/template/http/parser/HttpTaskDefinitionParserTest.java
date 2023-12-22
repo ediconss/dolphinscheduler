@@ -21,8 +21,8 @@ import org.apache.dolphinscheduler.plugin.task.api.loop.template.LoopTaskYamlDef
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class HttpTaskDefinitionParserTest {
 
@@ -32,11 +32,11 @@ public class HttpTaskDefinitionParserTest {
     @Test
     public void parseYamlConfigFile() throws IOException {
         LoopTaskYamlDefinition loopTaskYamlDefinition = new HttpTaskDefinitionParser().parseYamlConfigFile(yamlFile);
-        Assertions.assertNotNull(loopTaskYamlDefinition);
-        Assertions.assertNotNull(loopTaskYamlDefinition.getService());
+        Assert.assertNotNull(loopTaskYamlDefinition);
+        Assert.assertNotNull(loopTaskYamlDefinition.getService());
         LoopTaskYamlDefinition.LoopTaskServiceYamlDefinition service = loopTaskYamlDefinition.getService();
-        Assertions.assertEquals("MockService", service.getName());
-        Assertions.assertNotNull(service.getApi());
+        Assert.assertEquals("MockService", service.getName());
+        Assert.assertNotNull(service.getApi());
     }
 
     @Test
@@ -45,7 +45,7 @@ public class HttpTaskDefinitionParserTest {
         LoopTaskYamlDefinition loopTaskYamlDefinition = httpTaskDefinitionParser.parseYamlConfigFile(yamlFile);
         httpTaskDefinitionParser.validateYamlDefinition(loopTaskYamlDefinition);
         // if no exception assert true
-        Assertions.assertTrue(true);
+        Assert.assertTrue(true);
 
     }
 }

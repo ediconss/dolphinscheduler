@@ -34,12 +34,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 
 import com.google.common.base.Preconditions;
 
-@Slf4j
 public final class WebexTeamsSender {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(WebexTeamsSender.class);
 
     private final String botAccessToken;
     private final String roomId;

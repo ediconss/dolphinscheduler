@@ -31,22 +31,20 @@ public interface LoggerService {
     /**
      * view log
      *
-     * @param loginUser   login user
      * @param taskInstId task instance id
      * @param skipLineNum skip line number
      * @param limit limit
      * @return log string data
      */
-    Result<ResponseTaskLog> queryLog(User loginUser, int taskInstId, int skipLineNum, int limit);
+    Result<ResponseTaskLog> queryLog(int taskInstId, int skipLineNum, int limit, String filter);
 
     /**
      * get log size
      *
-     * @param loginUser   login user
      * @param taskInstId task instance id
      * @return log byte array
      */
-    byte[] getLogBytes(User loginUser, int taskInstId);
+    byte[] getLogBytes(int taskInstId);
 
     /**
      * query log
@@ -58,7 +56,8 @@ public interface LoggerService {
      * @param limit       limit
      * @return log string data
      */
-    Map<String, Object> queryLog(User loginUser, long projectCode, int taskInstId, int skipLineNum, int limit);
+    Map<String, Object> queryLog(User loginUser, long projectCode, int taskInstId, int skipLineNum, int limit,
+                                 String filter);
 
     /**
      * get log bytes

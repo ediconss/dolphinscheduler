@@ -25,26 +25,53 @@ import org.apache.dolphinscheduler.plugin.datasource.api.utils.PasswordUtils;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Driver;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * Jdbc Data Source Provider
  */
-@Slf4j
 public class JDBCDataSourceProvider {
+
+    private static final Logger logger = LoggerFactory.getLogger(JDBCDataSourceProvider.class);
+
+    public static HikariDataSource createJdbcDataSource(BaseConnectionParam properties, DbType dbType) {
+        logger.info("Creating HikariDataSource pool for maxActive:{}",
+                PropertyUtils.getInt(DataSourceConstants.SPRING_DATASOURCE_MAX_ACTIVE, 50));
+        HikariDataSource dataSource = new HikariDataSource();
+
+        // TODO Support multiple versions of data sources
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        loaderJdbcDriver(classLoader, properties, dbType);
+
+        dataSource.setDriverClassName(properties.getDriverClassName());
+        dataSource.setJdbcUrl(DataSourceUtils.getJdbcUrl(dbType, properties));
+        dataSource.setUsername(properties.getUser());
+        dataSource.setPassword(PasswordUtils.decodePassword(properties.getPassword()));
+
+        dataSource.setMinimumIdle(PropertyUtils.getInt(DataSourceConstants.SPRING_DATASOURCE_MIN_IDLE, 5));
+        dataSource.setMaximumPoolSize(PropertyUtils.getInt(DataSourceConstants.SPRING_DATASOURCE_MAX_ACTIVE, 50));
+        dataSource.setConnectionTestQuery(properties.getValidationQuery());
+
+        if (properties.getProps() != null) {
+            properties.getProps().forEach(dataSource::addDataSourceProperty);
+        }
+
+        logger.info("Creating HikariDataSource pool success.");
+        return dataSource;
+    }
 
     /**
      * @return One Session Jdbc DataSource
      */
     public static HikariDataSource createOneSessionJdbcDataSource(BaseConnectionParam properties, DbType dbType) {
-        log.info("Creating OneSession HikariDataSource pool for maxActive:{}",
+        logger.info("Creating OneSession HikariDataSource pool for maxActive:{}",
                 PropertyUtils.getInt(DataSourceConstants.SPRING_DATASOURCE_MAX_ACTIVE, 50));
 
         HikariDataSource dataSource = new HikariDataSource();
@@ -61,11 +88,11 @@ public class JDBCDataSourceProvider {
                 isOneSession ? 1 : PropertyUtils.getInt(DataSourceConstants.SPRING_DATASOURCE_MAX_ACTIVE, 50));
         dataSource.setConnectionTestQuery(properties.getValidationQuery());
 
-        if (MapUtils.isNotEmpty(properties.getOther())) {
-            properties.getOther().forEach(dataSource::addDataSourceProperty);
+        if (properties.getProps() != null) {
+            properties.getProps().forEach(dataSource::addDataSourceProperty);
         }
 
-        log.info("Creating OneSession HikariDataSource pool success.");
+        logger.info("Creating OneSession HikariDataSource pool success.");
         return dataSource;
     }
 
@@ -77,7 +104,7 @@ public class JDBCDataSourceProvider {
             final Class<?> clazz = Class.forName(drv, true, classLoader);
             final Driver driver = (Driver) clazz.newInstance();
             if (!driver.acceptsURL(properties.getJdbcUrl())) {
-                log.warn("Jdbc driver loading error. Driver {} cannot accept url.", drv);
+                logger.warn("Jdbc driver loading error. Driver {} cannot accept url.", drv);
                 throw new RuntimeException("Jdbc driver loading error.");
             }
             if (dbType.equals(DbType.MYSQL)) {
@@ -88,7 +115,7 @@ public class JDBCDataSourceProvider {
                 }
             }
         } catch (final Exception e) {
-            log.warn("The specified driver not suitable.");
+            logger.warn("The specified driver not suitable.");
         }
     }
 

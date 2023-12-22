@@ -28,13 +28,15 @@ import org.apache.dolphinscheduler.plugin.task.sqoop.parameter.sources.SourceHdf
 
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * hdfs source generator
  */
-@Slf4j
 public class HdfsSourceGenerator implements ISourceGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger(HdfsSourceGenerator.class);
 
     @Override
     public String generate(SqoopParameters sqoopParameters, SqoopTaskExecutionContext sqoopTaskExecutionContext) {
@@ -55,7 +57,7 @@ public class HdfsSourceGenerator implements ISourceGenerator {
 
             }
         } catch (Exception e) {
-            log.error(String.format("Sqoop hdfs source parmas build failed: [%s]", e.getMessage()));
+            logger.error(String.format("Sqoop hdfs source parmas build failed: [%s]", e.getMessage()));
         }
 
         return hdfsSourceSb.toString();

@@ -29,7 +29,8 @@ import org.apache.dolphinscheduler.data.quality.Constants;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -37,8 +38,9 @@ import com.google.common.base.Strings;
 /**
  * JsonUtil
  */
-@Slf4j
 public class JsonUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(JsonUtils.class);
 
     /**
      * can use static singleton, inject: just make sure to reuse!
@@ -65,7 +67,7 @@ public class JsonUtils {
         try {
             return MAPPER.readValue(json, clazz);
         } catch (Exception e) {
-            log.error("parse object exception!", e);
+            logger.error("parse object exception!", e);
         }
 
         return null;

@@ -40,7 +40,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
-import java.time.Duration;
 import java.util.List;
 
 
@@ -52,7 +51,7 @@ public class FileManagePage extends NavBarPage implements ResourcePage.Tab {
     @FindBy(className = "btn-create-file")
     private WebElement buttonCreateFile;
 
-    @FindBy(className = "btn-upload-resource")
+    @FindBy(className = "btn-upload-file")
     private WebElement buttonUploadFile;
 
     private final CreateDirectoryBox createDirectoryBox;
@@ -94,19 +93,21 @@ public class FileManagePage extends NavBarPage implements ResourcePage.Tab {
         editFileBox = new EditFileBox();
     }
 
-    public FileManagePage createDirectory(String name) {
+    public FileManagePage createDirectory(String name, String description) {
         buttonCreateDirectory().click();
 
         createDirectoryBox().inputDirectoryName().sendKeys(name);
+        createDirectoryBox().inputDescription().sendKeys(description);
         createDirectoryBox().buttonSubmit().click();
 
         return this;
     }
 
-    public FileManagePage cancelCreateDirectory(String name) {
+    public FileManagePage cancelCreateDirectory(String name, String description) {
         buttonCreateDirectory().click();
 
         createDirectoryBox().inputDirectoryName().sendKeys(name);
+        createDirectoryBox().inputDescription().sendKeys(description);
         createDirectoryBox().buttonCancel().click();
 
         return this;
@@ -130,7 +131,7 @@ public class FileManagePage extends NavBarPage implements ResourcePage.Tab {
         return this;
     }
 
-    public FileManagePage createSubDirectory(String directoryName, String subDirectoryName) {
+    public FileManagePage createSubDirectory(String directoryName, String subDirectoryName, String description) {
         fileList()
             .stream()
             .filter(it -> it.getText().contains(directoryName))
@@ -142,6 +143,7 @@ public class FileManagePage extends NavBarPage implements ResourcePage.Tab {
         buttonCreateDirectory().click();
 
         createDirectoryBox().inputDirectoryName().sendKeys(subDirectoryName);
+        createDirectoryBox().inputDescription().sendKeys(description);
         createDirectoryBox().buttonSubmit().click();
 
         return this;
@@ -182,9 +184,9 @@ public class FileManagePage extends NavBarPage implements ResourcePage.Tab {
             .orElseThrow(() -> new RuntimeException("No edit button in file manage list"))
             .click();
 
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.urlContains("/edit"));
+        new WebDriverWait(driver, 5).until(ExpectedConditions.urlContains("/edit"));
 
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.textToBePresentInElement(driver.findElement(By.tagName("body")), fileName));
+        new WebDriverWait(driver, 5).until(ExpectedConditions.textToBePresentInElement(driver.findElementByTagName("body"), fileName));
 
         editFileBox().codeEditor().content(scripts);
         editFileBox().buttonSubmit().click();
@@ -228,6 +230,12 @@ public class FileManagePage extends NavBarPage implements ResourcePage.Tab {
         })
         private WebElement inputDirectoryName;
 
+        @FindBys({
+                @FindBy(className = "input-description"),
+                @FindBy(tagName = "textarea"),
+        })
+        private WebElement inputDescription;
+
         @FindBy(className = "btn-submit")
         private WebElement buttonSubmit;
 
@@ -246,6 +254,12 @@ public class FileManagePage extends NavBarPage implements ResourcePage.Tab {
                 @FindBy(tagName = "input"),
         })
         private WebElement inputName;
+
+        @FindBys({
+                @FindBy(className = "input-description"),
+                @FindBy(tagName = "textarea"),
+        })
+        private WebElement inputDescription;
 
         @FindBy(className = "btn-submit")
         private WebElement buttonSubmit;

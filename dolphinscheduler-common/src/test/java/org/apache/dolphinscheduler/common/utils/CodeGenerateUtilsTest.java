@@ -19,8 +19,8 @@ package org.apache.dolphinscheduler.common.utils;
 
 import java.util.HashSet;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class CodeGenerateUtilsTest {
 
@@ -29,7 +29,7 @@ public class CodeGenerateUtilsTest {
         HashSet<Long> existsCode = new HashSet<>();
         for (int i = 0; i < 100; i++) {
             Long currentCode = CodeGenerateUtils.getInstance().genCode();
-            Assertions.assertFalse(existsCode.contains(currentCode));
+            Assert.assertFalse(existsCode.contains(currentCode));
             existsCode.add(currentCode);
         }
     }

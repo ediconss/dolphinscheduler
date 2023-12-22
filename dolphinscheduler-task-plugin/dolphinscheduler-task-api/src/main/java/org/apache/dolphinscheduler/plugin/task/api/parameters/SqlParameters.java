@@ -114,6 +114,30 @@ public class SqlParameters extends AbstractParameters {
 
     private int limit;
 
+    /**
+     * segment separator
+     *
+     * <p>The segment separator is used
+     * when the data source does not support multi-segment SQL execution,
+     * and the client needs to split the SQL and execute it multiple times.</p>
+     */
+    private String segmentSeparator;
+
+    public List<ResourceInfo> getResourceList() {
+        return resourceList;
+    }
+
+    public void setResourceList(List<ResourceInfo> resourceList) {
+        this.resourceList = resourceList;
+    }
+
+    private List<ResourceInfo> resourceList;
+
+    @Override
+    public List<ResourceInfo> getResourceFilesList() {
+        return resourceList;
+    }
+
     public int getLimit() {
         return limit;
     }
@@ -226,14 +250,18 @@ public class SqlParameters extends AbstractParameters {
         this.groupId = groupId;
     }
 
-    @Override
-    public boolean checkParameters() {
-        return datasource != 0 && StringUtils.isNotEmpty(type) && StringUtils.isNotEmpty(sql);
+    public String getSegmentSeparator() {
+        return segmentSeparator;
+    }
+
+    public void setSegmentSeparator(String segmentSeparator) {
+        this.segmentSeparator = segmentSeparator;
     }
 
     @Override
-    public List<ResourceInfo> getResourceFilesList() {
-        return new ArrayList<>();
+    public boolean checkParameters() {
+        return datasource != 0 && StringUtils.isNotEmpty(type)
+                && (StringUtils.isNotEmpty(sql) || CollectionUtils.isNotEmpty(resourceList));
     }
 
     @Override
@@ -293,6 +321,7 @@ public class SqlParameters extends AbstractParameters {
                 + ", sendEmail=" + sendEmail
                 + ", displayRows=" + displayRows
                 + ", limit=" + limit
+                + ", segmentSeparator=" + segmentSeparator
                 + ", udfs='" + udfs + '\''
                 + ", showType='" + showType + '\''
                 + ", connParams='" + connParams + '\''

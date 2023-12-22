@@ -28,7 +28,6 @@ import java.util.Date;
 import lombok.Data;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -113,11 +112,6 @@ public class ErrorCommand {
     private String workerGroup;
 
     /**
-     * tenant code
-     */
-    private String tenantCode;
-
-    /**
      * environment code
      */
     private Long environmentCode;
@@ -127,14 +121,9 @@ public class ErrorCommand {
      */
     private int dryRun;
 
-    /**
-     * test flag
-     */
-    @TableField("test_flag")
-    private int testFlag;
-
     public ErrorCommand() {
     }
+
     public ErrorCommand(Command command, String message) {
         this.id = command.getId();
         this.commandType = command.getCommandType();
@@ -152,6 +141,5 @@ public class ErrorCommand {
         this.processInstancePriority = command.getProcessInstancePriority();
         this.message = message;
         this.dryRun = command.getDryRun();
-        this.testFlag = command.getTestFlag();
     }
 }

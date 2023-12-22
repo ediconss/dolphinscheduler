@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -45,7 +45,7 @@ public class JSONUtilsTest {
         objectNode.put("a", "b");
         objectNode.put("b", "d");
         String s = JSONUtils.toJsonString(objectNode);
-        Assertions.assertEquals(s, jsonStr);
+        Assert.assertEquals(s, jsonStr);
     }
 
     @Test
@@ -54,8 +54,8 @@ public class JSONUtilsTest {
         String jsonStr = "{\"id\":\"1001\",\"name\":\"Jobs\"}";
 
         Map<String, String> models = JSONUtils.toMap(jsonStr);
-        Assertions.assertEquals("1001", models.get("id"));
-        Assertions.assertEquals("Jobs", models.get("name"));
+        Assert.assertEquals("1001", models.get("id"));
+        Assert.assertEquals("Jobs", models.get("name"));
 
     }
 
@@ -66,12 +66,12 @@ public class JSONUtilsTest {
         List<LinkedHashMap> maps = JSONUtils.toList(str,
                 LinkedHashMap.class);
 
-        Assertions.assertEquals(1, maps.size());
-        Assertions.assertEquals("mysql200", maps.get(0).get("mysql service name"));
-        Assertions.assertEquals("192.168.xx.xx", maps.get(0).get("mysql address"));
-        Assertions.assertEquals("3306", maps.get(0).get("port"));
-        Assertions.assertEquals("80", maps.get(0).get("no index of number"));
-        Assertions.assertEquals("190", maps.get(0).get("database client connections"));
+        Assert.assertEquals(1, maps.size());
+        Assert.assertEquals("mysql200", maps.get(0).get("mysql service name"));
+        Assert.assertEquals("192.168.xx.xx", maps.get(0).get("mysql address"));
+        Assert.assertEquals("3306", maps.get(0).get("port"));
+        Assert.assertEquals("80", maps.get(0).get("no index of number"));
+        Assert.assertEquals("190", maps.get(0).get("database client connections"));
     }
 
     public String list2String() {
@@ -91,8 +91,8 @@ public class JSONUtilsTest {
 
     @Test
     public void testParseObject() {
-        Assertions.assertNull(JSONUtils.parseObject(""));
-        Assertions.assertNull(JSONUtils.parseObject("foo", String.class));
+        Assert.assertNull(JSONUtils.parseObject(""));
+        Assert.assertNull(JSONUtils.parseObject("foo", String.class));
     }
 
     @Test
@@ -100,18 +100,18 @@ public class JSONUtilsTest {
         String str = "foo";
         byte[] serializeByte = JSONUtils.toJsonByteArray(str);
         String deserialize = JSONUtils.parseObject(serializeByte, String.class);
-        Assertions.assertEquals(str, deserialize);
+        Assert.assertEquals(str, deserialize);
         str = null;
         serializeByte = JSONUtils.toJsonByteArray(str);
         deserialize = JSONUtils.parseObject(serializeByte, String.class);
-        Assertions.assertNull(deserialize);
+        Assert.assertNull(deserialize);
     }
 
     @Test
     public void testToList() {
-        Assertions.assertEquals(new ArrayList(),
+        Assert.assertEquals(new ArrayList(),
                 JSONUtils.toList("A1B2C3", null));
-        Assertions.assertEquals(new ArrayList(),
+        Assert.assertEquals(new ArrayList(),
                 JSONUtils.toList("", null));
     }
 
@@ -120,18 +120,18 @@ public class JSONUtilsTest {
         Map<String, String> map = new HashMap<>();
         map.put("foo", "bar");
 
-        Assertions.assertEquals(map, JSONUtils.toMap(
-                "{\n" + "\"foo\": \"bar\"\n" + "}"));
+        Assert.assertTrue(map.equals(JSONUtils.toMap(
+                "{\n" + "\"foo\": \"bar\"\n" + "}")));
 
-        Assertions.assertNotEquals(map, JSONUtils.toMap(
-                "{\n" + "\"bar\": \"foo\"\n" + "}"));
+        Assert.assertFalse(map.equals(JSONUtils.toMap(
+                "{\n" + "\"bar\": \"foo\"\n" + "}")));
 
-        Assertions.assertNull(JSONUtils.toMap("3"));
-        Assertions.assertNull(JSONUtils.toMap(null));
+        Assert.assertNull(JSONUtils.toMap("3"));
+        Assert.assertNull(JSONUtils.toMap(null));
 
         String str = "{\"resourceList\":[],\"localParams\":[],\"rawScript\":\"#!/bin/bash\\necho \\\"shell-1\\\"\"}";
         Map<String, String> m = JSONUtils.toMap(str);
-        Assertions.assertNotNull(m);
+        Assert.assertNotNull(m);
     }
 
     @Test
@@ -139,12 +139,12 @@ public class JSONUtilsTest {
         Map<String, Object> map = new HashMap<>();
         map.put("foo", "bar");
 
-        Assertions.assertEquals("{\"foo\":\"bar\"}",
+        Assert.assertEquals("{\"foo\":\"bar\"}",
                 JSONUtils.toJsonString(map));
-        Assertions.assertEquals(String.valueOf((Object) null),
+        Assert.assertEquals(String.valueOf((Object) null),
                 JSONUtils.toJsonString(null));
 
-        Assertions.assertEquals("{\"foo\":\"bar\"}",
+        Assert.assertEquals("{\"foo\":\"bar\"}",
                 JSONUtils.toJsonString(map, SerializationFeature.WRITE_NULL_MAP_VALUES));
     }
 
@@ -153,13 +153,13 @@ public class JSONUtilsTest {
         String str = "{\"color\":\"yellow\",\"type\":\"renault\"}";
         ObjectNode node = JSONUtils.parseObject(str);
 
-        Assertions.assertEquals("yellow", node.path("color").asText());
+        Assert.assertEquals("yellow", node.path("color").asText());
 
         node.put("price", 100);
-        Assertions.assertEquals(100, node.path("price").asInt());
+        Assert.assertEquals(100, node.path("price").asInt());
 
         node.put("color", "red");
-        Assertions.assertEquals("red", node.path("color").asText());
+        Assert.assertEquals("red", node.path("color").asText());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class JSONUtilsTest {
         String str = "[{\"color\":\"yellow\",\"type\":\"renault\"}]";
         ArrayNode node = JSONUtils.parseArray(str);
 
-        Assertions.assertEquals("yellow", node.path(0).path("color").asText());
+        Assert.assertEquals("yellow", node.path(0).path("color").asText());
     }
 
     @Test
@@ -177,7 +177,7 @@ public class JSONUtilsTest {
         Date date = DateUtils.stringToDate(time);
         LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         String json = JSONUtils.toJsonString(localDateTime);
-        Assertions.assertEquals("\"" + time + "\"", json);
+        Assert.assertEquals("\"" + time + "\"", json);
     }
 
     @Test
@@ -189,9 +189,9 @@ public class JSONUtilsTest {
         List<LocalDateTime> timeList =
                 JSONUtils.parseObject("[\"2022-02-22 13:38:24\"]", new TypeReference<List<LocalDateTime>>() {
                 });
-        Assertions.assertNotNull(timeList);
-        Assertions.assertEquals(1, timeList.size());
-        Assertions.assertEquals(localDateTime, timeList.get(0));
+        Assert.assertNotNull(timeList);
+        Assert.assertEquals(1, timeList.size());
+        Assert.assertEquals(localDateTime, timeList.get(0));
     }
 
 }

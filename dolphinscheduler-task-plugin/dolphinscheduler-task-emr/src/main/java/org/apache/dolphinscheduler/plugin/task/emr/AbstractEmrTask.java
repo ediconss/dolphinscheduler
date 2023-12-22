@@ -78,8 +78,8 @@ public abstract class AbstractEmrTask extends AbstractRemoteTask {
     @Override
     public void init() {
         final String taskParams = taskExecutionContext.getTaskParams();
+        logger.info("emr task params:{}", taskParams);
         emrParameters = JSONUtils.parseObject(taskParams, EmrParameters.class);
-        log.info("Initialize emr task params:{}", JSONUtils.toPrettyJsonString(taskParams));
         if (emrParameters == null || !emrParameters.checkParameters()) {
             throw new EmrTaskException("emr task params is not valid");
         }
@@ -96,7 +96,7 @@ public abstract class AbstractEmrTask extends AbstractRemoteTask {
      *
      * @return AmazonElasticMapReduce
      */
-    protected AmazonElasticMapReduce createEmrClient() {
+    private AmazonElasticMapReduce createEmrClient() {
 
         final String awsAccessKeyId = PropertyUtils.getString(TaskConstants.AWS_ACCESS_KEY_ID);
         final String awsSecretAccessKey = PropertyUtils.getString(TaskConstants.AWS_SECRET_ACCESS_KEY);

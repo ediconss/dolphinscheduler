@@ -39,6 +39,12 @@ public enum TaskExecutionStatus {
     ;
 
     private static final Map<Integer, TaskExecutionStatus> CODE_MAP = new HashMap<>();
+    private static final int[] NEED_FAILOVER_STATES = new int[]{
+            SUBMITTED_SUCCESS.getCode(),
+            DISPATCH.getCode(),
+            RUNNING_EXECUTION.getCode(),
+            DELAY_EXECUTION.getCode(),
+    };
 
     static {
         for (TaskExecutionStatus executionStatus : TaskExecutionStatus.values()) {
@@ -82,16 +88,16 @@ public enum TaskExecutionStatus {
         return this == TaskExecutionStatus.PAUSE;
     }
 
-    public boolean isStop() {
-        return this == TaskExecutionStatus.STOP;
-    }
-
     public boolean isFinished() {
-        return isSuccess() || isKill() || isFailure() || isPause() || isStop() || isForceSuccess();
+        return isSuccess() || isKill() || isFailure() || isPause();
     }
 
     public boolean isNeedFaultTolerance() {
         return this == NEED_FAULT_TOLERANCE;
+    }
+
+    public static int[] getNeedFailoverWorkflowInstanceState() {
+        return NEED_FAILOVER_STATES;
     }
 
     public boolean shouldFailover() {

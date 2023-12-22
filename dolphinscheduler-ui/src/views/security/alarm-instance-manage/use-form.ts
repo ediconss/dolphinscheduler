@@ -24,7 +24,7 @@ import {
 import type {
   IPluginId,
   IPlugin,
-  IFormRules,
+  FormRules,
   IMeta,
   IJsonItem,
   IRecord
@@ -60,13 +60,13 @@ export function useForm() {
       pluginDefineId: {
         trigger: ['blur', 'change'],
         required: true,
-        validator(unused: any, value: number) {
+        validator(validte, value) {
           if (!value && value !== 0) {
             return new Error(t('security.alarm_instance.select_plugin_tips'))
           }
         }
       }
-    } as IFormRules
+    } as FormRules
   } as IMeta
 
   const getUiPluginsByType = async () => {

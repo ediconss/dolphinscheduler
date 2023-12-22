@@ -61,7 +61,7 @@ public class PluginDao {
                 pluginDefineMapper.queryByNameAndType(pluginDefine.getPluginName(), pluginDefine.getPluginType());
         if (currPluginDefine == null) {
             try {
-                if (pluginDefineMapper.insert(pluginDefine) == 1 && pluginDefine.getId() != null) {
+                if (pluginDefineMapper.insert(pluginDefine) == 1 && pluginDefine.getId() > 0) {
                     return pluginDefine.getId();
                 }
                 throw new TaskPluginException(

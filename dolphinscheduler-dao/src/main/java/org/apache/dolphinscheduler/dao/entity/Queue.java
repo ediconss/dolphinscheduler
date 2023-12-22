@@ -17,7 +17,6 @@
 package org.apache.dolphinscheduler.dao.entity;
 
 import java.util.Date;
-import java.util.Objects;
 
 import lombok.Data;
 
@@ -83,7 +82,7 @@ public class Queue {
 
         Queue queue1 = (Queue) o;
 
-        if (!Objects.equals(id, queue1.id)) {
+        if (id != queue1.id) {
             return false;
         }
         if (!queueName.equals(queue1.queueName)) {

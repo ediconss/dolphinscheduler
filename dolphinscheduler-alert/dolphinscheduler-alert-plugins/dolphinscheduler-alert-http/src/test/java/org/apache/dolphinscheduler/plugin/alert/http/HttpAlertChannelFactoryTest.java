@@ -22,15 +22,15 @@ import org.apache.dolphinscheduler.spi.params.base.PluginParams;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class HttpAlertChannelFactoryTest {
 
     private HttpAlertChannelFactory httpAlertChannelFactory;
 
-    @BeforeEach
+    @Before
     public void init() {
         httpAlertChannelFactory = new HttpAlertChannelFactory();
     }
@@ -39,13 +39,13 @@ public class HttpAlertChannelFactoryTest {
     public void getParamsTest() {
 
         List<PluginParams> pluginParamsList = httpAlertChannelFactory.params();
-        Assertions.assertEquals(5, pluginParamsList.size());
+        Assert.assertEquals(5, pluginParamsList.size());
     }
 
     @Test
     public void createTest() {
         AlertChannel alertChannel = httpAlertChannelFactory.create();
-        Assertions.assertNotNull(alertChannel);
+        Assert.assertNotNull(alertChannel);
     }
 
 }

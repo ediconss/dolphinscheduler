@@ -26,8 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,8 +35,9 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * file utils
  */
-@Slf4j
 public class FileUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
     /**
      * copy source InputStream to target file
@@ -47,7 +48,7 @@ public class FileUtils {
         try {
             org.apache.commons.io.FileUtils.copyInputStreamToFile(file.getInputStream(), new File(destFilename));
         } catch (IOException e) {
-            log.error("failed to copy file , {} is empty file", file.getOriginalFilename(), e);
+            logger.error("failed to copy file , {} is empty file", file.getOriginalFilename(), e);
         }
     }
 
@@ -65,7 +66,8 @@ public class FileUtils {
         if (resource.exists() || resource.isReadable()) {
             return resource;
         } else {
-            log.error("File can not be read, fileName:{}", filename);
+            logger.error("file can not read : {}", filename);
+
         }
         return null;
     }
@@ -79,7 +81,7 @@ public class FileUtils {
         try (InputStream inputStream = file.getInputStream()) {
             return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            log.error("file convert to string failed: {}", file.getName());
+            logger.error("file convert to string failed: {}", file.getName());
         }
 
         return "";

@@ -38,6 +38,7 @@ public interface ResourcePermissionCheckService<T> {
      * @param authorizationType
      * @param userId
      * @param logger
+     * @param <T>
      * @return
      */
     Set<T> userOwnedResourceIdsAcquisition(Object authorizationType, Integer userId, Logger logger);
@@ -50,7 +51,7 @@ public interface ResourcePermissionCheckService<T> {
      * @param logger
      * @return
      */
-    boolean operationPermissionCheck(Object authorizationType, Integer userId,
+    boolean operationPermissionCheck(Object authorizationType, Object[] projectIds, Integer userId,
                                      String permissionKey, Logger logger);
 
     /**

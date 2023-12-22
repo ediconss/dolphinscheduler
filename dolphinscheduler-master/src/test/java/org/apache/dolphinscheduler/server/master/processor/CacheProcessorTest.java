@@ -19,16 +19,16 @@ package org.apache.dolphinscheduler.server.master.processor;
 
 import org.apache.dolphinscheduler.common.enums.CacheType;
 import org.apache.dolphinscheduler.dao.entity.Tenant;
-import org.apache.dolphinscheduler.remote.command.Message;
-import org.apache.dolphinscheduler.remote.command.cache.CacheExpireRequest;
+import org.apache.dolphinscheduler.remote.command.CacheExpireCommand;
+import org.apache.dolphinscheduler.remote.command.Command;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
@@ -37,7 +37,7 @@ import io.netty.channel.Channel;
 /**
  * task ack processor test
  */
-@ExtendWith(MockitoExtension.class)
+@RunWith(PowerMockRunner.class)
 public class CacheProcessorTest {
 
     @InjectMocks
@@ -52,7 +52,7 @@ public class CacheProcessorTest {
     @Mock
     private Cache cache;
 
-    @BeforeEach
+    @Before
     public void before() {
         Mockito.when(cacheManager.getCache(CacheType.TENANT.getCacheName())).thenReturn(cache);
     }
@@ -61,9 +61,9 @@ public class CacheProcessorTest {
     public void testProcess() {
         Tenant tenant = new Tenant();
         tenant.setId(1);
-        CacheExpireRequest cacheExpireRequest = new CacheExpireRequest(CacheType.TENANT, "1");
-        Message message = cacheExpireRequest.convert2Command();
+        CacheExpireCommand cacheExpireCommand = new CacheExpireCommand(CacheType.TENANT, "1");
+        Command command = cacheExpireCommand.convert2Command();
 
-        cacheProcessor.process(channel, message);
+        cacheProcessor.process(channel, command);
     }
 }

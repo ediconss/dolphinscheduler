@@ -99,10 +99,4 @@ public interface TaskGroupQueueMapper extends BaseMapper<TaskGroupQueue> {
                                                                  @Param("status") Integer status,
                                                                  @Param("groupId") int groupId,
                                                                  @Param("projects") List<Project> projects);
-
-    void deleteByTaskInstanceIds(@Param("taskInstanceIds") List<Integer> taskInstanceIds);
-
-    void deleteByWorkflowInstanceId(@Param("workflowInstanceId") Integer workflowInstanceId);
-
-    void deleteByTaskGroupIds(@Param("taskGroupIds") List<Integer> taskGroupIds);
 }

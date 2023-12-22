@@ -28,7 +28,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +50,11 @@ public class LocalServerHttpUtilsTest extends TestCase {
         // success
         String result = null;
         result = HttpUtils.get("http://localhost:" + server.getServerPort() + "/test.json");
-        Assertions.assertNotNull(result);
+        Assert.assertNotNull(result);
         ObjectNode jsonObject = JSONUtils.parseObject(result);
-        Assertions.assertEquals("Github", jsonObject.path("name").asText());
+        Assert.assertEquals("Github", jsonObject.path("name").asText());
         result = HttpUtils.get("http://123.333.111.33/ccc");
-        Assertions.assertNull(result);
+        Assert.assertNull(result);
     }
 
     public void testGetResponseContentString() {
@@ -68,19 +68,19 @@ public class LocalServerHttpUtilsTest extends TestCase {
 
         String responseContent = null;
         responseContent = HttpUtils.getResponseContentString(httpget, httpclient);
-        Assertions.assertNotNull(responseContent);
+        Assert.assertNotNull(responseContent);
 
         responseContent = HttpUtils.getResponseContentString(null, httpclient);
-        Assertions.assertNull(responseContent);
+        Assert.assertNull(responseContent);
 
         responseContent = HttpUtils.getResponseContentString(httpget, null);
-        Assertions.assertNull(responseContent);
+        Assert.assertNull(responseContent);
     }
 
     public void testGetHttpClient() {
         CloseableHttpClient httpClient1 = HttpUtils.getInstance();
         CloseableHttpClient httpClient2 = HttpUtils.getInstance();
-        Assertions.assertEquals(httpClient1, httpClient2);
+        Assert.assertEquals(httpClient1, httpClient2);
     }
 
     public void testKerberosHttpsGet() {
@@ -89,19 +89,19 @@ public class LocalServerHttpUtilsTest extends TestCase {
         logger.info(PropertyUtils.getString(Constants.JAVA_SECURITY_KRB5_CONF_PATH));
         String url = "https://www.apache.org/";
         logger.info(KerberosHttpClient.get(url));
-        Assertions.assertTrue(true);
+        Assert.assertTrue(true);
     }
 
     public void testHttpsGet() {
         String url = "https://www.apache.org/";
         logger.info(HttpUtils.get(url));
-        Assertions.assertTrue(true);
+        Assert.assertTrue(true);
     }
 
     public void testHttpGet() {
         String url = "http://www.apache.org/";
         logger.info(HttpUtils.get(url));
-        Assertions.assertTrue(true);
+        Assert.assertTrue(true);
     }
 
 }

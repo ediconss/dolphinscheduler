@@ -87,7 +87,7 @@ public interface ProcessTaskRelationMapper extends BaseMapper<ProcessTaskRelatio
      * @param taskRelationList taskRelationList
      * @return int
      */
-    int batchInsert(@Param("taskRelationList") List<ProcessTaskRelation> taskRelationList);
+    int batchInsert(@Param("taskRelationList") List<ProcessTaskRelationLog> taskRelationList);
 
     /**
      * query downstream process task relation by taskCode
@@ -219,10 +219,4 @@ public interface ProcessTaskRelationMapper extends BaseMapper<ProcessTaskRelatio
      * @return update num
      */
     int updateProcessTaskRelationTaskVersion(@Param("processTaskRelation") ProcessTaskRelation processTaskRelationList);
-
-    Long queryTaskCodeByTaskName(@Param("workflowCode") Long workflowCode,
-                                 @Param("taskName") String taskName);
-
-    void deleteByWorkflowDefinitionCode(@Param("workflowDefinitionCode") long workflowDefinitionCode,
-                                        @Param("workflowDefinitionVersion") int workflowDefinitionVersion);
 }

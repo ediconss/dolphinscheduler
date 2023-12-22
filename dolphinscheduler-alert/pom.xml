@@ -23,12 +23,13 @@
     <parent>
         <groupId>org.apache.dolphinscheduler</groupId>
         <artifactId>dolphinscheduler</artifactId>
-        <version>dev-SNAPSHOT</version>
+        <version>3.1.8-SNAPSHOT</version>
     </parent>
     <artifactId>dolphinscheduler-alert</artifactId>
     <packaging>pom</packaging>
 
     <modules>
+        <module>dolphinscheduler-alert-api</module>
         <module>dolphinscheduler-alert-plugins</module>
         <module>dolphinscheduler-alert-server</module>
     </modules>

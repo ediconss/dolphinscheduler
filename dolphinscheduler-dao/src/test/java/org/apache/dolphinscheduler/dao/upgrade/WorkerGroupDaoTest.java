@@ -16,22 +16,26 @@
  */
 package org.apache.dolphinscheduler.dao.upgrade;
 
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.junit.Assert.assertThat;
+
 import org.apache.dolphinscheduler.dao.DaoConfiguration;
+
+import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @ActiveProfiles("h2")
 @SpringBootTest(classes = DaoConfiguration.class)
-@ExtendWith(MockitoExtension.class)
+@RunWith(SpringRunner.class)
 @SpringBootApplication(scanBasePackageClasses = DaoConfiguration.class)
 public class WorkerGroupDaoTest {
 
@@ -39,11 +43,19 @@ public class WorkerGroupDaoTest {
     protected DataSource dataSource;
 
     @Test
+    public void testQueryQueryAllOldWorkerGroup() throws Exception {
+        WorkerGroupDao workerGroupDao = new WorkerGroupDao();
+
+        Map<Integer, String> workerGroupMap = workerGroupDao.queryAllOldWorkerGroup(dataSource.getConnection());
+
+        assertThat(workerGroupMap.size(), greaterThanOrEqualTo(0));
+    }
+
+    @Test(expected = Exception.class)
     public void testQueryQueryAllOldWorkerGroupException() throws Exception {
-        Assertions.assertThrows(Exception.class, () -> {
-            WorkerGroupDao workerGroupDao = new WorkerGroupDao();
-            workerGroupDao.queryAllOldWorkerGroup(null);
-        });
+        WorkerGroupDao workerGroupDao = new WorkerGroupDao();
+
+        workerGroupDao.queryAllOldWorkerGroup(null);
 
     }
 

@@ -16,7 +16,7 @@
  */
 
 import { useI18n } from 'vue-i18n'
-import { TASK_TYPES_MAP } from '@/store/project/task-type'
+import { TASK_TYPES_MAP } from '@/views/projects/task/constants/task-type'
 import type { IJsonItem } from '../types'
 
 export function useTaskType(
@@ -37,8 +37,7 @@ export function useTaskType(
     span: 24,
     name: t('project.node.task_type'),
     props: {
-      disabled: readonly || ['CONDITIONS', 'SWITCH'].includes(model.taskType),
-      filterable: true
+      disabled: readonly || ['CONDITIONS', 'SWITCH'].includes(model.taskType)
     },
     options: options,
     validate: {

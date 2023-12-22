@@ -37,7 +37,6 @@ import static org.apache.dolphinscheduler.plugin.task.sqoop.SqoopConstants.TABLE
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.datasource.api.utils.DataSourceUtils;
 import org.apache.dolphinscheduler.plugin.task.api.model.Property;
-import org.apache.dolphinscheduler.plugin.task.sqoop.SqoopColumnType;
 import org.apache.dolphinscheduler.plugin.task.sqoop.SqoopQueryType;
 import org.apache.dolphinscheduler.plugin.task.sqoop.SqoopTaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.sqoop.generator.ISourceGenerator;
@@ -50,13 +49,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * mysql source generator
  */
-@Slf4j
 public class MySQLSourceGenerator implements ISourceGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger(MySQLSourceGenerator.class);
 
     @Override
     public String generate(SqoopParameters sqoopParameters, SqoopTaskExecutionContext sqoopTaskExecutionContext) {
@@ -90,8 +91,7 @@ public class MySQLSourceGenerator implements ISourceGenerator {
                                     .append(SPACE).append(sourceMysqlParameter.getSrcTable());
                         }
 
-                        if (sourceMysqlParameter.getSrcColumnType() == SqoopColumnType.CUSTOMIZE_COLUMNS.getCode()
-                                && StringUtils.isNotEmpty(sourceMysqlParameter.getSrcColumns())) {
+                        if (StringUtils.isNotEmpty(sourceMysqlParameter.getSrcColumns())) {
                             mysqlSourceSb.append(SPACE).append(COLUMNS)
                                     .append(SPACE).append(sourceMysqlParameter.getSrcColumns());
                         }
@@ -141,7 +141,7 @@ public class MySQLSourceGenerator implements ISourceGenerator {
                 }
             }
         } catch (Exception e) {
-            log.error(String.format("Sqoop task mysql source params build failed: [%s]", e.getMessage()));
+            logger.error(String.format("Sqoop task mysql source params build failed: [%s]", e.getMessage()));
         }
 
         return mysqlSourceSb.toString();

@@ -32,7 +32,10 @@ export function useGantt() {
 
     variables.seriesData = obj.tasks.map((item) => {
       variables.taskList.push(item.taskName)
-      return item
+      return {
+        name: item.taskName,
+        ...item
+      }
     }) as any
   }
 

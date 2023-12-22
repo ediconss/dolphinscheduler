@@ -35,7 +35,7 @@ public class FavTask {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-    private String taskType;
+    private String taskName;
     private int userId;
 
 }

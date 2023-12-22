@@ -24,7 +24,7 @@ import org.apache.dolphinscheduler.dao.entity.Session;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.SessionMapper;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
@@ -34,8 +34,8 @@ import java.util.UUID;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +45,9 @@ import org.springframework.web.util.WebUtils;
  * session service implement
  */
 @Service
-@Slf4j
 public class SessionServiceImpl extends BaseServiceImpl implements SessionService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
     @Autowired
     private SessionMapper sessionMapper;
@@ -74,7 +75,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
         }
 
         String ip = BaseController.getClientIpAddress(request);
-        log.debug("Get session: {}, ip: {}.", sessionId, ip);
+        logger.debug("get session: {}, ip: {}", sessionId, ip);
 
         return sessionMapper.selectById(sessionId);
     }
@@ -155,7 +156,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
             // delete session
             sessionMapper.deleteById(session.getId());
         } catch (Exception e) {
-            log.warn("userId : {} , ip : {} , find more one session", loginUser.getId(), ip, e);
+            logger.warn("userId : {} , ip : {} , find more one session", loginUser.getId(), ip);
         }
     }
 

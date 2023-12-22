@@ -21,8 +21,6 @@ import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.dao.entity.Queue;
 import org.apache.dolphinscheduler.dao.entity.User;
 
-import java.util.Map;
-
 /**
  * queue service
  */
@@ -67,16 +65,6 @@ public interface QueueService {
      * @return update result code
      */
     Result updateQueue(User loginUser, int id, String queue, String queueName);
-
-    /**
-     * delete queue
-     *
-     * @param loginUser login user
-     * @param id queue id
-     * @return delete result code
-     * @throws Exception exception
-     */
-    Map<String, Object> deleteQueueById(User loginUser, int id) throws Exception;
 
     /**
      * verify queue and queueName

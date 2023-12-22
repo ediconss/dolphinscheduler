@@ -20,7 +20,6 @@ package org.apache.dolphinscheduler.plugin.alert.wechat;
 import org.apache.dolphinscheduler.alert.api.AlertChannel;
 import org.apache.dolphinscheduler.alert.api.AlertChannelFactory;
 import org.apache.dolphinscheduler.alert.api.AlertConstants;
-import org.apache.dolphinscheduler.alert.api.AlertInputTips;
 import org.apache.dolphinscheduler.alert.api.ShowType;
 import org.apache.dolphinscheduler.spi.params.base.ParamsOptions;
 import org.apache.dolphinscheduler.spi.params.base.PluginParams;
@@ -46,7 +45,7 @@ public final class WeChatAlertChannelFactory implements AlertChannelFactory {
         InputParam corpIdParam = InputParam
                 .newBuilder(WeChatAlertParamsConstants.NAME_ENTERPRISE_WE_CHAT_CORP_ID,
                         WeChatAlertParamsConstants.ENTERPRISE_WE_CHAT_CORP_ID)
-                .setPlaceholder(AlertInputTips.CORP_ID.getMsg())
+                .setPlaceholder("please input corp id ")
                 .addValidate(Validate.newBuilder()
                         .setRequired(true)
                         .build())
@@ -55,7 +54,7 @@ public final class WeChatAlertChannelFactory implements AlertChannelFactory {
         InputParam secretParam = InputParam
                 .newBuilder(WeChatAlertParamsConstants.NAME_ENTERPRISE_WE_CHAT_SECRET,
                         WeChatAlertParamsConstants.ENTERPRISE_WE_CHAT_SECRET)
-                .setPlaceholder(AlertInputTips.SECRET.getMsg())
+                .setPlaceholder("please input secret ")
                 .addValidate(Validate.newBuilder()
                         .setRequired(true)
                         .build())
@@ -64,7 +63,7 @@ public final class WeChatAlertChannelFactory implements AlertChannelFactory {
         InputParam usersParam = InputParam
                 .newBuilder(WeChatAlertParamsConstants.NAME_ENTERPRISE_WE_CHAT_USERS,
                         WeChatAlertParamsConstants.ENTERPRISE_WE_CHAT_USERS)
-                .setPlaceholder(AlertInputTips.WECHAT_MENTION_USERS.getMsg())
+                .setPlaceholder("use `|` to separate userIds and `@all` to everyone ")
                 .addValidate(Validate.newBuilder()
                         .setRequired(false)
                         .build())
@@ -73,7 +72,7 @@ public final class WeChatAlertChannelFactory implements AlertChannelFactory {
         InputParam agentIdParam = InputParam
                 .newBuilder(WeChatAlertParamsConstants.NAME_ENTERPRISE_WE_CHAT_AGENT_ID,
                         WeChatAlertParamsConstants.ENTERPRISE_WE_CHAT_AGENT_ID)
-                .setPlaceholder(AlertInputTips.WECHAT_AGENT_ID.getMsg())
+                .setPlaceholder("please input agent id or chat id ")
                 .addValidate(Validate.newBuilder()
                         .setRequired(true)
                         .build())

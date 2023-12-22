@@ -21,6 +21,8 @@ package org.apache.dolphinscheduler.e2e.core;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import static org.junit.platform.commons.util.StringUtils.isBlank;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -43,7 +45,7 @@ final class TestDescription implements org.testcontainers.lifecycle.TestDescript
     public String getFilesystemFriendlyName() {
         final String contextId = context.getUniqueId();
         try {
-            return (contextId == null || contextId.trim().isEmpty())
+            return (isBlank(contextId))
                     ? UNKNOWN_NAME
                     : URLEncoder.encode(contextId, UTF_8.toString());
         } catch (UnsupportedEncodingException e) {

@@ -35,7 +35,7 @@ import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.QueueMapper;
 import org.apache.dolphinscheduler.dao.mapper.UserMapper;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -43,17 +43,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +62,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 /**
  * queue service test
  */
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class QueueServiceTest {
 
     private static final Logger baseServiceLogger = LoggerFactory.getLogger(BaseServiceImpl.class);
@@ -88,11 +86,11 @@ public class QueueServiceTest {
     private static final String NOT_EXISTS = "not_exists";
     private static final String NOT_EXISTS_FINAL = "not_exists_final";
 
-    @BeforeEach
+    @Before
     public void setUp() {
     }
 
-    @AfterEach
+    @After
     public void after() {
     }
 
@@ -105,7 +103,7 @@ public class QueueServiceTest {
         Mockito.when(queueMapper.selectBatchIds(Mockito.anySet())).thenReturn(getQueueList());
         Result result = queueService.queryList(getLoginUser());
         List<Queue> queueList = (List<Queue>) result.getData();
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(queueList));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(queueList));
 
     }
 
@@ -123,12 +121,12 @@ public class QueueServiceTest {
                 .thenReturn(page);
         Result result = queueService.queryList(getLoginUser(), QUEUE_NAME, 1, 10);
         PageInfo<Queue> pageInfo = (PageInfo<Queue>) result.getData();
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(pageInfo.getTotalList()));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(pageInfo.getTotalList()));
     }
 
     @Test
     public void testCreateQueue() {
-        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.QUEUE,
+        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.QUEUE, null,
                 getLoginUser().getId(), YARN_QUEUE_CREATE, baseServiceLogger)).thenReturn(true);
         Mockito.when(resourcePermissionCheckService.resourcePermissionCheck(AuthorizationType.QUEUE, null, 0,
                 baseServiceLogger)).thenReturn(true);
@@ -147,7 +145,7 @@ public class QueueServiceTest {
 
         // correct
         Result result = queueService.createQueue(getLoginUser(), QUEUE_NAME, QUEUE_NAME);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
     }
 
     @Test
@@ -155,7 +153,7 @@ public class QueueServiceTest {
         Mockito.when(queueMapper.selectById(1)).thenReturn(getQUEUE());
         Mockito.when(queueMapper.existQueue(EXISTS, null)).thenReturn(true);
         Mockito.when(queueMapper.existQueue(null, EXISTS)).thenReturn(true);
-        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.QUEUE,
+        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.QUEUE, null,
                 getLoginUser().getId(), YARN_QUEUE_UPDATE, baseServiceLogger)).thenReturn(true);
         Mockito.when(resourcePermissionCheckService.resourcePermissionCheck(AuthorizationType.QUEUE, new Object[]{0}, 0,
                 baseServiceLogger)).thenReturn(true);
@@ -188,17 +186,17 @@ public class QueueServiceTest {
         // success
         Mockito.when(userMapper.existUser(Mockito.anyString())).thenReturn(false);
         Result result = queueService.updateQueue(getLoginUser(), 1, NOT_EXISTS, NOT_EXISTS);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
 
         // success update with same queue name
         Mockito.when(queueMapper.existQueue(NOT_EXISTS_FINAL, null)).thenReturn(false);
         result = queueService.updateQueue(getLoginUser(), 1, NOT_EXISTS_FINAL, NOT_EXISTS);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
 
         // success update with same queue value
         Mockito.when(queueMapper.existQueue(null, NOT_EXISTS_FINAL)).thenReturn(false);
         result = queueService.updateQueue(getLoginUser(), 1, NOT_EXISTS, NOT_EXISTS_FINAL);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
     }
 
     @Test
@@ -228,7 +226,7 @@ public class QueueServiceTest {
 
         // success
         Result<Object> result = queueService.verifyQueue(NOT_EXISTS, NOT_EXISTS);
-        Assertions.assertEquals(result.getCode().intValue(), Status.SUCCESS.getCode());
+        Assert.assertEquals(result.getCode().intValue(), Status.SUCCESS.getCode());
     }
 
     @Test
@@ -238,12 +236,12 @@ public class QueueServiceTest {
         // queue exists
         Mockito.when(queueMapper.queryQueueName(QUEUE, QUEUE_NAME)).thenReturn(getQUEUE());
         queue = queueService.createQueueIfNotExists(QUEUE, QUEUE_NAME);
-        Assertions.assertEquals(getQUEUE(), queue);
+        Assert.assertEquals(getQUEUE(), queue);
 
         // queue not exists
         Mockito.when(queueMapper.queryQueueName(QUEUE, QUEUE_NAME)).thenReturn(null);
         queue = queueService.createQueueIfNotExists(QUEUE, QUEUE_NAME);
-        Assertions.assertEquals(new Queue(QUEUE_NAME, QUEUE), queue);
+        Assert.assertEquals(new Queue(QUEUE_NAME, QUEUE), queue);
     }
 
     /**

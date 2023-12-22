@@ -26,19 +26,19 @@ import org.apache.dolphinscheduler.dao.mapper.PluginDefineMapper;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * ui plugin service test
  */
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class UiPluginServiceTest {
 
     @InjectMocks
@@ -49,7 +49,7 @@ public class UiPluginServiceTest {
 
     private PluginDefine pluginDefine;
 
-    @BeforeEach
+    @Before
     public void before() {
         String pluginParams = "[{\"field\":\"receivers\",\"props\":null,\"type\"}]";
         pluginDefine = new PluginDefine("email-alert", "alert", pluginParams);
@@ -58,30 +58,30 @@ public class UiPluginServiceTest {
     @Test
     public void testQueryPlugins1() {
         Map<String, Object> result = uiPluginService.queryUiPluginsByType(PluginType.REGISTER);
-        Assertions.assertEquals(Status.PLUGIN_NOT_A_UI_COMPONENT, result.get("status"));
+        Assert.assertEquals(Status.PLUGIN_NOT_A_UI_COMPONENT, result.get("status"));
     }
 
     @Test
     public void testQueryPlugins2() {
         Map<String, Object> result = uiPluginService.queryUiPluginsByType(PluginType.ALERT);
         Mockito.when(pluginDefineMapper.queryByPluginType(PluginType.ALERT.getDesc())).thenReturn(null);
-        Assertions.assertEquals(Status.QUERY_PLUGINS_RESULT_IS_NULL, result.get("status"));
+        Assert.assertEquals(Status.QUERY_PLUGINS_RESULT_IS_NULL, result.get("status"));
 
         Mockito.when(pluginDefineMapper.queryByPluginType(PluginType.ALERT.getDesc()))
                 .thenReturn(Collections.singletonList(pluginDefine));
         result = uiPluginService.queryUiPluginsByType(PluginType.ALERT);
-        Assertions.assertEquals(Status.SUCCESS, result.get("status"));
+        Assert.assertEquals(Status.SUCCESS, result.get("status"));
     }
 
     @Test
     public void testQueryPluginDetailById() {
         Mockito.when(pluginDefineMapper.queryDetailById(1)).thenReturn(null);
         Map<String, Object> result = uiPluginService.queryUiPluginDetailById(1);
-        Assertions.assertEquals(Status.QUERY_PLUGIN_DETAIL_RESULT_IS_NULL, result.get("status"));
+        Assert.assertEquals(Status.QUERY_PLUGIN_DETAIL_RESULT_IS_NULL, result.get("status"));
 
         Mockito.when(pluginDefineMapper.queryDetailById(1)).thenReturn(pluginDefine);
         result = uiPluginService.queryUiPluginDetailById(1);
-        Assertions.assertEquals(Status.SUCCESS, result.get("status"));
+        Assert.assertEquals(Status.SUCCESS, result.get("status"));
     }
 
 }

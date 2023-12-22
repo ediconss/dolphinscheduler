@@ -1,8 +1,8 @@
-# Standalone 极速体验版
+# Standalone极速体验版
 
 Standalone 仅适用于 DolphinScheduler 的快速体验.
 
-如果你是新手，想要体验 DolphinScheduler 的功能，推荐使用 Standalone 方式体检。如果你想体验更完整的功能，或者更大的任务量，推荐使用[伪集群部署](pseudo-cluster.md)。如果你是在生产中使用，推荐使用[集群部署](cluster.md)或者[kubernetes](kubernetes.md)
+如果你是新手，想要体验 DolphinScheduler 的功能，推荐使用Standalone方式体检。如果你想体验更完整的功能，或者更大的任务量，推荐使用[伪集群部署](pseudo-cluster.md)。如果你是在生产中使用，推荐使用[集群部署](cluster.md)或者[kubernetes](kubernetes.md)
 
 > **_注意:_** Standalone 仅建议 20 个以下工作流使用，因为其采用内存式的 H2 Database, Zookeeper Testing Server，任务过多可能导致不稳定，并且如果重启或者停止 standalone-server 会导致内存中数据库里的数据清空。
 > Standalone 支持元数据持久化，但是需要使用外部数据库，如 mysql 或者 postgresql，请看[配置数据库](#配置数据库)
@@ -21,14 +21,13 @@ Standalone 仅适用于 DolphinScheduler 的快速体验.
 ```shell
 # 解压并运行 Standalone Server
 tar -xvzf apache-dolphinscheduler-*-bin.tar.gz
-chmod -R 755 apache-dolphinscheduler-*-bin
 cd apache-dolphinscheduler-*-bin
 bash ./bin/dolphinscheduler-daemon.sh start standalone-server
 ```
 
 ### 登录 DolphinScheduler
 
-浏览器访问地址 http://localhost:12345/dolphinscheduler/ui 即可登录系统 UI。默认的用户名和密码是 **admin/dolphinscheduler123**
+浏览器访问地址 http://localhost:12345/dolphinscheduler/ui 即可登录系统UI。默认的用户名和密码是 **admin/dolphinscheduler123**
 
 ![登录页面](../../../../img/new_ui/dev/quick-start/login.png)
 

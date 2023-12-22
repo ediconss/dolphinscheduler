@@ -74,8 +74,4 @@ public interface ProcessTaskRelationLogMapper extends BaseMapper<ProcessTaskRela
      * @return process task relation log
      */
     ProcessTaskRelationLog queryRelationLogByRelation(@Param("processTaskRelation") ProcessTaskRelation processTaskRelation);
-
-    List<ProcessTaskRelationLog> queryByProcessCode(@Param("workflowDefinitionCode") long workflowDefinitionCode);
-
-    void deleteByWorkflowDefinitionCode(@Param("workflowDefinitionCode") long workflowDefinitionCode);
 }

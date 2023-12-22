@@ -23,8 +23,8 @@ import org.apache.dolphinscheduler.spi.params.base.PluginParams;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * WeChatAlertChannelFactoryTest
@@ -36,13 +36,13 @@ public class WeChatAlertChannelFactoryTest {
         WeChatAlertChannelFactory weChatAlertChannelFactory = new WeChatAlertChannelFactory();
         List<PluginParams> params = weChatAlertChannelFactory.params();
         JSONUtils.toJsonString(params);
-        Assertions.assertEquals(6, params.size());
+        Assert.assertEquals(6, params.size());
     }
 
     @Test
     public void testCreate() {
         WeChatAlertChannelFactory dingTalkAlertChannelFactory = new WeChatAlertChannelFactory();
         AlertChannel alertChannel = dingTalkAlertChannelFactory.create();
-        Assertions.assertNotNull(alertChannel);
+        Assert.assertNotNull(alertChannel);
     }
 }

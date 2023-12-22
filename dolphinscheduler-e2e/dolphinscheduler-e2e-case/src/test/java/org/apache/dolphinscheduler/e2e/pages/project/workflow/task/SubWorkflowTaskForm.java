@@ -30,7 +30,6 @@ import org.openqa.selenium.support.FindBys;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.List;
 
 @Getter
@@ -54,11 +53,11 @@ public final class SubWorkflowTaskForm extends TaskNodeForm {
     }
 
     public SubWorkflowTaskForm childNode(String node) {
-        new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.elementToBeClickable(btnSelectChildNodeDropdown));
+        new WebDriverWait(driver, 5).until(ExpectedConditions.elementToBeClickable(btnSelectChildNodeDropdown));
         
         btnSelectChildNodeDropdown().click();
 
-        new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.visibilityOfElementLocated(By.className(
+        new WebDriverWait(driver, 5).until(ExpectedConditions.visibilityOfElementLocated(By.className(
                 "n-base-select-option__content")));
 
         selectChildNode()

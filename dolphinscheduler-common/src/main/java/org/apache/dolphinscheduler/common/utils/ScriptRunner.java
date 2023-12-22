@@ -24,16 +24,16 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tool to run database scripts
  */
-@Slf4j
 public class ScriptRunner {
+
+    public static final Logger logger = LoggerFactory.getLogger(ScriptRunner.class);
 
     private static final String DEFAULT_DELIMITER = ";";
 
@@ -91,17 +91,17 @@ public class ScriptRunner {
      * @throws IOException if there is an error reading from the Reader
      */
     private void runScript(Connection conn, Reader reader) throws IOException, SQLException {
-        List<String> command = null;
+        StringBuffer command = null;
         try {
             LineNumberReader lineReader = new LineNumberReader(reader);
             String line;
             while ((line = lineReader.readLine()) != null) {
                 if (command == null) {
-                    command = new ArrayList<>();
+                    command = new StringBuffer();
                 }
                 String trimmedLine = line.trim();
                 if (trimmedLine.startsWith("--")) {
-                    log.info("\n{}", trimmedLine);
+                    logger.info(trimmedLine);
                 } else if (trimmedLine.length() < 1 || trimmedLine.startsWith("//")) {
                     // Do nothing
                 } else if (trimmedLine.startsWith("delimiter")) {
@@ -110,47 +110,49 @@ public class ScriptRunner {
 
                 } else if (!fullLineDelimiter && trimmedLine.endsWith(getDelimiter())
                         || fullLineDelimiter && trimmedLine.equals(getDelimiter())) {
-                    command.add(line.substring(0, line.lastIndexOf(getDelimiter())));
-                    log.info("\n{}", String.join("\n", command));
+                    command.append(line, 0, line.lastIndexOf(getDelimiter()));
+                    command.append(" ");
+                    logger.info("sql: {}", command);
 
                     try (Statement statement = conn.createStatement()) {
-                        statement.execute(String.join(" ", command));
+                        statement.execute(command.toString());
                         try (ResultSet rs = statement.getResultSet()) {
                             if (stopOnError && rs != null) {
                                 ResultSetMetaData md = rs.getMetaData();
                                 int cols = md.getColumnCount();
                                 for (int i = 1; i < cols; i++) {
                                     String name = md.getColumnLabel(i);
-                                    log.info("{} \t", name);
+                                    logger.info("{} \t", name);
                                 }
-                                log.info("");
+                                logger.info("");
                                 while (rs.next()) {
                                     for (int i = 1; i < cols; i++) {
                                         String value = rs.getString(i);
-                                        log.info("{} \t", value);
+                                        logger.info("{} \t", value);
                                     }
-                                    log.info("");
+                                    logger.info("");
                                 }
                             }
                         }
                     } catch (SQLException e) {
-                        log.error("SQLException", e);
+                        logger.error("SQLException", e);
                         throw e;
                     }
 
                     command = null;
                     Thread.yield();
                 } else {
-                    command.add(line);
+                    command.append(line);
+                    command.append(" ");
                 }
             }
 
         } catch (SQLException e) {
-            log.error("Error executing: {}", command);
+            logger.error("Error executing: {}", command);
             throw e;
         } catch (IOException e) {
             e.fillInStackTrace();
-            log.error("Error executing: {}", command);
+            logger.error("Error executing: {}", command);
             throw e;
         }
     }

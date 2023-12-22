@@ -16,7 +16,7 @@
  */
 
 import { defineComponent, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useThemeStore } from '@/store/theme/theme'
 import { useI18n } from 'vue-i18n'
 import Dag from '../../components/dag'
@@ -47,6 +47,7 @@ export default defineComponent({
   setup() {
     const theme = useThemeStore()
     const route = useRoute()
+    const router = useRouter()
     const { t } = useI18n()
     const projectCode = Number(route.params.projectCode)
     const id = Number(route.params.id)
@@ -81,7 +82,7 @@ export default defineComponent({
         return {
           prop: p.key,
           value: p.value,
-          direct: p.direct,
+          direct: 'IN',
           type: 'VARCHAR'
         }
       })
@@ -93,13 +94,14 @@ export default defineComponent({
           locations: JSON.stringify(locations),
           taskDefinitionJson: JSON.stringify(taskDefinitions),
           taskRelationJson: JSON.stringify(connects),
+          tenantCode: saveForm.tenantCode,
           timeout: saveForm.timeoutFlag ? saveForm.timeout : 0
         },
         id,
         projectCode
       ).then((ignored: any) => {
         window.$message.success(t('project.dag.success'))
-        window.location.reload()
+        router.push({ path: `/projects/${projectCode}/workflow/instances` })
       })
     }
 

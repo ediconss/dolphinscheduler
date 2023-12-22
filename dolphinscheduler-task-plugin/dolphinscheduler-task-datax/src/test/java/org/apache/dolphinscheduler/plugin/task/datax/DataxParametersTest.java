@@ -22,8 +22,8 @@ import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class DataxParametersTest {
 
@@ -42,13 +42,13 @@ public class DataxParametersTest {
         String actual = loadJvmEnvTest(dataxParameters);
 
         String except = " --jvm=\"-Xms1G -Xmx1G\" ";
-        Assertions.assertEquals(except, actual);
+        Assert.assertEquals(except, actual);
 
         dataxParameters.setXms(13);
         dataxParameters.setXmx(14);
         actual = loadJvmEnvTest(dataxParameters);
         except = " --jvm=\"-Xms13G -Xmx14G\" ";
-        Assertions.assertEquals(except, actual);
+        Assert.assertEquals(except, actual);
 
     }
 
@@ -93,7 +93,7 @@ public class DataxParametersTest {
                 + "resourceList=[{\"id\":2,\"resourceName\":\"/hdfs.keytab\",\"res\":null}]"
                 + "}";
 
-        Assertions.assertEquals(expected, dataxParameters.toString());
+        Assert.assertEquals(expected, dataxParameters.toString());
     }
 
     public String loadJvmEnvTest(DataxParameters dataXParameters) {

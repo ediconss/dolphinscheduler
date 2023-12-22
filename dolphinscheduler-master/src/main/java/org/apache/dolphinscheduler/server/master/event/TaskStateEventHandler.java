@@ -19,20 +19,23 @@ package org.apache.dolphinscheduler.server.master.event;
 
 import org.apache.dolphinscheduler.common.enums.StateEventType;
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
-import org.apache.dolphinscheduler.remote.exceptions.RemotingException;
 import org.apache.dolphinscheduler.server.master.metrics.TaskMetrics;
 import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteRunnable;
+import org.apache.dolphinscheduler.server.master.runner.task.ITaskProcessor;
+import org.apache.dolphinscheduler.server.master.runner.task.TaskAction;
 
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.auto.service.AutoService;
 
 @AutoService(StateEventHandler.class)
-@Slf4j
 public class TaskStateEventHandler implements StateEventHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskStateEventHandler.class);
 
     @Override
     public boolean handleStateEvent(WorkflowExecuteRunnable workflowExecuteRunnable,
@@ -51,38 +54,49 @@ public class TaskStateEventHandler implements StateEventHandler {
             throw new StateEventHandleError("Task state event handle error due to task state is null");
         }
 
-        log.info(
+        logger.info(
                 "Handle task instance state event, the current task instance state {} will be changed to {}",
-                task.getState().name(), taskStateEvent.getStatus().name());
+                task.getState(), taskStateEvent.getStatus());
 
-        Set<Long> completeTaskSet = workflowExecuteRunnable.getCompleteTaskCodes();
+        Map<Long, Integer> completeTaskMap = workflowExecuteRunnable.getCompleteTaskMap();
         if (task.getState().isFinished()
                 && (taskStateEvent.getStatus() != null && taskStateEvent.getStatus().isRunning())) {
             String errorMessage = String.format(
                     "The current task instance state is %s, but the task state event status is %s, so the task state event will be ignored",
-                    task.getState().name(),
-                    taskStateEvent.getStatus().name());
-            log.warn(errorMessage);
+                    task.getState(),
+                    taskStateEvent.getStatus());
+            logger.warn(errorMessage);
             throw new StateEventHandleError(errorMessage);
         }
 
         if (task.getState().isFinished()) {
-            if (completeTaskSet.contains(task.getTaskCode())) {
-                log.warn("The task instance is already complete, stateEvent: {}", stateEvent);
+            if (completeTaskMap.containsKey(task.getTaskCode())
+                    && completeTaskMap.get(task.getTaskCode()).equals(task.getId())) {
+                logger.warn("The task instance is already complete, stateEvent: {}", stateEvent);
                 return true;
             }
             workflowExecuteRunnable.taskFinished(task);
             if (task.getTaskGroupId() > 0) {
-                log.info("The task instance need to release task Group: {}", task.getTaskGroupId());
-                try {
-                    workflowExecuteRunnable.releaseTaskGroup(task);
-                } catch (RemotingException | InterruptedException e) {
-                    throw new StateEventHandleException("Release task group failed", e);
-                }
+                logger.info("The task instance need to release task Group: {}", task.getTaskGroupId());
+                workflowExecuteRunnable.releaseTaskGroup(task);
             }
             return true;
         }
-        return true;
+        Map<Long, ITaskProcessor> activeTaskProcessMap = workflowExecuteRunnable.getActiveTaskProcessMap();
+        if (activeTaskProcessMap.containsKey(task.getTaskCode())) {
+            ITaskProcessor iTaskProcessor = activeTaskProcessMap.get(task.getTaskCode());
+            iTaskProcessor.action(TaskAction.RUN);
+
+            if (iTaskProcessor.taskInstance().getState().isFinished()) {
+                if (iTaskProcessor.taskInstance().getState() != task.getState()) {
+                    task.setState(iTaskProcessor.taskInstance().getState());
+                }
+                workflowExecuteRunnable.taskFinished(task);
+            }
+            return true;
+        }
+        throw new StateEventHandleError(
+                "Task state event handle error, due to the task is not in activeTaskProcessorMaps");
     }
 
     @Override
@@ -93,7 +107,7 @@ public class TaskStateEventHandler implements StateEventHandler {
     private void measureTaskState(TaskStateEvent taskStateEvent) {
         if (taskStateEvent == null || taskStateEvent.getStatus() == null) {
             // the event is broken
-            log.warn("The task event is broken..., taskEvent: {}", taskStateEvent);
+            logger.warn("The task event is broken..., taskEvent: {}", taskStateEvent);
             return;
         }
         if (taskStateEvent.getStatus().isFinished()) {

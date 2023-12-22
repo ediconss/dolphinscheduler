@@ -24,13 +24,11 @@ import static org.apache.dolphinscheduler.common.constants.Constants.STRING_YES;
 
 import org.apache.dolphinscheduler.alert.api.AlertChannel;
 import org.apache.dolphinscheduler.alert.api.AlertChannelFactory;
-import org.apache.dolphinscheduler.alert.api.AlertInputTips;
-import org.apache.dolphinscheduler.spi.params.base.DataType;
+import org.apache.dolphinscheduler.spi.params.PasswordParam;
 import org.apache.dolphinscheduler.spi.params.base.ParamsOptions;
 import org.apache.dolphinscheduler.spi.params.base.PluginParams;
 import org.apache.dolphinscheduler.spi.params.base.Validate;
 import org.apache.dolphinscheduler.spi.params.input.InputParam;
-import org.apache.dolphinscheduler.spi.params.input.number.InputNumberParam;
 import org.apache.dolphinscheduler.spi.params.radio.RadioParam;
 
 import java.util.Arrays;
@@ -71,12 +69,10 @@ public final class FeiShuAlertChannelFactory implements AlertChannelFactory {
                                 .setRequired(false).build())
                         .build();
 
-        InputNumberParam portParam =
-                InputNumberParam.newBuilder(FeiShuParamsConstants.NAME_FEI_SHU_PORT, FeiShuParamsConstants.FEI_SHU_PORT)
+        InputParam portParam =
+                InputParam.newBuilder(FeiShuParamsConstants.NAME_FEI_SHU_PORT, FeiShuParamsConstants.FEI_SHU_PORT)
                         .addValidate(Validate.newBuilder()
-                                .setRequired(false)
-                                .setType(DataType.NUMBER.getDataType())
-                                .build())
+                                .setRequired(false).build())
                         .build();
 
         InputParam userParam =
@@ -84,10 +80,9 @@ public final class FeiShuAlertChannelFactory implements AlertChannelFactory {
                         .addValidate(Validate.newBuilder()
                                 .setRequired(false).build())
                         .build();
-        InputParam passwordParam = InputParam
+        PasswordParam passwordParam = PasswordParam
                 .newBuilder(FeiShuParamsConstants.NAME_FEI_SHU_PASSWORD, FeiShuParamsConstants.FEI_SHU_PASSWORD)
-                .setPlaceholder(AlertInputTips.PASSWORD.getMsg())
-                .setType("password")
+                .setPlaceholder("if enable use authentication, you need input password")
                 .build();
 
         return Arrays.asList(webHookParam, isEnableProxy, proxyParam, portParam, userParam, passwordParam);

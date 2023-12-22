@@ -22,38 +22,38 @@ import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class SparkParametersTest {
 
     @Test
     public void getResourceFilesList() {
         SparkParameters sparkParameters = new SparkParameters();
-        Assertions.assertTrue(sparkParameters.getResourceFilesList().isEmpty());
+        Assert.assertTrue(sparkParameters.getResourceFilesList().isEmpty());
 
         ResourceInfo mainResource = new ResourceInfo();
-        mainResource.setResourceName("testSparkMain-1.0.0-SNAPSHOT.jar\"");
+        mainResource.setRes("testSparkMain-1.0.0-SNAPSHOT.jar\"");
         sparkParameters.setMainJar(mainResource);
 
         LinkedList<ResourceInfo> resourceInfos = new LinkedList<>();
         ResourceInfo resourceInfo1 = new ResourceInfo();
-        resourceInfo1.setResourceName("testSparkParameters1.jar");
+        resourceInfo1.setRes("testSparkParameters1.jar");
         resourceInfos.add(resourceInfo1);
 
         sparkParameters.setResourceList(resourceInfos);
         List<ResourceInfo> resourceFilesList = sparkParameters.getResourceFilesList();
-        Assertions.assertNotNull(resourceFilesList);
-        Assertions.assertEquals(2, resourceFilesList.size());
+        Assert.assertNotNull(resourceFilesList);
+        Assert.assertEquals(2, resourceFilesList.size());
 
         ResourceInfo resourceInfo2 = new ResourceInfo();
-        resourceInfo2.setResourceName("testSparkParameters2.jar");
+        resourceInfo2.setRes("testSparkParameters2.jar");
         resourceInfos.add(resourceInfo2);
 
         sparkParameters.setResourceList(resourceInfos);
         resourceFilesList = sparkParameters.getResourceFilesList();
-        Assertions.assertNotNull(resourceFilesList);
-        Assertions.assertEquals(3, resourceFilesList.size());
+        Assert.assertNotNull(resourceFilesList);
+        Assert.assertEquals(3, resourceFilesList.size());
 
     }
 }

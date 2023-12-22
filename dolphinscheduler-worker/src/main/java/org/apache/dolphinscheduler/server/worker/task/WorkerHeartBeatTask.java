@@ -22,10 +22,9 @@ import org.apache.dolphinscheduler.common.lifecycle.ServerLifeCycleManager;
 import org.apache.dolphinscheduler.common.model.BaseHeartBeatTask;
 import org.apache.dolphinscheduler.common.model.WorkerHeartBeat;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
-import org.apache.dolphinscheduler.common.utils.NetUtils;
 import org.apache.dolphinscheduler.common.utils.OSUtils;
-import org.apache.dolphinscheduler.registry.api.RegistryClient;
 import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
+import org.apache.dolphinscheduler.service.registry.RegistryClient;
 
 import java.util.function.Supplier;
 
@@ -54,21 +53,24 @@ public class WorkerHeartBeatTask extends BaseHeartBeatTask<WorkerHeartBeat> {
 
     @Override
     public WorkerHeartBeat getHeartBeat() {
-        double cpuUsagePercentage = OSUtils.cpuUsagePercentage();
-        int maxCpuUsePercentage = workerConfig.getMaxCpuLoadAvg();
+        double loadAverage = OSUtils.loadAverage();
+        double cpuUsage = OSUtils.cpuUsage();
+        int maxCpuLoadAvg = workerConfig.getMaxCpuLoadAvg();
         double reservedMemory = workerConfig.getReservedMemory();
-        double memoryUsagePercentage = OSUtils.memoryUsagePercentage();
+        double availablePhysicalMemorySize = OSUtils.availablePhysicalMemorySize();
         int execThreads = workerConfig.getExecThreads();
-        int serverStatus =
-                getServerStatus(cpuUsagePercentage, maxCpuUsePercentage, memoryUsagePercentage, reservedMemory,
-                        execThreads, this.workerWaitingTaskCount.get());
+        int workerWaitingTaskCount = this.workerWaitingTaskCount.get();
+        int serverStatus = getServerStatus(loadAverage, maxCpuLoadAvg, availablePhysicalMemorySize, reservedMemory,
+                execThreads, workerWaitingTaskCount);
 
         return WorkerHeartBeat.builder()
                 .startupTime(ServerLifeCycleManager.getServerStartupTime())
                 .reportTime(System.currentTimeMillis())
-                .cpuUsage(cpuUsagePercentage)
-                .availablePhysicalMemorySize(OSUtils.availablePhysicalMemorySize())
-                .memoryUsage(OSUtils.memoryUsagePercentage())
+                .cpuUsage(cpuUsage)
+                .loadAverage(loadAverage)
+                .availablePhysicalMemorySize(availablePhysicalMemorySize)
+                .maxCpuloadAvg(maxCpuLoadAvg)
+                .memoryUsage(OSUtils.memoryUsage())
                 .reservedMemory(reservedMemory)
                 .diskAvailable(OSUtils.diskAvailable())
                 .processId(processId)
@@ -76,8 +78,6 @@ public class WorkerHeartBeatTask extends BaseHeartBeatTask<WorkerHeartBeat> {
                 .workerWaitingTaskCount(this.workerWaitingTaskCount.get())
                 .workerExecThreadCount(workerConfig.getExecThreads())
                 .serverStatus(serverStatus)
-                .host(NetUtils.getHost())
-                .port(workerConfig.getListenPort())
                 .build();
     }
 
@@ -86,21 +86,21 @@ public class WorkerHeartBeatTask extends BaseHeartBeatTask<WorkerHeartBeat> {
         String workerHeartBeatJson = JSONUtils.toJsonString(workerHeartBeat);
         String workerRegistryPath = workerConfig.getWorkerRegistryPath();
         registryClient.persistEphemeral(workerRegistryPath, workerHeartBeatJson);
-        log.debug(
+        log.info(
                 "Success write worker group heartBeatInfo into registry, workerRegistryPath: {} workerHeartBeatInfo: {}",
                 workerRegistryPath, workerHeartBeatJson);
     }
 
-    public int getServerStatus(double cpuUsagePercentage,
-                               double maxCpuUsePercentage,
-                               double memoryUsagePercentage,
+    public int getServerStatus(double loadAverage,
+                               double maxCpuloadAvg,
+                               double availablePhysicalMemorySize,
                                double reservedMemory,
                                int workerExecThreadCount,
                                int workerWaitingTaskCount) {
-        if (cpuUsagePercentage > maxCpuUsePercentage || (1 - memoryUsagePercentage) < reservedMemory) {
+        if (loadAverage > maxCpuloadAvg || availablePhysicalMemorySize < reservedMemory) {
             log.warn(
-                    "current cpu load average {} is higher than {} or available memory {} is lower than {}",
-                    cpuUsagePercentage, maxCpuUsePercentage, 1 - memoryUsagePercentage, reservedMemory);
+                    "current cpu load average {} is too high or available memory {}G is too low, under max.cpuload.avg={} and reserved.memory={}G",
+                    loadAverage, availablePhysicalMemorySize, maxCpuloadAvg, reservedMemory);
             return Constants.ABNORMAL_NODE_STATUS;
         } else if (workerWaitingTaskCount > workerExecThreadCount) {
             log.warn("current waiting task count {} is large than worker thread count {}, worker is busy",

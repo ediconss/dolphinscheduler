@@ -24,14 +24,15 @@ import org.apache.dolphinscheduler.common.thread.ThreadUtils;
 import org.apache.dolphinscheduler.server.master.config.MasterConfig;
 import org.apache.dolphinscheduler.server.master.service.MasterFailoverService;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class FailoverExecuteThread extends BaseDaemonThread {
+
+    private static final Logger logger = LoggerFactory.getLogger(FailoverExecuteThread.class);
 
     @Autowired
     private MasterConfig masterConfig;
@@ -48,9 +49,9 @@ public class FailoverExecuteThread extends BaseDaemonThread {
 
     @Override
     public synchronized void start() {
-        log.info("Master failover thread staring");
+        logger.info("Master failover thread staring");
         super.start();
-        log.info("Master failover thread stared");
+        logger.info("Master failover thread stared");
     }
 
     @Override
@@ -67,7 +68,7 @@ public class FailoverExecuteThread extends BaseDaemonThread {
                 // This kind of check may only need to be executed when a master server start
                 masterFailoverService.checkMasterFailover();
             } catch (Exception e) {
-                log.error("Master failover thread execute error", e);
+                logger.error("Master failover thread execute error", e);
             } finally {
                 ThreadUtils.sleep(masterConfig.getFailoverInterval().toMillis());
             }

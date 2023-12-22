@@ -84,7 +84,7 @@ export default defineComponent({
         return {
           prop: p.key,
           value: p.value,
-          direct: p.direct,
+          direct: 'IN',
           type: 'VARCHAR'
         }
       })
@@ -95,6 +95,7 @@ export default defineComponent({
           taskRelationJson: JSON.stringify(connects),
           locations: JSON.stringify(locations),
           name: saveForm.name,
+          tenantCode: saveForm.tenantCode,
           executionType: saveForm.executionType,
           description: saveForm.description,
           globalParams: JSON.stringify(globalParams),

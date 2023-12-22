@@ -157,6 +157,7 @@ const AlarmGroupModal = defineComponent({
                   path='description'
                 >
                   <NInput
+                    allowInput={this.trim}
                     type='textarea'
                     placeholder={t(
                       'security.alarm_group.alarm_group_description_tips'

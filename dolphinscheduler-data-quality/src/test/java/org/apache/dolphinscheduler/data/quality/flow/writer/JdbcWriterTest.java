@@ -33,15 +33,15 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * JdbcWriterTest
  */
 public class JdbcWriterTest extends FlowTestBase {
 
-    @BeforeEach
+    @Before
     public void before() {
         super.init();
         createWriterTable();

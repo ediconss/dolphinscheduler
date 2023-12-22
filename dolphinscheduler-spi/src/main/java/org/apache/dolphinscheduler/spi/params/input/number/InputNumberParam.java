@@ -30,12 +30,11 @@ import java.util.List;
  */
 public class InputNumberParam extends PluginParams {
 
-    private final InputNumberParamProps props;
-
     private InputNumberParam(Builder builder) {
         super(builder);
-        this.props = builder.props;
     }
+
+    private InputNumberParamProps props;
 
     public static Builder newBuilder(String name, String title) {
         return new Builder(name, title);
@@ -95,11 +94,6 @@ public class InputNumberParam extends PluginParams {
         public Builder setDisplay(Boolean display) {
             this.display = display;
             return this;
-        }
-
-        @Override
-        public InputNumberParam build() {
-            return new InputNumberParam(this);
         }
     }
 

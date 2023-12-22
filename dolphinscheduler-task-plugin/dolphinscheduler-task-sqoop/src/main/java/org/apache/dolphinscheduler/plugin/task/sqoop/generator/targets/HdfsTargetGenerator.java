@@ -34,13 +34,15 @@ import org.apache.dolphinscheduler.plugin.task.sqoop.parameter.targets.TargetHdf
 
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * hdfs target generator
  */
-@Slf4j
 public class HdfsTargetGenerator implements ITargetGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger(HdfsTargetGenerator.class);
 
     @Override
     public String generate(SqoopParameters sqoopParameters, SqoopTaskExecutionContext sqoopTaskExecutionContext) {
@@ -86,7 +88,7 @@ public class HdfsTargetGenerator implements ITargetGenerator {
                 hdfsTargetSb.append(SPACE).append(FIELD_NULL_PLACEHOLDER);
             }
         } catch (Exception e) {
-            log.error(String.format("Sqoop hdfs target params build failed: [%s]", e.getMessage()));
+            logger.error(String.format("Sqoop hdfs target params build failed: [%s]", e.getMessage()));
         }
 
         return hdfsTargetSb.toString();

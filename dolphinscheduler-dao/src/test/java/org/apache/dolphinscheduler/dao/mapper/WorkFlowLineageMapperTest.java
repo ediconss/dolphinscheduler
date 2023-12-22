@@ -30,8 +30,8 @@ import org.apache.dolphinscheduler.dao.entity.WorkFlowLineage;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class WorkFlowLineageMapperTest extends BaseDaoTest {
@@ -113,7 +113,7 @@ public class WorkFlowLineageMapperTest extends BaseDaoTest {
 
         List<WorkFlowLineage> workFlowLineages = workFlowLineageMapper
                 .queryWorkFlowLineageByName(processDefinition.getProjectCode(), processDefinition.getName());
-        Assertions.assertNotEquals(0, workFlowLineages.size());
+        Assert.assertNotEquals(workFlowLineages.size(), 0);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class WorkFlowLineageMapperTest extends BaseDaoTest {
         List<ProcessLineage> workFlowLineages =
                 workFlowLineageMapper.queryProcessLineageByCode(processTaskRelation.getProjectCode(),
                         processTaskRelation.getProcessDefinitionCode());
-        Assertions.assertNotEquals(0, workFlowLineages.size());
+        Assert.assertNotEquals(workFlowLineages.size(), 0);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class WorkFlowLineageMapperTest extends BaseDaoTest {
         insertOneProcessTaskRelation();
         List<ProcessLineage> workFlowLineages =
                 workFlowLineageMapper.queryProcessLineage(processDefinition.getProjectCode());
-        Assertions.assertNotEquals(0, workFlowLineages.size());
+        Assert.assertNotEquals(workFlowLineages.size(), 0);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class WorkFlowLineageMapperTest extends BaseDaoTest {
         insertOneSchedule(processDefinition.getId());
         WorkFlowLineage workFlowLineages = workFlowLineageMapper
                 .queryWorkFlowLineageByCode(processDefinition.getProjectCode(), processDefinition.getCode());
-        Assertions.assertNotNull(workFlowLineages);
+        Assert.assertNotNull(workFlowLineages);
     }
 
 }

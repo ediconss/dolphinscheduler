@@ -30,7 +30,7 @@ public class TaskExecutionContextCacheManager {
     /**
      * taskInstance cache
      */
-    private static final Map<Integer, TaskExecutionContext> taskRequestContextCache = new ConcurrentHashMap<>();
+    private static Map<Integer, TaskExecutionContext> taskRequestContextCache = new ConcurrentHashMap<>();
 
     /**
      * get taskInstance by taskInstance id

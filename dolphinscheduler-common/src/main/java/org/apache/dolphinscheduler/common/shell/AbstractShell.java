@@ -28,7 +28,8 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A base class for running a Unix command.
@@ -37,8 +38,9 @@ import lombok.extern.slf4j.Slf4j;
  * <code>df</code>. It also offers facilities to gate commands by 
  * time-intervals.
  */
-@Slf4j
 public abstract class AbstractShell {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractShell.class);
 
     /**
      * Time after which the executing script would be timedout
@@ -166,7 +168,7 @@ public abstract class AbstractShell {
                         line = errReader.readLine();
                     }
                 } catch (IOException ioe) {
-                    log.warn("Error reading the error stream", ioe);
+                    logger.warn("Error reading the error stream", ioe);
                 }
             }
         };
@@ -177,7 +179,7 @@ public abstract class AbstractShell {
                 try {
                     parseExecResult(inReader);
                 } catch (IOException ioe) {
-                    log.warn("Error reading the in stream", ioe);
+                    logger.warn("Error reading the in stream", ioe);
                 }
                 super.run();
             }
@@ -186,7 +188,7 @@ public abstract class AbstractShell {
             errThread.start();
             inThread.start();
         } catch (IllegalStateException ise) {
-            log.warn("Illegal while starting the error and in thread", ise);
+            logger.warn("Illegal while starting the error and in thread", ise);
         }
         try {
             // parse the output
@@ -196,7 +198,7 @@ public abstract class AbstractShell {
                 errThread.join();
                 inThread.join();
             } catch (InterruptedException ie) {
-                log.warn("Interrupted while reading the error and in stream", ie);
+                logger.warn("Interrupted while reading the error and in stream", ie);
             }
             completed.compareAndSet(false, true);
             // the timeout thread handling
@@ -214,7 +216,7 @@ public abstract class AbstractShell {
             try {
                 inReader.close();
             } catch (IOException ioe) {
-                log.warn("Error while closing the input stream", ioe);
+                logger.warn("Error while closing the input stream", ioe);
             }
             if (!completed.get()) {
                 errThread.interrupt();
@@ -222,7 +224,7 @@ public abstract class AbstractShell {
             try {
                 errReader.close();
             } catch (IOException ioe) {
-                log.warn("Error while closing the error stream", ioe);
+                logger.warn("Error while closing the error stream", ioe);
             }
             ProcessContainer.removeProcess(process);
             process.destroy();
@@ -345,11 +347,11 @@ public abstract class AbstractShell {
                 try {
                     entry.getValue().destroy();
                 } catch (Exception e) {
-                    log.error("Destroy All Processes error", e);
+                    logger.error("Destroy All Processes error", e);
                 }
             }
 
-            log.info("close " + set.size() + " executing process tasks");
+            logger.info("close " + set.size() + " executing process tasks");
         }
     }
 }

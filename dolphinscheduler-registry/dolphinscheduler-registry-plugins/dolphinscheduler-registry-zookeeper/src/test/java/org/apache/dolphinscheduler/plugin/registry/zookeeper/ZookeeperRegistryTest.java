@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class ZookeeperRegistryTest {
 
     ZookeeperRegistry registry;
 
-    @BeforeEach
+    @Before
     public void before() throws Exception {
         server = new TestingServer(true);
 
@@ -59,10 +59,10 @@ public class ZookeeperRegistryTest {
     public void persistTest() {
         registry.put("/nodes/m1", "", false);
         registry.put("/nodes/m2", "", false);
-        Assertions.assertEquals(Arrays.asList("m2", "m1"), registry.children("/nodes"));
-        Assertions.assertTrue(registry.exists("/nodes/m1"));
+        Assert.assertEquals(Arrays.asList("m2", "m1"), registry.children("/nodes"));
+        Assert.assertTrue(registry.exists("/nodes/m1"));
         registry.delete("/nodes/m2");
-        Assertions.assertFalse(registry.exists("/nodes/m2"));
+        Assert.assertFalse(registry.exists("/nodes/m2"));
     }
 
     @Test
@@ -103,14 +103,14 @@ public class ZookeeperRegistryTest {
 
         }).start();
         allCountDownLatch.await(5, TimeUnit.SECONDS);
-        Assertions.assertEquals(testData, Arrays.asList("thread1", "thread2"));
+        Assert.assertEquals(testData, Arrays.asList("thread1", "thread2"));
 
     }
 
     @Test
     public void subscribeTest() {
         boolean status = registry.subscribe("/sub", new TestListener());
-        Assertions.assertTrue(status);
+        Assert.assertTrue(status);
 
     }
 
@@ -122,7 +122,7 @@ public class ZookeeperRegistryTest {
         }
     }
 
-    @AfterEach
+    @After
     public void after() throws IOException {
         registry.close();
         server.close();

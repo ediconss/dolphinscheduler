@@ -20,22 +20,25 @@ package org.apache.dolphinscheduler.server.master.event;
 import org.apache.dolphinscheduler.common.enums.StateEventType;
 import org.apache.dolphinscheduler.common.enums.TaskEventType;
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
-import org.apache.dolphinscheduler.dao.repository.TaskInstanceDao;
 import org.apache.dolphinscheduler.dao.utils.TaskInstanceUtils;
-import org.apache.dolphinscheduler.remote.command.task.TaskExecuteRunningMessageAck;
+import org.apache.dolphinscheduler.remote.command.TaskExecuteRunningAckMessage;
 import org.apache.dolphinscheduler.server.master.cache.ProcessInstanceExecCacheManager;
-import org.apache.dolphinscheduler.server.master.config.MasterConfig;
 import org.apache.dolphinscheduler.server.master.processor.queue.TaskEvent;
 import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteRunnable;
 import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteThreadPool;
+import org.apache.dolphinscheduler.service.process.ProcessService;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TaskRunningEventHandler implements TaskEventHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(TaskRunningEventHandler.class);
 
     @Autowired
     private ProcessInstanceExecCacheManager processInstanceExecCacheManager;
@@ -44,10 +47,7 @@ public class TaskRunningEventHandler implements TaskEventHandler {
     private WorkflowExecuteThreadPool workflowExecuteThreadPool;
 
     @Autowired
-    private TaskInstanceDao taskInstanceDao;
-
-    @Autowired
-    private MasterConfig masterConfig;
+    private ProcessService processService;
 
     @Override
     public void handleTaskEvent(TaskEvent taskEvent) throws TaskEventHandleError {
@@ -84,7 +84,7 @@ public class TaskRunningEventHandler implements TaskEventHandler {
             taskInstance.setExecutePath(taskEvent.getExecutePath());
             taskInstance.setPid(taskEvent.getProcessId());
             taskInstance.setAppLink(taskEvent.getAppIds());
-            if (!taskInstanceDao.updateById(taskInstance)) {
+            if (!processService.updateTaskInstance(taskInstance)) {
                 throw new TaskEventHandleError("Handle task running event error, update taskInstance to db failed");
             }
             sendAckToWorker(taskEvent);
@@ -107,14 +107,9 @@ public class TaskRunningEventHandler implements TaskEventHandler {
 
     private void sendAckToWorker(TaskEvent taskEvent) {
         // If event handle success, send ack to worker to otherwise the worker will retry this event
-        TaskExecuteRunningMessageAck taskExecuteRunningMessageAck =
-                new TaskExecuteRunningMessageAck(
-                        true,
-                        taskEvent.getTaskInstanceId(),
-                        masterConfig.getMasterAddress(),
-                        taskEvent.getWorkerAddress(),
-                        System.currentTimeMillis());
-        taskEvent.getChannel().writeAndFlush(taskExecuteRunningMessageAck.convert2Command());
+        TaskExecuteRunningAckMessage taskExecuteRunningAckMessage =
+                new TaskExecuteRunningAckMessage(true, taskEvent.getTaskInstanceId());
+        taskEvent.getChannel().writeAndFlush(taskExecuteRunningAckMessage.convert2Command());
     }
 
     @Override

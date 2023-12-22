@@ -34,7 +34,7 @@ import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.dao.entity.Schedule;
 import org.apache.dolphinscheduler.service.exceptions.CronParseException;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.ZoneId;
@@ -49,7 +49,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.cronutils.model.Cron;
 import com.cronutils.model.definition.CronDefinitionBuilder;
@@ -60,12 +62,13 @@ import com.cronutils.parser.CronParser;
  * // todo: this utils is heavy, it rely on quartz and corn-utils.
  * cron utils
  */
-@Slf4j
 public class CronUtils {
 
     private CronUtils() {
         throw new IllegalStateException("CronUtils class");
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(CronUtils.class);
 
     private static final CronParser QUARTZ_CRON_PARSER =
             new CronParser(CronDefinitionBuilder.instanceDefinitionFor(QUARTZ));
@@ -276,12 +279,12 @@ public class CronUtils {
                     calendar.add(Calendar.DATE, 1);
                     break;
                 default:
-                    log.error("Dependent process definition's  cycleEnum is {},not support!!", cycleEnum);
+                    logger.error("Dependent process definition's  cycleEnum is {},not support!!", cycleEnum);
                     break;
             }
             maxExpirationTime = calendar.getTime();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
         return DateUtils.compare(startTimeMax, maxExpirationTime) ? maxExpirationTime : startTimeMax;
     }

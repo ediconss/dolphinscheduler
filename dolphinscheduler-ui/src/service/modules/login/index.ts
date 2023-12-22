@@ -25,10 +25,3 @@ export function login(data: LoginReq): any {
     data
   })
 }
-
-export function ssoLoginUrl(): any {
-  return axios({
-    url: '/login/sso',
-    method: 'get'
-  })
-}

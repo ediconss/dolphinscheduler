@@ -23,7 +23,6 @@ import org.apache.dolphinscheduler.e2e.pages.project.workflow.task.ShellTaskForm
 import org.apache.dolphinscheduler.e2e.pages.project.workflow.task.SubWorkflowTaskForm;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -87,7 +86,7 @@ public final class WorkflowForm {
     }
 
     public WebElement getTask(String taskName) {
-        List<WebElement> tasks = new WebDriverWait(driver, Duration.ofSeconds(20))
+        List<WebElement> tasks = new WebDriverWait(driver, 10)
                 .until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.cssSelector("svg > g > g[class^='x6-graph-svg-stage'] > g[data-shape^='dag-task']")));
 
         WebElement task = tasks.stream()

@@ -20,21 +20,26 @@ package org.apache.dolphinscheduler.plugin.datasource.spark;
 import org.apache.dolphinscheduler.plugin.datasource.spark.param.SparkConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor("org.apache.dolphinscheduler.plugin.datasource.api.client.CommonDataSourceClient")
+@PrepareForTest({SparkDataSourceChannel.class, SparkDataSourceClient.class})
 public class SparkDataSourceChannelTest {
 
     @Test
     public void testCreateDataSourceClient() {
-        SparkDataSourceChannel sourceChannel = Mockito.mock(SparkDataSourceChannel.class);
-        SparkPooledDataSourceClient dataSourceClient = Mockito.mock(SparkPooledDataSourceClient.class);
-        Mockito.when(sourceChannel.createPooledDataSourceClient(Mockito.any(), Mockito.any()))
+        SparkDataSourceChannel sourceChannel = PowerMockito.mock(SparkDataSourceChannel.class);
+        SparkDataSourceClient dataSourceClient = PowerMockito.mock(SparkDataSourceClient.class);
+        PowerMockito.when(sourceChannel.createDataSourceClient(Mockito.any(), Mockito.any()))
                 .thenReturn(dataSourceClient);
-        Assertions.assertNotNull(sourceChannel.createPooledDataSourceClient(new SparkConnectionParam(), DbType.SPARK));
+        Assert.assertNotNull(sourceChannel.createDataSourceClient(new SparkConnectionParam(), DbType.SPARK));
     }
 }

@@ -21,9 +21,6 @@ import static org.apache.dolphinscheduler.plugin.task.api.parser.TimePlaceholder
 
 import org.apache.dolphinscheduler.common.constants.DateConstants;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
-import org.apache.dolphinscheduler.common.utils.JSONUtils;
-import org.apache.dolphinscheduler.plugin.task.api.enums.DataType;
-import org.apache.dolphinscheduler.plugin.task.api.model.Property;
 import org.apache.dolphinscheduler.plugin.task.api.parser.PlaceholderUtils;
 
 import java.text.ParseException;
@@ -31,62 +28,47 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
+@RunWith(MockitoJUnitRunner.class)
 public class ParameterUtilsTest {
 
-    @Test
-    public void expandListParameter() {
-        Map<Integer, Property> params = new HashMap<>();
-        params.put(1,
-                new Property(null, null, DataType.LIST, JSONUtils.toJsonString(Lists.newArrayList("c1", "c2", "c3"))));
-        params.put(2, new Property(null, null, DataType.DATE, "2020-06-30"));
-        params.put(3, new Property(null, null, DataType.LIST,
-                JSONUtils.toJsonString(Lists.newArrayList(3.1415, 2.44, 3.44))));
-        String sql = ParameterUtils.expandListParameter(params,
-                "select * from test where col1 in (?) and date=? and col2 in (?)");
-        Assertions.assertEquals("select * from test where col1 in (?,?,?) and date=? and col2 in (?,?,?)", sql);
-        Assertions.assertEquals(7, params.size());
+    public static final Logger logger = LoggerFactory.getLogger(ParameterUtilsTest.class);
 
-        Map<Integer, Property> params2 = new HashMap<>();
-        params2.put(1, new Property(null, null, DataType.LIST, JSONUtils.toJsonString(Lists.newArrayList("c1"))));
-        params2.put(2, new Property(null, null, DataType.DATE, "2020-06-30"));
-        String sql2 = ParameterUtils.expandListParameter(params2, "select * from test where col1 in (?) and date=?");
-        Assertions.assertEquals("select * from test where col1 in (?) and date=?", sql2);
-        Assertions.assertEquals(2, params2.size());
-
-    }
-
+    /**
+     * Test convertParameterPlaceholders
+     */
     @Test
     public void testConvertParameterPlaceholders() throws ParseException {
         // parameterString,parameterMap is null
-        Assertions.assertNull(ParameterUtils.convertParameterPlaceholders(null, null));
+        Assert.assertNull(ParameterUtils.convertParameterPlaceholders(null, null));
 
         // parameterString is null,parameterMap is not null
         Map<String, String> parameterMap = new HashMap<String, String>();
         parameterMap.put("testParameter", "testParameter");
-        Assertions.assertNull(ParameterUtils.convertParameterPlaceholders(null, parameterMap));
+        Assert.assertNull(ParameterUtils.convertParameterPlaceholders(null, parameterMap));
 
         // parameterString、parameterMap is not null
         String parameterString = "test_parameter";
-        Assertions.assertEquals(parameterString,
+        Assert.assertEquals(parameterString,
                 ParameterUtils.convertParameterPlaceholders(parameterString, parameterMap));
 
         // replace variable ${} form
         parameterMap.put("testParameter2", "${testParameter}");
-        Assertions.assertEquals(parameterString,
-                PlaceholderUtils.replacePlaceholders(parameterString, parameterMap, true));
+        Assert.assertEquals(parameterString, PlaceholderUtils.replacePlaceholders(parameterString, parameterMap, true));
 
         // replace time $[...] form, eg. $[yyyyMMdd]
         Date cronTime = new Date();
-        Assertions.assertEquals(parameterString, replacePlaceholders(parameterString, cronTime, true));
+        Assert.assertEquals(parameterString, replacePlaceholders(parameterString, cronTime, true));
 
         // replace time $[...] form, eg. $[yyyyMMdd]
         Date cronTimeStr = DateUtils.stringToDate("2019-02-02 00:00:00");
-        Assertions.assertEquals(parameterString, replacePlaceholders(parameterString, cronTimeStr, true));
+        Assert.assertEquals(parameterString, replacePlaceholders(parameterString, cronTimeStr, true));
     }
 
     @Test
@@ -98,7 +80,7 @@ public class ParameterUtilsTest {
         parameterMap.put("user", "Kris");
         parameterMap.put(DateConstants.PARAMETER_DATETIME, "20201201123000");
         parameterString = ParameterUtils.convertParameterPlaceholders(parameterString, parameterMap);
-        Assertions.assertEquals(
+        Assert.assertEquals(
                 "Kris is userName, '$[1]' '20221201' '20181201' '20210301' '20200801' '20201215' '20201117'  '20201204'  '$[0]' '20201128' '143000' '113000' '123300' '122800'  '$[3]'",
                 parameterString);
     }
@@ -108,9 +90,10 @@ public class ParameterUtilsTest {
      */
     @Test
     public void testHandleEscapes() throws Exception {
-        Assertions.assertNull(ParameterUtils.handleEscapes(null));
-        Assertions.assertEquals("", ParameterUtils.handleEscapes(""));
-        Assertions.assertEquals("test Parameter", ParameterUtils.handleEscapes("test Parameter"));
-        Assertions.assertEquals("////%test////%Parameter", ParameterUtils.handleEscapes("%test%Parameter"));
+        Assert.assertNull(ParameterUtils.handleEscapes(null));
+        Assert.assertEquals("", ParameterUtils.handleEscapes(""));
+        Assert.assertEquals("test Parameter", ParameterUtils.handleEscapes("test Parameter"));
+        Assert.assertEquals("////%test////%Parameter", ParameterUtils.handleEscapes("%test%Parameter"));
     }
+
 }

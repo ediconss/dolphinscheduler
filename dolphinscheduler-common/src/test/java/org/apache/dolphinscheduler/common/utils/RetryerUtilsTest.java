@@ -18,8 +18,8 @@ package org.apache.dolphinscheduler.common.utils;
 
 import java.util.concurrent.ExecutionException;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.github.rholder.retry.RetryException;
 import com.github.rholder.retry.Retryer;
@@ -29,21 +29,21 @@ public class RetryerUtilsTest {
     @Test
     public void testDefaultRetryer() {
         Retryer<Boolean> retryer = RetryerUtils.getDefaultRetryer();
-        Assertions.assertNotNull(retryer);
+        Assert.assertNotNull(retryer);
         try {
             boolean result = retryer.call(() -> true);
-            Assertions.assertTrue(result);
+            Assert.assertTrue(result);
         } catch (ExecutionException | RetryException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
         Retryer<Boolean> retryer1 = RetryerUtils.getDefaultRetryer(true);
-        Assertions.assertEquals(retryer, retryer1);
+        Assert.assertEquals(retryer, retryer1);
     }
 
     @Test
     public void testDefaultRetryerResultCheck() {
         Retryer<Boolean> retryer = RetryerUtils.getDefaultRetryer();
-        Assertions.assertNotNull(retryer);
+        Assert.assertNotNull(retryer);
         try {
             for (int execTarget = 1; execTarget <= 3; execTarget++) {
                 int finalExecTarget = execTarget;
@@ -52,11 +52,11 @@ public class RetryerUtilsTest {
                     execTime[0]++;
                     return execTime[0] == finalExecTarget;
                 });
-                Assertions.assertEquals(finalExecTarget, execTime[0]);
-                Assertions.assertTrue(result);
+                Assert.assertEquals(finalExecTarget, execTime[0]);
+                Assert.assertTrue(result);
             }
         } catch (ExecutionException | RetryException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
         int[] execTime = {0};
         try {
@@ -64,19 +64,19 @@ public class RetryerUtilsTest {
                 execTime[0]++;
                 return execTime[0] == 4;
             });
-            Assertions.fail("Retry times not reached");
+            Assert.fail("Retry times not reached");
         } catch (RetryException e) {
-            Assertions.assertEquals(3, e.getNumberOfFailedAttempts());
-            Assertions.assertEquals(3, execTime[0]);
+            Assert.assertEquals(3, e.getNumberOfFailedAttempts());
+            Assert.assertEquals(3, execTime[0]);
         } catch (ExecutionException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
     }
 
     @Test
     public void testDefaultRetryerResultNoCheck() {
         Retryer<Boolean> retryer = RetryerUtils.getDefaultRetryer(false);
-        Assertions.assertNotNull(retryer);
+        Assert.assertNotNull(retryer);
         try {
             for (int execTarget = 1; execTarget <= 5; execTarget++) {
                 int[] execTime = {0};
@@ -84,11 +84,11 @@ public class RetryerUtilsTest {
                     execTime[0]++;
                     return execTime[0] > 1;
                 });
-                Assertions.assertEquals(1, execTime[0]);
-                Assertions.assertFalse(result);
+                Assert.assertEquals(1, execTime[0]);
+                Assert.assertFalse(result);
             }
         } catch (ExecutionException | RetryException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
     }
 
@@ -102,11 +102,11 @@ public class RetryerUtilsTest {
                     execTime[0]++;
                     return execTime[0] == finalExecTarget;
                 });
-                Assertions.assertEquals(finalExecTarget, execTime[0]);
-                Assertions.assertTrue(result);
+                Assert.assertEquals(finalExecTarget, execTime[0]);
+                Assert.assertTrue(result);
             }
         } catch (ExecutionException | RetryException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
         int[] execTime = {0};
         try {
@@ -114,12 +114,12 @@ public class RetryerUtilsTest {
                 execTime[0]++;
                 return execTime[0] == 4;
             });
-            Assertions.fail("Recall times not reached");
+            Assert.fail("Recall times not reached");
         } catch (RetryException e) {
-            Assertions.assertEquals(3, e.getNumberOfFailedAttempts());
-            Assertions.assertEquals(3, execTime[0]);
+            Assert.assertEquals(3, e.getNumberOfFailedAttempts());
+            Assert.assertEquals(3, execTime[0]);
         } catch (ExecutionException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
     }
 
@@ -133,11 +133,11 @@ public class RetryerUtilsTest {
                     execTime[0]++;
                     return execTime[0] == finalExecTarget;
                 }, true);
-                Assertions.assertEquals(finalExecTarget, execTime[0]);
-                Assertions.assertTrue(result);
+                Assert.assertEquals(finalExecTarget, execTime[0]);
+                Assert.assertTrue(result);
             }
         } catch (ExecutionException | RetryException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
         int[] execTime = {0};
         try {
@@ -145,12 +145,12 @@ public class RetryerUtilsTest {
                 execTime[0]++;
                 return execTime[0] == 4;
             }, true);
-            Assertions.fail("Recall times not reached");
+            Assert.fail("Recall times not reached");
         } catch (RetryException e) {
-            Assertions.assertEquals(3, e.getNumberOfFailedAttempts());
-            Assertions.assertEquals(3, execTime[0]);
+            Assert.assertEquals(3, e.getNumberOfFailedAttempts());
+            Assert.assertEquals(3, execTime[0]);
         } catch (ExecutionException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
     }
 
@@ -163,11 +163,11 @@ public class RetryerUtilsTest {
                     execTime[0]++;
                     return execTime[0] > 1;
                 }, false);
-                Assertions.assertEquals(1, execTime[0]);
-                Assertions.assertFalse(result);
+                Assert.assertEquals(1, execTime[0]);
+                Assert.assertFalse(result);
             }
         } catch (ExecutionException | RetryException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
     }
 
@@ -183,11 +183,11 @@ public class RetryerUtilsTest {
                     }
                     return true;
                 }, checkResult);
-                Assertions.assertEquals(finalExecTarget, execTime[0]);
-                Assertions.assertTrue(result);
+                Assert.assertEquals(finalExecTarget, execTime[0]);
+                Assert.assertTrue(result);
             }
         } catch (ExecutionException | RetryException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
         int[] execTime = {0};
         try {
@@ -198,14 +198,14 @@ public class RetryerUtilsTest {
                 }
                 return true;
             }, checkResult);
-            Assertions.fail("Recall times not reached");
+            Assert.fail("Recall times not reached");
         } catch (RetryException e) {
-            Assertions.assertEquals(3, e.getNumberOfFailedAttempts());
-            Assertions.assertEquals(3, execTime[0]);
-            Assertions.assertNotNull(e.getCause());
-            Assertions.assertEquals(3, Integer.parseInt(e.getCause().getMessage()));
+            Assert.assertEquals(3, e.getNumberOfFailedAttempts());
+            Assert.assertEquals(3, execTime[0]);
+            Assert.assertNotNull(e.getCause());
+            Assert.assertEquals(3, Integer.parseInt(e.getCause().getMessage()));
         } catch (ExecutionException e) {
-            Assertions.fail("Retry call failed " + e.getMessage());
+            Assert.fail("Retry call failed " + e.getMessage());
         }
     }
 

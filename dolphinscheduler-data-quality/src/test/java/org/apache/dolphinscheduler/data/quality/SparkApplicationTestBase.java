@@ -23,7 +23,7 @@ import org.apache.dolphinscheduler.data.quality.execution.SparkRuntimeEnvironmen
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.Before;
 
 /**
  * SparkApplicationTestBase
@@ -32,7 +32,7 @@ public class SparkApplicationTestBase {
 
     protected SparkRuntimeEnvironment sparkRuntimeEnvironment;
 
-    @BeforeEach
+    @Before
     public void init() {
         Map<String, Object> config = new HashMap<>();
         config.put("spark.app.name", "data quality test");
@@ -41,7 +41,6 @@ public class SparkApplicationTestBase {
         config.put("spark.ui.port", 13000);
         config.put("spark.master", "local[4]");
 
-        // The hive client is disabled by default, and the local execution of Unit Test is guaranteed to be successful.
-        sparkRuntimeEnvironment = new SparkRuntimeEnvironment(new Config(config), false);
+        sparkRuntimeEnvironment = new SparkRuntimeEnvironment(new Config(config));
     }
 }

@@ -22,13 +22,19 @@ import {
   watch,
   getCurrentInstance
 } from 'vue'
-import { NButton, NIcon, NDataTable, NPagination, NSpace } from 'naive-ui'
+import {
+  NButton,
+  NInput,
+  NIcon,
+  NDataTable,
+  NPagination,
+  NSpace
+} from 'naive-ui'
 import { useTable } from './use-table'
 import { SearchOutlined } from '@vicons/antd'
 import { useI18n } from 'vue-i18n'
 import TenantModal from './components/tenant-modal'
 import Card from '@/components/card'
-import Search from '@/components/input-search'
 
 const tenementManage = defineComponent({
   name: 'tenement-manage',
@@ -106,10 +112,12 @@ const tenementManage = defineComponent({
               {t('security.tenant.create_tenant')}
             </NButton>
             <NSpace>
-              <Search
-                v-model:value={this.searchVal}
+              <NInput
+                allowInput={this.trim}
+                size='small'
+                v-model={[this.searchVal, 'value']}
                 placeholder={t('security.tenant.search_tips')}
-                onSearch={this.handleSearch}
+                clearable
               />
               <NButton size='small' type='primary' onClick={this.handleSearch}>
                 <NIcon>

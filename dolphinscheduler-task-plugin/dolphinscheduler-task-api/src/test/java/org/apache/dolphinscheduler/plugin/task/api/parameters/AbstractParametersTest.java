@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class AbstractParametersTest {
 
@@ -48,8 +48,8 @@ public class AbstractParametersTest {
         // should return property key1 and key2 (direct null and IN)
         Map<String, Property> inputLocalParametersMap = parameters.getInputLocalParametersMap();
 
-        Assertions.assertEquals(2, inputLocalParametersMap.size());
-        Assertions.assertTrue(inputLocalParametersMap.containsKey("key1"));
-        Assertions.assertTrue(inputLocalParametersMap.containsKey("key2"));
+        Assert.assertEquals(2, inputLocalParametersMap.size());
+        Assert.assertTrue(inputLocalParametersMap.containsKey("key1"));
+        Assert.assertTrue(inputLocalParametersMap.containsKey("key2"));
     }
 }

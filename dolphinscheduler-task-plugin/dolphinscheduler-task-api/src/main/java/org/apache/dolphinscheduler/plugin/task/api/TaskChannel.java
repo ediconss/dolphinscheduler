@@ -25,10 +25,8 @@ public interface TaskChannel {
 
     void cancelApplication(boolean status);
 
-    // todo: return ITask
     AbstractTask createTask(TaskExecutionContext taskRequest);
 
-    // todo: return IParameters
     AbstractParameters parseParameters(ParametersNode parametersNode);
 
     ResourceParametersHelper getResources(String parameters);

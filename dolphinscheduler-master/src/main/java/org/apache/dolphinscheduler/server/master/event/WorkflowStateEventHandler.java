@@ -23,24 +23,25 @@ import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
 import org.apache.dolphinscheduler.server.master.metrics.ProcessInstanceMetrics;
 import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteRunnable;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.auto.service.AutoService;
 
 @AutoService(StateEventHandler.class)
-@Slf4j
 public class WorkflowStateEventHandler implements StateEventHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowStateEventHandler.class);
 
     @Override
     public boolean handleStateEvent(WorkflowExecuteRunnable workflowExecuteRunnable,
                                     StateEvent stateEvent) throws StateEventHandleException {
         WorkflowStateEvent workflowStateEvent = (WorkflowStateEvent) stateEvent;
-        ProcessInstance processInstance =
-                workflowExecuteRunnable.getWorkflowExecuteContext().getWorkflowInstance();
+        measureProcessState(workflowStateEvent);
+        ProcessInstance processInstance = workflowExecuteRunnable.getProcessInstance();
         ProcessDefinition processDefinition = processInstance.getProcessDefinition();
-        measureProcessState(workflowStateEvent, processInstance.getProcessDefinitionCode().toString());
 
-        log.info(
+        logger.info(
                 "Handle workflow instance state event, the current workflow instance state {} will be changed to {}",
                 processInstance.getState(), workflowStateEvent.getStatus());
 
@@ -58,9 +59,6 @@ public class WorkflowStateEventHandler implements StateEventHandler {
             return true;
         }
         if (workflowStateEvent.getStatus().isFinished()) {
-            if (workflowStateEvent.getType().equals(StateEventType.PROCESS_SUBMIT_FAILED)) {
-                workflowExecuteRunnable.updateProcessInstanceState(workflowStateEvent);
-            }
             workflowExecuteRunnable.endProcess();
         }
         if (processInstance.getState().isReadyStop()) {
@@ -75,20 +73,19 @@ public class WorkflowStateEventHandler implements StateEventHandler {
         return StateEventType.PROCESS_STATE_CHANGE;
     }
 
-    private void measureProcessState(WorkflowStateEvent processStateEvent, String processDefinitionCode) {
+    private void measureProcessState(WorkflowStateEvent processStateEvent) {
         if (processStateEvent.getStatus().isFinished()) {
-            ProcessInstanceMetrics.incProcessInstanceByStateAndProcessDefinitionCode("finish", processDefinitionCode);
+            ProcessInstanceMetrics.incProcessInstanceByState("finish");
         }
         switch (processStateEvent.getStatus()) {
             case STOP:
-                ProcessInstanceMetrics.incProcessInstanceByStateAndProcessDefinitionCode("stop", processDefinitionCode);
+                ProcessInstanceMetrics.incProcessInstanceByState("stop");
                 break;
             case SUCCESS:
-                ProcessInstanceMetrics.incProcessInstanceByStateAndProcessDefinitionCode("success",
-                        processDefinitionCode);
+                ProcessInstanceMetrics.incProcessInstanceByState("success");
                 break;
             case FAILURE:
-                ProcessInstanceMetrics.incProcessInstanceByStateAndProcessDefinitionCode("fail", processDefinitionCode);
+                ProcessInstanceMetrics.incProcessInstanceByState("fail");
                 break;
             default:
                 break;

@@ -80,7 +80,7 @@ const GanttChart = defineComponent({
       minTime = minTime < start ? minTime : start
       maxTime = maxTime > end ? maxTime : end
       data[task.status].push({
-        name: task.taskName,
+        name: task.name,
         value: [index, start, end, end - start],
         itemStyle: {
           color: state[task.status as ITaskState].color

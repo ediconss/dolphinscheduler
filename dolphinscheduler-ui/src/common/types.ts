@@ -41,7 +41,6 @@ export type IWorkflowExecutionState =
   | 'SERIAL_WAIT'
   | 'READY_BLOCK'
   | 'BLOCK'
-  | 'WAIT_TO_RUN'
 
 export type ITaskStateConfig = {
   [key in ITaskState]: {

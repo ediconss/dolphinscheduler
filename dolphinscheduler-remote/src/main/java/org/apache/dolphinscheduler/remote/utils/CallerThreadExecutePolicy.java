@@ -20,17 +20,19 @@ package org.apache.dolphinscheduler.remote.utils;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * caller thread execute
  */
-@Slf4j
 public class CallerThreadExecutePolicy implements RejectedExecutionHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(CallerThreadExecutePolicy.class);
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-        log.warn("queue is full, trigger caller thread execute");
+        logger.warn("queue is full, trigger caller thread execute");
         r.run();
     }
 }

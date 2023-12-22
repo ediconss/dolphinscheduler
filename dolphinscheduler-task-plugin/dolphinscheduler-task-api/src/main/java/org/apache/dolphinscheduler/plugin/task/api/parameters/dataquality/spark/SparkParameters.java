@@ -82,7 +82,7 @@ public class SparkParameters extends AbstractParameters {
     /**
      * The YARN queue to submit to
      */
-    private String yarnQueue;
+    private String queue;
 
     /**
      * other arguments
@@ -94,6 +94,11 @@ public class SparkParameters extends AbstractParameters {
      * 0 JAVA,1 SCALA,2 PYTHON
      */
     private ProgramType programType;
+
+    /**
+     * spark version
+     */
+    private String sparkVersion;
 
     /**
      * resource list
@@ -180,12 +185,12 @@ public class SparkParameters extends AbstractParameters {
         this.appName = appName;
     }
 
-    public String getYarnQueue() {
-        return yarnQueue;
+    public String getQueue() {
+        return queue;
     }
 
-    public void setYarnQueue(String yarnQueue) {
-        this.yarnQueue = yarnQueue;
+    public void setQueue(String queue) {
+        this.queue = queue;
     }
 
     public String getOthers() {
@@ -210,6 +215,14 @@ public class SparkParameters extends AbstractParameters {
 
     public void setProgramType(ProgramType programType) {
         this.programType = programType;
+    }
+
+    public String getSparkVersion() {
+        return sparkVersion;
+    }
+
+    public void setSparkVersion(String sparkVersion) {
+        this.sparkVersion = sparkVersion;
     }
 
     @Override

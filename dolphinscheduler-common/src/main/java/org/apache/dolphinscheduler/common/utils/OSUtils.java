@@ -18,7 +18,6 @@
 package org.apache.dolphinscheduler.common.utils;
 
 import org.apache.dolphinscheduler.common.constants.Constants;
-import org.apache.dolphinscheduler.common.constants.TenantConstants;
 import org.apache.dolphinscheduler.common.shell.ShellExecutor;
 
 import oshi.SystemInfo;
@@ -35,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -45,28 +45,29 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * os utils
  */
-@Slf4j
 public class OSUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(OSUtils.class);
 
     private static final SystemInfo SI = new SystemInfo();
     public static final String TWO_DECIMAL = "0.00";
 
     /**
      * return -1 when the function can not get hardware env info
-     * e.g {@link OSUtils#cpuUsagePercentage()}
+     * e.g {@link OSUtils#loadAverage()} {@link OSUtils#cpuUsage()}
      */
     public static final double NEGATIVE_ONE = -1;
 
     private static final HardwareAbstractionLayer hal = SI.getHardware();
     private static long[] prevTicks = new long[CentralProcessor.TickType.values().length];
     private static long prevTickTime = 0L;
-    private static volatile double cpuUsage = 0.0D;
-    private static final double TOTAL_MEMORY = hal.getMemory().getTotal() / 1024.0 / 1024 / 1024;
+    private static double cpuUsage = 0.0D;
 
     private OSUtils() {
         throw new UnsupportedOperationException("Construct OSUtils");
@@ -77,6 +78,21 @@ public class OSUtils {
      * avoid the thread safety problem of multi-thread operation
      */
     private static final Pattern PATTERN = Pattern.compile("\\s+");
+
+    /**
+     * get memory usage
+     * Keep 2 decimal
+     *
+     * @return percent %
+     */
+    public static double memoryUsage() {
+        GlobalMemory memory = hal.getMemory();
+        double memoryUsage = (memory.getTotal() - memory.getAvailable()) * 1.0 / memory.getTotal();
+
+        DecimalFormat df = new DecimalFormat(TWO_DECIMAL);
+        df.setRoundingMode(RoundingMode.HALF_UP);
+        return Double.parseDouble(df.format(memoryUsage));
+    }
 
     /**
      * get disk usage
@@ -112,11 +128,33 @@ public class OSUtils {
     }
 
     /**
+     * load average
+     *
+     * @return load average
+     */
+    public static double loadAverage() {
+        double loadAverage;
+        try {
+            OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+            loadAverage = osBean.getSystemLoadAverage();
+        } catch (Exception e) {
+            logger.error("get operation system load average exception, try another method ", e);
+            loadAverage = hal.getProcessor().getSystemLoadAverage(1)[0];
+            if (Double.isNaN(loadAverage)) {
+                return NEGATIVE_ONE;
+            }
+        }
+        DecimalFormat df = new DecimalFormat(TWO_DECIMAL);
+        df.setRoundingMode(RoundingMode.HALF_UP);
+        return Double.parseDouble(df.format(loadAverage));
+    }
+
+    /**
      * get cpu usage
      *
      * @return cpu usage
      */
-    public static double cpuUsagePercentage() {
+    public static double cpuUsage() {
         CentralProcessor processor = hal.getProcessor();
 
         // Check if > ~ 0.95 seconds since last tick count.
@@ -137,10 +175,6 @@ public class OSUtils {
         return Double.parseDouble(df.format(cpuUsage));
     }
 
-    public static double memoryUsagePercentage() {
-        return (TOTAL_MEMORY - availablePhysicalMemorySize()) / TOTAL_MEMORY;
-    }
-
     public static List<String> getUserList() {
         try {
             if (SystemUtils.IS_OS_MAC) {
@@ -151,7 +185,7 @@ public class OSUtils {
                 return getUserListFromLinux();
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
 
         return Collections.emptyList();
@@ -249,7 +283,7 @@ public class OSUtils {
         } catch (Exception e) {
             // because ShellExecutor method throws exception to the linux return status is not 0
             // not exist user return status is 1
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
         return false;
     }
@@ -263,7 +297,7 @@ public class OSUtils {
         // if not exists this user, then create
         if (!getUserList().contains(userName)) {
             boolean isSuccess = createUser(userName);
-            log.info("create user {} {}", userName, isSuccess ? "success" : "fail");
+            logger.info("create user {} {}", userName, isSuccess ? "success" : "fail");
         }
     }
 
@@ -278,7 +312,7 @@ public class OSUtils {
             String userGroup = getGroup();
             if (StringUtils.isEmpty(userGroup)) {
                 String errorLog = String.format("%s group does not exist for this operating system.", userGroup);
-                log.error(errorLog);
+                logger.error(errorLog);
                 return false;
             }
             if (SystemUtils.IS_OS_MAC) {
@@ -290,7 +324,7 @@ public class OSUtils {
             }
             return true;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
 
         return false;
@@ -304,9 +338,9 @@ public class OSUtils {
      * @throws IOException in case of an I/O error
      */
     private static void createLinuxUser(String userName, String userGroup) throws IOException {
-        log.info("create linux os user: {}", userName);
+        logger.info("create linux os user: {}", userName);
         String cmd = String.format("sudo useradd -g %s %s", userGroup, userName);
-        log.info("execute cmd: {}", cmd);
+        logger.info("execute cmd: {}", cmd);
         exeCmd(cmd);
     }
 
@@ -318,14 +352,14 @@ public class OSUtils {
      * @throws IOException in case of an I/O error
      */
     private static void createMacUser(String userName, String userGroup) throws IOException {
-        log.info("create mac os user: {}", userName);
+        logger.info("create mac os user: {}", userName);
 
         String createUserCmd = String.format("sudo sysadminctl -addUser %s -password %s", userName, userName);
-        log.info("create user command: {}", createUserCmd);
+        logger.info("create user command: {}", createUserCmd);
         exeCmd(createUserCmd);
 
         String appendGroupCmd = String.format("sudo dseditgroup -o edit -a %s -t user %s", userName, userGroup);
-        log.info("append user to group: {}", appendGroupCmd);
+        logger.info("append user to group: {}", appendGroupCmd);
         exeCmd(appendGroupCmd);
     }
 
@@ -337,14 +371,14 @@ public class OSUtils {
      * @throws IOException in case of an I/O error
      */
     private static void createWindowsUser(String userName, String userGroup) throws IOException {
-        log.info("create windows os user: {}", userName);
+        logger.info("create windows os user: {}", userName);
 
         String userCreateCmd = String.format("net user \"%s\" /add", userName);
-        log.info("execute create user command: {}", userCreateCmd);
+        logger.info("execute create user command: {}", userCreateCmd);
         exeCmd(userCreateCmd);
 
         String appendGroupCmd = String.format("net localgroup \"%s\" \"%s\" /add", userGroup, userName);
-        log.info("execute append user to group: {}", appendGroupCmd);
+        logger.info("execute append user to group: {}", appendGroupCmd);
         exeCmd(appendGroupCmd);
     }
 
@@ -387,8 +421,6 @@ public class OSUtils {
         if (!isSudoEnable() || StringUtils.isEmpty(tenantCode)) {
             return command;
         }
-        tenantCode = TenantConstants.DEFAULT_TENANT_CODE.equals(tenantCode) ? TenantConstants.BOOTSTRAPT_SYSTEM_USER
-                : tenantCode;
         return String.format("sudo -u %s %s", tenantCode, command);
     }
 
@@ -436,32 +468,22 @@ public class OSUtils {
     /**
      * Check memory and cpu usage is overload the given thredshod.
      *
-     * @param maxCpuLoadAvgThreshold  maxCpuLoadAvg
-     * @param reservedMemoryThreshold reservedMemory
+     * @param maxCpuLoadAvg  maxCpuLoadAvg
+     * @param reservedMemory reservedMemory
      * @return True, if the cpu or memory exceed the given thredshod.
      */
-    public static Boolean isOverload(double maxCpuLoadAvgThreshold, double reservedMemoryThreshold) {
+    public static Boolean isOverload(double maxCpuLoadAvg, double reservedMemory) {
         // system load average
-        double freeCPUPercentage = 1 - cpuUsagePercentage();
+        double loadAverage = loadAverage();
         // system available physical memory
-        double freeMemoryPercentage = 1 - memoryUsagePercentage();
-        if (freeCPUPercentage > maxCpuLoadAvgThreshold) {
-            log.warn("Current cpu load average {} is too high, max.cpuLoad.avg={}", freeCPUPercentage,
-                    maxCpuLoadAvgThreshold);
-            return true;
-        }
-
-        if (freeMemoryPercentage < reservedMemoryThreshold) {
-            log.warn(
-                    "Current available memory percentage{} is too low, reserved.memory={}", freeMemoryPercentage,
-                    reservedMemoryThreshold);
+        double availablePhysicalMemorySize = availablePhysicalMemorySize();
+        if (loadAverage > maxCpuLoadAvg || availablePhysicalMemorySize < reservedMemory) {
+            logger.warn(
+                    "Current cpu load average {} is too high or available memory {}G is too low, under max.cpuLoad.avg={} and reserved.memory={}G",
+                    loadAverage, availablePhysicalMemorySize, maxCpuLoadAvg, reservedMemory);
             return true;
         }
         return false;
-    }
-
-    public static Boolean isWindows() {
-        return System.getProperty("os.name").startsWith("Windows");
     }
 
 }

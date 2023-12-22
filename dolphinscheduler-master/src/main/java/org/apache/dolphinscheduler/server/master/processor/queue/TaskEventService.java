@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,8 +39,12 @@ import org.springframework.stereotype.Component;
  * task manager
  */
 @Component
-@Slf4j
 public class TaskEventService {
+
+    /**
+     * logger
+     */
+    private final Logger logger = LoggerFactory.getLogger(TaskEventService.class);
 
     /**
      * attemptQueue
@@ -60,14 +64,14 @@ public class TaskEventService {
     @PostConstruct
     public void start() {
         this.taskEventThread = new TaskEventDispatchThread();
-        log.info("TaskEvent dispatch thread starting");
+        logger.info("TaskEvent dispatch thread starting");
         this.taskEventThread.start();
-        log.info("TaskEvent dispatch thread started");
+        logger.info("TaskEvent dispatch thread started");
 
         this.taskEventHandlerThread = new TaskEventHandlerThread();
-        log.info("TaskEvent handle thread staring");
+        logger.info("TaskEvent handle thread staring");
         this.taskEventHandlerThread.start();
-        log.info("TaskEvent handle thread started");
+        logger.info("TaskEvent handle thread started");
     }
 
     @PreDestroy
@@ -84,7 +88,7 @@ public class TaskEventService {
                 taskExecuteThreadPool.eventHandler();
             }
         } catch (Exception e) {
-            log.error("TaskEventService stop error:", e);
+            logger.error("TaskEventService stop error:", e);
         }
     }
 
@@ -117,10 +121,10 @@ public class TaskEventService {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (Exception e) {
-                    log.error("persist task error", e);
+                    logger.error("persist task error", e);
                 }
             }
-            log.info("StateEventResponseWorker stopped");
+            logger.info("StateEventResponseWorker stopped");
         }
     }
 
@@ -135,17 +139,17 @@ public class TaskEventService {
 
         @Override
         public void run() {
-            log.info("event handler thread started");
+            logger.info("event handler thread started");
             while (!ServerLifeCycleManager.isStopped()) {
                 try {
                     taskExecuteThreadPool.eventHandler();
                     TimeUnit.MILLISECONDS.sleep(Constants.SLEEP_TIME_MILLIS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    log.warn("TaskEvent handle thread interrupted, will return this loop");
+                    logger.warn("TaskEvent handle thread interrupted, will return this loop");
                     break;
                 } catch (Exception e) {
-                    log.error("event handler thread error", e);
+                    logger.error("event handler thread error", e);
                 }
             }
         }

@@ -24,9 +24,9 @@ import org.apache.dolphinscheduler.alert.api.ShowType;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * WeChatSenderTest
@@ -55,7 +55,7 @@ public class WeChatSenderTest {
             +
             "\"Notify group\" :\"4\"}]";
 
-    @BeforeEach
+    @Before
     public void initDingTalkConfig() {
         // Just for this test, I will delete these configurations before this PR is merged
         weChatConfig.put(WeChatAlertParamsConstants.NAME_ENTERPRISE_WE_CHAT_AGENT_ID, "100000");
@@ -71,7 +71,7 @@ public class WeChatSenderTest {
         WeChatSender weChatSender = new WeChatSender(weChatConfig);
 
         AlertResult alertResult = weChatSender.sendEnterpriseWeChat("test", content);
-        Assertions.assertEquals("false", alertResult.getStatus());
+        Assert.assertEquals("false", alertResult.getStatus());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class WeChatSenderTest {
         weChatConfig.put(AlertConstants.NAME_SHOW_TYPE, ShowType.TEXT.getDescp());
         WeChatSender weChatSender = new WeChatSender(weChatConfig);
         AlertResult alertResult = weChatSender.sendEnterpriseWeChat("test", content);
-        Assertions.assertEquals("false", alertResult.getStatus());
+        Assert.assertEquals("false", alertResult.getStatus());
     }
 
 }

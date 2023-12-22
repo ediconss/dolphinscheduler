@@ -18,22 +18,52 @@
 package org.apache.dolphinscheduler.plugin.task.dvc;
 
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
+import org.apache.dolphinscheduler.common.utils.PropertyUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContextCacheManager;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import java.util.Date;
+import java.util.UUID;
 
-@ExtendWith(MockitoExtension.class)
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({
+        JSONUtils.class,
+        PropertyUtils.class,
+})
+@PowerMockIgnore({"javax.*"})
+@SuppressStaticInitializationFor("org.apache.dolphinscheduler.spi.utils.PropertyUtils")
 public class DvcTaskTest {
+
+    @Before
+    public void before() throws Exception {
+        PowerMockito.mockStatic(PropertyUtils.class);
+    }
 
     public TaskExecutionContext createContext(DvcParameters dvcParameters) {
         String parameters = JSONUtils.toJsonString(dvcParameters);
         TaskExecutionContext taskExecutionContext = Mockito.mock(TaskExecutionContext.class);
         Mockito.when(taskExecutionContext.getTaskParams()).thenReturn(parameters);
+        Mockito.when(taskExecutionContext.getTaskLogName()).thenReturn("DvcTest");
+        Mockito.when(taskExecutionContext.getExecutePath()).thenReturn("/tmp/dolphinscheduler_dvc_test");
+        Mockito.when(taskExecutionContext.getTaskAppId()).thenReturn(UUID.randomUUID().toString());
+        Mockito.when(taskExecutionContext.getStartTime()).thenReturn(new Date());
+        Mockito.when(taskExecutionContext.getTaskTimeout()).thenReturn(10000);
+        Mockito.when(taskExecutionContext.getLogPath()).thenReturn("/tmp/dolphinscheduler_dvc_test/log");
+        Mockito.when(taskExecutionContext.getEnvironmentConfig()).thenReturn("export PATH=$HOME/anaconda3/bin:$PATH");
+
+        String userName = System.getenv().get("USER");
+        Mockito.when(taskExecutionContext.getTenantCode()).thenReturn(userName);
 
         TaskExecutionContextCacheManager.cacheTaskExecutionContext(taskExecutionContext);
         return taskExecutionContext;
@@ -51,7 +81,7 @@ public class DvcTaskTest {
     @Test
     public void testDvcUpload() throws Exception {
         DvcTask dvcTask = initTask(createUploadParameters());
-        Assertions.assertEquals(dvcTask.buildCommand(),
+        Assert.assertEquals(dvcTask.buildCommand(),
                 "which dvc || { echo \"dvc does not exist\"; exit 1; }; DVC_REPO=git@github.com:<YOUR-NAME-OR-ORG>/dvc-data-repository-example\n"
                         +
                         "DVC_DATA_PATH=/home/<YOUR-NAME-OR-ORG>/test\n" +
@@ -71,7 +101,7 @@ public class DvcTaskTest {
     @Test
     public void testDvcDownload() throws Exception {
         DvcTask dvcTask = initTask(createDownloadParameters());
-        Assertions.assertEquals(dvcTask.buildCommand(),
+        Assert.assertEquals(dvcTask.buildCommand(),
                 "which dvc || { echo \"dvc does not exist\"; exit 1; }; DVC_REPO=git@github.com:<YOUR-NAME-OR-ORG>/dvc-data-repository-example\n"
                         +
                         "DVC_DATA_PATH=data\n" +
@@ -83,7 +113,7 @@ public class DvcTaskTest {
     @Test
     public void testInitDvc() throws Exception {
         DvcTask dvcTask = initTask(createInitDvcParameters());
-        Assertions.assertEquals(dvcTask.buildCommand(),
+        Assert.assertEquals(dvcTask.buildCommand(),
                 "which dvc || { echo \"dvc does not exist\"; exit 1; }; DVC_REPO=git@github.com:<YOUR-NAME-OR-ORG>/dvc-data-repository-example\n"
                         +
                         "git clone $DVC_REPO dvc-repository; cd dvc-repository; pwd\n" +

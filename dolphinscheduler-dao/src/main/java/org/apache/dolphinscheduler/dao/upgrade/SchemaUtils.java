@@ -28,8 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import com.google.common.base.Strings;
@@ -37,8 +37,9 @@ import com.google.common.base.Strings;
 /**
  * Metadata related common classes
  */
-@Slf4j
 public class SchemaUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(SchemaUtils.class);
 
     private SchemaUtils() {
         throw new UnsupportedOperationException("Construct SchemaUtils");
@@ -66,7 +67,7 @@ public class SchemaUtils {
 
                 return -1;
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             }
         }).collect(Collectors.toList());
@@ -112,7 +113,7 @@ public class SchemaUtils {
             softVersion = FileUtils.readFile2Str(inputStream);
             softVersion = Strings.nullToEmpty(softVersion).replaceAll("\\s+|\r|\n", "");
         } catch (FileNotFoundException e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException(
                     "Failed to get the product version description file. The file could not be found", e);
         }

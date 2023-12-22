@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +36,11 @@ import org.springframework.stereotype.Service;
  * task definition service impl
  */
 @Service
-@Slf4j
 public class EnvironmentWorkerGroupRelationServiceImpl extends BaseServiceImpl
         implements
             EnvironmentWorkerGroupRelationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EnvironmentWorkerGroupRelationServiceImpl.class);
 
     @Autowired
     private EnvironmentWorkerGroupRelationMapper environmentWorkerGroupRelationMapper;

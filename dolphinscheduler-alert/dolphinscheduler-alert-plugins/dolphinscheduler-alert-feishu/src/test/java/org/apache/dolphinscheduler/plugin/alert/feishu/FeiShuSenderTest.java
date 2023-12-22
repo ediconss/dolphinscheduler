@@ -23,15 +23,15 @@ import org.apache.dolphinscheduler.alert.api.AlertResult;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FeiShuSenderTest {
 
     private static Map<String, String> feiShuConfig = new HashMap<>();
 
-    @BeforeEach
+    @Before
     public void initFeiShuConfig() {
         feiShuConfig.put(FeiShuParamsConstants.WEB_HOOK, "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx");
     }
@@ -43,7 +43,7 @@ public class FeiShuSenderTest {
         alertData.setContent("feishu test content");
         FeiShuSender feiShuSender = new FeiShuSender(feiShuConfig);
         AlertResult alertResult = feiShuSender.sendFeiShuMsg(alertData);
-        Assertions.assertEquals("false", alertResult.getStatus());
+        Assert.assertEquals("false", alertResult.getStatus());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class FeiShuSenderTest {
         AlertData alertData = new AlertData();
         alertData.setTitle("");
         alertData.setContent(alertMsg);
-        Assertions.assertNotNull(FeiShuSender.formatContent(alertData));
+        Assert.assertNotNull(FeiShuSender.formatContent(alertData));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class FeiShuSenderTest {
         alertData.setContent("feishu test content");
         FeiShuSender feiShuSender = new FeiShuSender(feiShuConfig);
         String alertResult = feiShuSender.formatContent(alertData);
-        Assertions.assertEquals(alertResult, alertData.getTitle() + alertData.getContent());
+        Assert.assertEquals(alertResult, alertData.getTitle() + alertData.getContent());
     }
 
     @Test
@@ -87,12 +87,12 @@ public class FeiShuSenderTest {
 
         FeiShuSender feiShuSender = new FeiShuSender(feiShuConfig);
         AlertResult alertResult = feiShuSender.checkSendFeiShuSendMsgResult("");
-        Assertions.assertFalse(Boolean.valueOf(alertResult.getStatus()));
+        Assert.assertFalse(Boolean.valueOf(alertResult.getStatus()));
         AlertResult alertResult2 = feiShuSender.checkSendFeiShuSendMsgResult("123");
-        Assertions.assertEquals("send fei shu msg fail", alertResult2.getMessage());
+        Assert.assertEquals("send fei shu msg fail", alertResult2.getMessage());
 
         String response = "{\"StatusCode\":\"0\",\"extra\":\"extra\",\"StatusMessage\":\"StatusMessage\"}";
         AlertResult alertResult3 = feiShuSender.checkSendFeiShuSendMsgResult(response);
-        Assertions.assertTrue(Boolean.valueOf(alertResult3.getStatus()));
+        Assert.assertTrue(Boolean.valueOf(alertResult3.getStatus()));
     }
 }

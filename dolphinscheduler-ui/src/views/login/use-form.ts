@@ -26,8 +26,7 @@ export function useForm() {
     loginFormRef: ref(),
     loginForm: {
       userName: '',
-      userPassword: '',
-      ssoLoginUrl: ''
+      userPassword: ''
     },
     rules: {
       userName: {

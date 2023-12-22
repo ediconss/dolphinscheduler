@@ -18,9 +18,7 @@
 package org.apache.dolphinscheduler.plugin.alert.wechat;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.dolphinscheduler.plugin.alert.wechat.WeChatAlertConstants.WE_CHAT_DUPLICATE_CHECK_INTERVAL_ZERO;
-import static org.apache.dolphinscheduler.plugin.alert.wechat.WeChatAlertConstants.WE_CHAT_ENABLE_ID_TRANS;
-import static org.apache.dolphinscheduler.plugin.alert.wechat.WeChatAlertConstants.WE_CHAT_MESSAGE_SAFE_PUBLICITY;
+import static org.apache.dolphinscheduler.plugin.alert.wechat.WeChatAlertConstants.*;
 
 import org.apache.dolphinscheduler.alert.api.AlertConstants;
 import org.apache.dolphinscheduler.alert.api.AlertResult;
@@ -44,11 +42,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public final class WeChatSender {
 
+    private static final Logger logger = LoggerFactory.getLogger(WeChatSender.class);
     private static final String MUST_NOT_NULL = " must not null";
     private static final String ALERT_STATUS = "false";
     private static final String AGENT_ID_REG_EXP = "{agentId}";
@@ -92,7 +91,7 @@ public final class WeChatSender {
             } finally {
                 response.close();
             }
-            log.info("Enterprise WeChat send [{}], param:{}, resp:{}",
+            logger.info("Enterprise WeChat send [{}], param:{}, resp:{}",
                     url, data, resp);
             return resp;
         }
@@ -109,7 +108,7 @@ public final class WeChatSender {
         if (StringUtils.isNotEmpty(content)) {
             List<LinkedHashMap> mapItemsList = JSONUtils.toList(content, LinkedHashMap.class);
             if (null == mapItemsList || mapItemsList.isEmpty()) {
-                log.error("itemsList is null");
+                logger.error("itemsList is null");
                 throw new RuntimeException("itemsList is null");
             }
 
@@ -174,13 +173,13 @@ public final class WeChatSender {
 
         if (null == result) {
             alertResult.setMessage("we chat send fail");
-            log.info("send we chat msg error,resp is null");
+            logger.info("send we chat msg error,resp is null");
             return alertResult;
         }
         WeChatSendMsgResponse sendMsgResponse = JSONUtils.parseObject(result, WeChatSendMsgResponse.class);
         if (null == sendMsgResponse) {
             alertResult.setMessage("we chat send fail");
-            log.info("send we chat msg error,resp error");
+            logger.info("send we chat msg error,resp error");
             return alertResult;
         }
         if (sendMsgResponse.errcode == 0) {
@@ -228,7 +227,7 @@ public final class WeChatSender {
         try {
             return checkWeChatSendMsgResult(post(enterpriseWeChatPushUrlReplace, msgJson));
         } catch (Exception e) {
-            log.info("send we chat alert msg  exception : {}", e.getMessage());
+            logger.info("send we chat alert msg  exception : {}", e.getMessage());
             alertResult = new AlertResult();
             alertResult.setMessage("send we chat alert fail");
             alertResult.setStatus(ALERT_STATUS);
@@ -249,7 +248,7 @@ public final class WeChatSender {
         try {
             return get(weChatTokenUrlReplace);
         } catch (IOException e) {
-            log.info("we chat alert get token error{}", e.getMessage());
+            logger.info("we chat alert get token error{}", e.getMessage());
         }
         return null;
     }

@@ -33,9 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,7 +48,7 @@ public class DataQualityParameterTest {
 
     private DataQualityParameters dataQualityParameters = null;
 
-    @BeforeEach
+    @Before
     public void before() {
         dataQualityParameters = new DataQualityParameters();
         dataQualityParameters.setRuleId(1);
@@ -61,7 +61,6 @@ public class DataQualityParameterTest {
         Map<String, String> inputParameterValue = new HashMap<>();
         inputParameterValue.put("src_connector_type", "JDBC");
         inputParameterValue.put("src_datasource_id", "1");
-        inputParameterValue.put("src_database", "test");
         inputParameterValue.put("src_table", "test1");
         inputParameterValue.put("src_filter", "date=2012-10-05");
         inputParameterValue.put("src_field", "id");
@@ -76,7 +75,7 @@ public class DataQualityParameterTest {
 
         dataQualityParameters.setRuleInputParameter(inputParameterValue);
 
-        Assertions.assertTrue(dataQualityParameters.checkParameters());
+        Assert.assertTrue(dataQualityParameters.checkParameters());
     }
 
     @Test
@@ -126,9 +125,9 @@ public class DataQualityParameterTest {
         try {
             result = mapper.writeValueAsString(pluginParamsList);
         } catch (JsonProcessingException e) {
-            Assertions.fail();
+            Assert.fail();
         }
 
-        Assertions.assertEquals(formCreateJson, result);
+        Assert.assertEquals(formCreateJson, result);
     }
 }

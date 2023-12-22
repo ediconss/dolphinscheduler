@@ -56,10 +56,3 @@ export function updateQueue(data: QueueReq, idReq: IdReq): any {
     data
   })
 }
-
-export function deleteQueueById(id: number): any {
-  return axios({
-    url: `/queues/${id}`,
-    method: 'delete'
-  })
-}

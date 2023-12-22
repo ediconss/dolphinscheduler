@@ -21,6 +21,7 @@ import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.Flag;
 import org.apache.dolphinscheduler.common.enums.ReleaseState;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils;
+import org.apache.dolphinscheduler.common.utils.ConnectionUtils;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
 
 import java.sql.Connection;
@@ -31,10 +32,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class ProcessDefinitionDao {
+
+    public static final Logger logger = LoggerFactory.getLogger(ProcessDefinitionDao.class);
 
     /**
      * queryAllProcessDefinition
@@ -47,9 +50,11 @@ public class ProcessDefinitionDao {
         Map<Integer, String> processDefinitionJsonMap = new HashMap<>();
 
         String sql = "SELECT id,process_definition_json FROM t_ds_process_definition";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 Integer id = rs.getInt(1);
@@ -58,8 +63,10 @@ public class ProcessDefinitionDao {
             }
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException("sql: " + sql, e);
+        } finally {
+            ConnectionUtils.releaseResource(rs, pstmt, conn);
         }
 
         return processDefinitionJsonMap;
@@ -82,8 +89,10 @@ public class ProcessDefinitionDao {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException("sql: " + sql, e);
+        } finally {
+            ConnectionUtils.releaseResource(conn);
         }
     }
 
@@ -91,9 +100,11 @@ public class ProcessDefinitionDao {
         List<ProcessDefinition> processDefinitions = new ArrayList<>();
         String sql =
                 "SELECT id,code,project_code,user_id,locations,name,description,release_state,flag,create_time FROM t_ds_process_definition";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
             while (rs.next()) {
                 ProcessDefinition processDefinition = new ProcessDefinition();
                 processDefinition.setId(rs.getInt(1));
@@ -114,8 +125,10 @@ public class ProcessDefinitionDao {
                 processDefinitions.add(processDefinition);
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException("sql: " + sql, e);
+        } finally {
+            ConnectionUtils.releaseResource(rs, pstmt, conn);
         }
         return processDefinitions;
     }
@@ -149,8 +162,10 @@ public class ProcessDefinitionDao {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException("sql: " + sql, e);
+        } finally {
+            ConnectionUtils.releaseResource(conn);
         }
     }
 }

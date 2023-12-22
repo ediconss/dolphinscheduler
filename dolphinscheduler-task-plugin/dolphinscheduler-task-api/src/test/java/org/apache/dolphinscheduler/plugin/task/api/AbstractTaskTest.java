@@ -20,8 +20,8 @@ package org.apache.dolphinscheduler.plugin.task.api;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class AbstractTaskTest {
 
@@ -34,28 +34,8 @@ public class AbstractTaskTest {
         if (matcher.find()) {
             str = matcher.group();
         }
-        Assertions.assertNotNull(str);
-        Assertions.assertEquals(jobId, str.substring(6));
+        Assert.assertNotNull(str);
+        Assert.assertEquals(jobId, str.substring(6));
     }
 
-    @Test
-    public void testSetValue() {
-        Pattern SETVALUE_REGEX = Pattern.compile(TaskConstants.SETVALUE_REGEX);
-        String line1 = "${setValue(sql=\"INSERT INTO a VALUES (1, 2);\")}";
-        String line2 = "${setValue(a=2))}";
-        Matcher matcher1 = SETVALUE_REGEX.matcher(line1);
-        String str1 = null;
-        if (matcher1.find()) {
-            str1 = matcher1.group();
-        }
-        String str2 = null;
-        Matcher matcher2 = SETVALUE_REGEX.matcher(line2);
-        if (matcher2.find()) {
-            str2 = matcher2.group();
-        }
-        Assertions.assertNotNull(str1);
-        Assertions.assertNotNull(str2);
-        Assertions.assertEquals(str1.length(), line1.length());
-        Assertions.assertEquals(str2.length(), line2.length());
-    }
 }

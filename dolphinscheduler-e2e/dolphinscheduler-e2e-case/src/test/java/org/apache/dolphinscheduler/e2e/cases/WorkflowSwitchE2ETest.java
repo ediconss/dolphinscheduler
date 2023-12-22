@@ -34,8 +34,6 @@ import org.apache.dolphinscheduler.e2e.pages.project.workflow.task.ShellTaskForm
 import org.apache.dolphinscheduler.e2e.pages.project.workflow.task.SwitchTaskForm;
 import org.apache.dolphinscheduler.e2e.pages.security.SecurityPage;
 import org.apache.dolphinscheduler.e2e.pages.security.TenantPage;
-
-import org.testcontainers.shaded.org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -45,6 +43,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @DolphinScheduler(composeFiles = "docker/basic/docker-compose.yaml")
 class WorkflowSwitchE2ETest {
@@ -131,10 +130,11 @@ class WorkflowSwitchE2ETest {
 
         workflowForm.submit()
             .name(workflow)
+            .tenant(tenant)
             .addGlobalParam("key", "1")
             .submit();
 
-        Awaitility.await().untilAsserted(() -> assertThat(
+        await().untilAsserted(() -> assertThat(
             workflowDefinitionPage.workflowList()
         ).anyMatch(it -> it.getText().contains(workflow)));
 
@@ -158,7 +158,7 @@ class WorkflowSwitchE2ETest {
                 .run(workflow)
                 .submit();
 
-        Awaitility.await().untilAsserted(() -> {
+        await().untilAsserted(() -> {
             browser.navigate().refresh();
 
             final Row row = projectPage
@@ -176,7 +176,7 @@ class WorkflowSwitchE2ETest {
                 .goToTab(TaskInstanceTab.class)
                 .instances();
 
-        Awaitility.await().untilAsserted(() -> {
+        await().untilAsserted(() -> {
             assertThat(taskInstances.size()).isEqualTo(3);
             assertThat(taskInstances.stream().filter(row -> row.name().contains(ifBranchName)).count()).isEqualTo(1);
             assertThat(taskInstances.stream().noneMatch(row -> row.name().contains(elseBranchName))).isTrue();

@@ -33,8 +33,6 @@ import org.apache.dolphinscheduler.e2e.pages.project.workflow.task.SubWorkflowTa
 import org.apache.dolphinscheduler.e2e.pages.security.SecurityPage;
 import org.apache.dolphinscheduler.e2e.pages.security.TenantPage;
 import org.apache.dolphinscheduler.e2e.pages.security.UserPage;
-
-import org.testcontainers.shaded.org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -45,14 +43,11 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.Duration;
+import static org.awaitility.Awaitility.await;
 
 @DolphinScheduler(composeFiles = "docker/basic/docker-compose.yaml")
 class WorkflowE2ETest {
     private static final String project = "test-workflow-1";
-
-    private static final String workflow = "test-workflow-1";
 
     private static final String user = "admin";
 
@@ -76,7 +71,7 @@ class WorkflowE2ETest {
                 .goToNav(SecurityPage.class)
                 .goToTab(UserPage.class);
 
-        new WebDriverWait(userPage.driver(), Duration.ofSeconds(20)).until(ExpectedConditions.visibilityOfElementLocated(
+        new WebDriverWait(userPage.driver(), 20).until(ExpectedConditions.visibilityOfElementLocated(
                 new By.ByClassName("name")));
 
         userPage.update(user, user, email, phone, tenant)
@@ -91,23 +86,22 @@ class WorkflowE2ETest {
             .goToNav(ProjectPage.class)
             .goTo(project)
             .goToTab(WorkflowDefinitionTab.class)
-            .delete(workflow);
-
+            .cancelPublishAll()
+            .deleteAll()
+        ;
         new NavBarPage(browser)
             .goToNav(ProjectPage.class)
-            .delete(project);
-
-        browser.navigate().refresh();
-
-        new NavBarPage(browser)
+            .delete(project)
             .goToNav(SecurityPage.class)
             .goToTab(TenantPage.class)
-            .delete(tenant);
+            .delete(tenant)
+        ;
     }
 
     @Test
     @Order(1)
     void testCreateWorkflow() {
+        final String workflow = "test-workflow-1";
         WorkflowDefinitionTab workflowDefinitionPage =
             new ProjectPage(browser)
                 .goTo(project)
@@ -124,11 +118,12 @@ class WorkflowE2ETest {
 
             .submit()
             .name(workflow)
+            .tenant(tenant)
             .addGlobalParam("global_param", "hello world")
             .submit()
         ;
 
-        Awaitility.await().untilAsserted(() -> assertThat(workflowDefinitionPage.workflowList())
+        await().untilAsserted(() -> assertThat(workflowDefinitionPage.workflowList())
                 .as("Workflow list should contain newly-created workflow")
                 .anyMatch(
                         it -> it.getText().contains(workflow)
@@ -147,7 +142,7 @@ class WorkflowE2ETest {
                 .goToTab(WorkflowDefinitionTab.class);
 
         workflowDefinitionPage
-            .createSubProcessWorkflow()
+            .createWorkflow()
 
             .<SubWorkflowTaskForm> addTask(TaskType.SUB_PROCESS)
             .childNode("test-workflow-1")
@@ -156,11 +151,12 @@ class WorkflowE2ETest {
 
             .submit()
             .name(workflow)
+            .tenant(tenant)
             .addGlobalParam("global_param", "hello world")
             .submit()
         ;
 
-        Awaitility.await().untilAsserted(() -> assertThat(
+        await().untilAsserted(() -> assertThat(
             workflowDefinitionPage.workflowList()
         ).anyMatch(it -> it.getText().contains(workflow)));
         workflowDefinitionPage.publish(workflow);
@@ -169,6 +165,7 @@ class WorkflowE2ETest {
     @Test
     @Order(30)
     void testRunWorkflow() {
+        final String workflow = "test-workflow-1";
         final ProjectDetailPage projectPage =
                 new ProjectPage(browser)
                         .goToNav(ProjectPage.class)
@@ -182,7 +179,7 @@ class WorkflowE2ETest {
                 .run(workflow)
                 .submit();
 
-        Awaitility.await().untilAsserted(() -> {
+        await().untilAsserted(() -> {
             browser.navigate().refresh();
 
             final Row row = projectPage
@@ -204,7 +201,7 @@ class WorkflowE2ETest {
                 .next()
                 .rerun();
 
-        Awaitility.await().untilAsserted(() -> {
+        await().untilAsserted(() -> {
             browser.navigate().refresh();
 
             final Row row = projectPage

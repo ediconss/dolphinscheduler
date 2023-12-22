@@ -64,8 +64,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -80,8 +80,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * DqRuleServiceImpl
  */
 @Service
-@Slf4j
 public class DqRuleServiceImpl extends BaseServiceImpl implements DqRuleService {
+
+    private final Logger logger = LoggerFactory.getLogger(DqRuleServiceImpl.class);
 
     @Autowired
     private DqRuleMapper dqRuleMapper;
@@ -239,7 +240,7 @@ public class DqRuleServiceImpl extends BaseServiceImpl implements DqRuleService 
         try {
             result = mapper.writeValueAsString(params);
         } catch (JsonProcessingException e) {
-            log.error("Json parse error.", e);
+            logger.error("json parse error : {}", e.getMessage(), e);
         }
 
         return result;

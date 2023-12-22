@@ -18,22 +18,28 @@
 package org.apache.dolphinscheduler.plugin.datasource.athena.param;
 
 import org.apache.dolphinscheduler.common.constants.DataSourceConstants;
+import org.apache.dolphinscheduler.plugin.datasource.api.plugin.DataSourceClientProvider;
+import org.apache.dolphinscheduler.plugin.datasource.api.utils.CommonUtils;
+import org.apache.dolphinscheduler.plugin.datasource.api.utils.DataSourceUtils;
 import org.apache.dolphinscheduler.plugin.datasource.api.utils.PasswordUtils;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
+import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.ImmutableMap;
-
-@ExtendWith(MockitoExtension.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Class.class, DriverManager.class, DataSourceUtils.class, CommonUtils.class,
+        DataSourceClientProvider.class, PasswordUtils.class})
 public class AthenaDataSourceProcessorTest {
 
     private final AthenaDataSourceProcessor athenaDataSourceProcessor = new AthenaDataSourceProcessor();
@@ -48,13 +54,12 @@ public class AthenaDataSourceProcessorTest {
         athenaDataSourceParamDTO.setPassword("123456");
         athenaDataSourceParamDTO.setAwsRegion("cn-north-1");
         athenaDataSourceParamDTO.setOther(props);
-        try (MockedStatic<PasswordUtils> mockedStaticPasswordUtils = Mockito.mockStatic(PasswordUtils.class)) {
-            mockedStaticPasswordUtils.when(() -> PasswordUtils.encodePassword(Mockito.anyString())).thenReturn("test");
-            AthenaConnectionParam connectionParams = (AthenaConnectionParam) this.athenaDataSourceProcessor
-                    .createConnectionParams(athenaDataSourceParamDTO);
-            Assertions.assertEquals("jdbc:awsathena://AwsRegion=cn-north-1;", connectionParams.getAddress());
-            Assertions.assertEquals("jdbc:awsathena://AwsRegion=cn-north-1;", connectionParams.getJdbcUrl());
-        }
+        PowerMockito.mockStatic(PasswordUtils.class);
+        PowerMockito.when(PasswordUtils.encodePassword(Mockito.anyString())).thenReturn("test");
+        AthenaConnectionParam connectionParams = (AthenaConnectionParam) this.athenaDataSourceProcessor
+                .createConnectionParams(athenaDataSourceParamDTO);
+        Assert.assertEquals("jdbc:awsathena://AwsRegion=cn-north-1;", connectionParams.getAddress());
+        Assert.assertEquals("jdbc:awsathena://AwsRegion=cn-north-1;", connectionParams.getJdbcUrl());
     }
 
     @Test
@@ -64,9 +69,9 @@ public class AthenaDataSourceProcessorTest {
                         + ",\"database\":\"\",\"jdbcUrl\":\"jdbc:awsathena://AwsRegion=cn-north-1;\", \"awsRegion\":\"cn-north-1\"}";
         AthenaConnectionParam connectionParams = (AthenaConnectionParam) this.athenaDataSourceProcessor
                 .createConnectionParams(connectionJson);
-        Assertions.assertNotNull(connectionParams);
-        Assertions.assertEquals("awsuser", connectionParams.getUser());
-        Assertions.assertEquals("cn-north-1", connectionParams.getAwsRegion());
+        Assert.assertNotNull(connectionParams);
+        Assert.assertEquals("awsuser", connectionParams.getUser());
+        Assert.assertEquals("cn-north-1", connectionParams.getAwsRegion());
     }
 
     @Test
@@ -78,13 +83,9 @@ public class AthenaDataSourceProcessorTest {
     @Test
     public void testGetJdbcUrl() {
         AthenaConnectionParam athenaConnectionParam = new AthenaConnectionParam();
-        athenaConnectionParam.setJdbcUrl("jdbc:awsathena://AwsRegion=cn-north-1");
-        ImmutableMap<String, String> map = new ImmutableMap.Builder<String, String>()
-                .put("LogLevel", "6")
-                .put("LogPath", "/tmp")
-                .build();
-        athenaConnectionParam.setOther(map);
-        Assertions.assertEquals("jdbc:awsathena://AwsRegion=cn-north-1;LogLevel=6;LogPath=/tmp",
+        athenaConnectionParam.setJdbcUrl("jdbc:awsathena://AwsRegion=cn-north-1;");
+        athenaConnectionParam.setOther("LogLevel=6;LogPath=/tmp;");
+        Assert.assertEquals("jdbc:awsathena://AwsRegion=cn-north-1;LogLevel=6;LogPath=/tmp;",
                 this.athenaDataSourceProcessor.getJdbcUrl(athenaConnectionParam));
 
     }
@@ -93,21 +94,21 @@ public class AthenaDataSourceProcessorTest {
     public void testGetJdbcUrlNoOther() {
         AthenaConnectionParam athenaConnectionParam = new AthenaConnectionParam();
         athenaConnectionParam.setJdbcUrl("jdbc:awsathena://AwsRegion=cn-north-1;");
-        Assertions.assertEquals("jdbc:awsathena://AwsRegion=cn-north-1;",
+        athenaConnectionParam.setOther("");
+        Assert.assertEquals("jdbc:awsathena://AwsRegion=cn-north-1;",
                 this.athenaDataSourceProcessor.getJdbcUrl(athenaConnectionParam));
 
     }
 
     @Test
     public void testGetDbType() {
-        Assertions.assertEquals(DbType.ATHENA, this.athenaDataSourceProcessor.getDbType());
+        Assert.assertEquals(DbType.ATHENA, this.athenaDataSourceProcessor.getDbType());
     }
 
     @Test
     public void testGetValidationQuery() {
         Assertions.assertEquals(DataSourceConstants.ATHENA_VALIDATION_QUERY,
                 this.athenaDataSourceProcessor.getValidationQuery());
-
     }
 
     @Test
@@ -117,8 +118,8 @@ public class AthenaDataSourceProcessorTest {
                         + ",\"database\":\"\",\"jdbcUrl\":\"jdbc:awsathena://AwsRegion=cn-north-1;\", \"awsRegion\":\"cn-north-1\"}";
         AthenaDataSourceParamDTO athenaDataSourceParamDTO = (AthenaDataSourceParamDTO) this.athenaDataSourceProcessor
                 .createDatasourceParamDTO(connectionJson);
-        Assertions.assertEquals("awsuser", athenaDataSourceParamDTO.getUserName());
-        Assertions.assertEquals("cn-north-1", athenaDataSourceParamDTO.getAwsRegion());
-        Assertions.assertEquals("", athenaDataSourceParamDTO.getDatabase());
+        Assert.assertEquals("awsuser", athenaDataSourceParamDTO.getUserName());
+        Assert.assertEquals("cn-north-1", athenaDataSourceParamDTO.getAwsRegion());
+        Assert.assertEquals("", athenaDataSourceParamDTO.getDatabase());
     }
 }

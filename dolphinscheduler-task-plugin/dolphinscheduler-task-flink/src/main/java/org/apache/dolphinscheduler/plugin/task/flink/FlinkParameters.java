@@ -86,7 +86,7 @@ public class FlinkParameters extends AbstractParameters {
     /**
      * The YARN queue to submit to
      */
-    private String yarnQueue;
+    private String queue;
 
     /**
      * other arguments
@@ -194,12 +194,12 @@ public class FlinkParameters extends AbstractParameters {
         this.taskManagerMemory = taskManagerMemory;
     }
 
-    public String getYarnQueue() {
-        return yarnQueue;
+    public String getQueue() {
+        return queue;
     }
 
-    public void setYarnQueue(String yarnQueue) {
-        this.yarnQueue = yarnQueue;
+    public void setQueue(String queue) {
+        this.queue = queue;
     }
 
     public List<ResourceInfo> getResourceList() {

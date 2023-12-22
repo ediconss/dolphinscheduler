@@ -66,4 +66,12 @@ public class DateInterval {
     public int hashCode() {
         return Objects.hash(startTime, endTime);
     }
+
+    @Override
+    public String toString() {
+        return "DateInterval{"
+                + "startTime=" + startTime
+                + ", endTime=" + endTime
+                + '}';
+    }
 }

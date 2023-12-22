@@ -26,11 +26,11 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskCallBack;
 import org.apache.dolphinscheduler.plugin.task.api.TaskConstants;
 import org.apache.dolphinscheduler.plugin.task.api.TaskException;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
+import org.apache.dolphinscheduler.plugin.task.api.model.Property;
 import org.apache.dolphinscheduler.plugin.task.api.model.TaskResponse;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.AbstractParameters;
-import org.apache.dolphinscheduler.plugin.task.api.shell.IShellInterceptorBuilder;
-import org.apache.dolphinscheduler.plugin.task.api.shell.ShellInterceptorBuilderFactory;
-import org.apache.dolphinscheduler.plugin.task.api.utils.ParameterUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParamUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParameterUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,14 +39,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JupyterTask extends AbstractRemoteTask {
 
+    /**
+     * jupyter parameters
+     */
     private JupyterParameters jupyterParameters;
 
+    /**
+     * taskExecutionContext
+     */
     private TaskExecutionContext taskExecutionContext;
 
     private ShellCommandExecutor shellCommandExecutor;
@@ -56,7 +61,7 @@ public class JupyterTask extends AbstractRemoteTask {
         this.taskExecutionContext = taskExecutionContext;
         this.shellCommandExecutor = new ShellCommandExecutor(this::logHandle,
                 taskExecutionContext,
-                log);
+                logger);
     }
 
     @Override
@@ -66,12 +71,12 @@ public class JupyterTask extends AbstractRemoteTask {
 
     @Override
     public void init() {
+        logger.info("jupyter task params {}", taskExecutionContext.getTaskParams());
 
         jupyterParameters = JSONUtils.parseObject(taskExecutionContext.getTaskParams(), JupyterParameters.class);
-        log.info("Initialize jupyter task params {}", JSONUtils.toPrettyJsonString(jupyterParameters));
 
         if (null == jupyterParameters) {
-            log.error("jupyter params is null");
+            logger.error("jupyter params is null");
             return;
         }
 
@@ -84,21 +89,18 @@ public class JupyterTask extends AbstractRemoteTask {
     @Override
     public void handle(TaskCallBack taskCallBack) throws TaskException {
         try {
-            IShellInterceptorBuilder<?, ?> shellActuatorBuilder = ShellInterceptorBuilderFactory.newBuilder()
-                    .properties(ParameterUtils.convert(taskExecutionContext.getPrepareParamsMap()))
-                    .appendScript(buildCommand());
-
-            TaskResponse response = shellCommandExecutor.run(shellActuatorBuilder, taskCallBack);
+            // SHELL task exit code
+            TaskResponse response = shellCommandExecutor.run(buildCommand());
             setExitStatusCode(response.getExitStatusCode());
             setAppIds(String.join(TaskConstants.COMMA, getApplicationIds()));
             setProcessId(response.getProcessId());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("The current Jupyter task has been interrupted", e);
+            logger.error("The current Jupyter task has been interrupted", e);
             setExitStatusCode(TaskConstants.EXIT_CODE_FAILURE);
             throw new TaskException("The current Jupyter task has been interrupted", e);
         } catch (Exception e) {
-            log.error("jupyter task execution failure", e);
+            logger.error("jupyter task execution failure", e);
             exitStatusCode = -1;
             throw new TaskException("Execute jupyter task failed", e);
         }
@@ -115,12 +117,16 @@ public class JupyterTask extends AbstractRemoteTask {
     }
 
     /**
-     * command will be like: papermill [OPTIONS] NOTEBOOK_PATH [OUTPUT_PATH]
+     * create command
+     *
+     * @return command
      */
     protected String buildCommand() throws IOException {
-
+        /**
+         * papermill [OPTIONS] NOTEBOOK_PATH [OUTPUT_PATH]
+         */
         List<String> args = new ArrayList<>();
-        final String condaPath = readCondaPath();
+        final String condaPath = PropertyUtils.getString(TaskConstants.CONDA_PATH);
         final String timestamp = DateUtils.getTimestampString();
         String condaEnvName = jupyterParameters.getCondaEnvName();
         if (condaEnvName.endsWith(JupyterConstants.TXT_SUFFIX)) {
@@ -144,7 +150,11 @@ public class JupyterTask extends AbstractRemoteTask {
         args.add(JupyterConstants.PAPERMILL);
         args.add(jupyterParameters.getInputNotePath());
         args.add(jupyterParameters.getOutputNotePath());
+
+        // populate jupyter parameterization
         args.addAll(populateJupyterParameterization());
+
+        // populate jupyter options
         args.addAll(populateJupyterOptions());
 
         // remove tmp conda env, if created from requirements.txt
@@ -153,14 +163,23 @@ public class JupyterTask extends AbstractRemoteTask {
             args.add(String.format(JupyterConstants.REMOVE_ENV, timestamp));
         }
 
-        return args.stream().collect(Collectors.joining(" "));
+        // replace placeholder, and combining local and global parameters
+        Map<String, Property> paramsMap = taskExecutionContext.getPrepareParamsMap();
+
+        String command = ParameterUtils
+                .convertParameterPlaceholders(String.join(" ", args), ParamUtils.convert(paramsMap));
+
+        logger.info("jupyter task command: {}", command);
+
+        return command;
     }
 
-    protected String readCondaPath() {
-        return PropertyUtils.getString(TaskConstants.CONDA_PATH);
-    }
-
-    protected List<String> populateJupyterParameterization() throws IOException {
+    /**
+     * build jupyter parameterization
+     *
+     * @return argument list
+     */
+    private List<String> populateJupyterParameterization() throws IOException {
         List<String> args = new ArrayList<>();
         String parameters = jupyterParameters.getParameters();
         if (StringUtils.isNotEmpty(parameters)) {
@@ -175,14 +194,19 @@ public class JupyterTask extends AbstractRemoteTask {
                 }
 
             } catch (IOException e) {
-                log.error("fail to parse jupyter parameterization", e);
+                logger.error("fail to parse jupyter parameterization", e);
                 throw e;
             }
         }
         return args;
     }
 
-    protected List<String> populateJupyterOptions() {
+    /**
+     * build jupyter options
+     *
+     * @return argument list
+     */
+    private List<String> populateJupyterOptions() {
         List<String> args = new ArrayList<>();
         String kernel = jupyterParameters.getKernel();
         if (StringUtils.isNotEmpty(kernel)) {

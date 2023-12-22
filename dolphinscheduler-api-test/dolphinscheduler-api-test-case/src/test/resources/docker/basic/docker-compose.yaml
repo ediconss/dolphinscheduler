@@ -26,8 +26,7 @@ services:
     ports:
       - "12345:12345"
     networks:
-      network:
-        ipv4_address: 10.5.0.5
+      - api-test
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:12345/actuator/health" ]
       interval: 5s
@@ -35,9 +34,4 @@ services:
       retries: 120
 
 networks:
-  network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.5.0.0/16
-          gateway: 10.5.0.1
+  api-test:

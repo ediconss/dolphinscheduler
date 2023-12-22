@@ -21,7 +21,8 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import ButtonLink from '@/components/button-link'
 import { RowKey } from 'naive-ui/lib/data-table/src/interface'
-import { NEllipsis, NIcon, NSpin, NTooltip } from 'naive-ui'
+
+import {NEllipsis, NIcon, NSpin, NTooltip} from 'naive-ui'
 import {
   queryProcessInstanceListPaging,
   deleteProcessInstanceById,
@@ -29,10 +30,10 @@ import {
 } from '@/service/modules/process-instances'
 import { execute } from '@/service/modules/executors'
 import TableAction from './components/table-action'
+
 import {
   renderTableTime,
-  runningType,
-  workflowExecutionState
+  runningType, workflowExecutionState
 } from '@/common/common'
 import {
   COLUMN_WIDTH_CONFIG,
@@ -43,7 +44,8 @@ import type { Router } from 'vue-router'
 import type { IWorkflowInstance } from '@/service/modules/process-instances/types'
 import type { ICountDownParam } from './types'
 import type { ExecuteReq } from '@/service/modules/executors/types'
-import { IWorkflowExecutionState } from '@/common/types'
+
+import { IWorkflowExecutionState } from "@/common/types";
 
 export function useTable() {
   const { t } = useI18n()
@@ -64,9 +66,6 @@ export function useTable() {
     startDate: ref(),
     endDate: ref(),
     projectCode: ref(Number(router.currentRoute.value.params.projectCode)),
-    processDefineCode: router.currentRoute.value.query.processDefineCode
-      ? ref(Number(router.currentRoute.value.query.processDefineCode))
-      : ref(),
     loadingRef: ref(false)
   })
 
@@ -88,30 +87,22 @@ export function useTable() {
         key: 'name',
         ...COLUMN_WIDTH_CONFIG['linkName'],
         className: 'workflow-name',
-        resizable: true,
-        width: 300,
-        minWidth: 300,
-        maxWidth: 600,
         render: (row: IWorkflowInstance) =>
           h(
             ButtonLink,
             {
-              onClick: () => {
-                const routeUrl = router.resolve({
+              onClick: () =>
+                void router.push({
                   name: 'workflow-instance-detail',
                   params: { id: row.id },
                   query: { code: row.processDefinitionCode }
                 })
-                window.open(routeUrl.href, '_blank')
-              }
             },
             {
               default: () =>
                 h(
                   NEllipsis,
-                  {
-                    style: 'max-width: 580px;line-height: 1.5'
-                  },
+                  COLUMN_WIDTH_CONFIG['linkEllipsis'],
                   () => row.name
                 )
             }
@@ -122,8 +113,7 @@ export function useTable() {
         key: 'state',
         ...COLUMN_WIDTH_CONFIG['state'],
         className: 'workflow-status',
-        render: (_row: IWorkflowInstance) =>
-          renderWorkflowStateCell(_row.state, t)
+        render: (_row: IWorkflowInstance) => renderWorkflowStateCell(_row.state, t)
       },
       {
         title: t('project.workflow.run_type'),
@@ -258,8 +248,7 @@ export function useTable() {
       host: variables.host,
       stateType: variables.stateType,
       startDate: variables.startDate,
-      endDate: variables.endDate,
-      processDefineCode: variables.processDefineCode
+      endDate: variables.endDate
     }
     queryProcessInstanceListPaging({ ...params }, variables.projectCode).then(
       (res: any) => {
@@ -359,25 +348,22 @@ export function useTable() {
   }
 }
 
-export function renderWorkflowStateCell(
-  state: IWorkflowExecutionState,
-  t: Function
-) {
+export function renderWorkflowStateCell(state: IWorkflowExecutionState, t: Function) {
   if (!state) return ''
 
   const stateOption = workflowExecutionState(t)[state]
 
   const Icon = h(
-    NIcon,
-    {
-      color: stateOption.color,
-      class: stateOption.classNames,
-      style: {
-        display: 'flex'
+      NIcon,
+      {
+        color: stateOption.color,
+        class: stateOption.classNames,
+        style: {
+          display: 'flex'
+        },
+        size: 20
       },
-      size: 20
-    },
-    () => h(stateOption.icon)
+      () => h(stateOption.icon)
   )
   return h(NTooltip, null, {
     trigger: () => {

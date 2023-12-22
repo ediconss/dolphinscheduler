@@ -18,13 +18,12 @@
 package org.apache.dolphinscheduler.server.worker.runner;
 
 import org.apache.dolphinscheduler.common.utils.DateUtils;
-import org.apache.dolphinscheduler.plugin.storage.api.StorageOperate;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
-import org.apache.dolphinscheduler.plugin.task.api.TaskPluginManager;
 import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
-import org.apache.dolphinscheduler.server.worker.registry.WorkerRegistryClient;
 import org.apache.dolphinscheduler.server.worker.rpc.WorkerMessageSender;
-import org.apache.dolphinscheduler.server.worker.rpc.WorkerRpcClient;
+import org.apache.dolphinscheduler.service.alert.AlertClientService;
+import org.apache.dolphinscheduler.service.storage.StorageOperate;
+import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
@@ -37,18 +36,13 @@ public abstract class WorkerDelayTaskExecuteRunnable extends WorkerTaskExecuteRu
 
     protected WorkerDelayTaskExecuteRunnable(@NonNull TaskExecutionContext taskExecutionContext,
                                              @NonNull WorkerConfig workerConfig,
+                                             @NonNull String masterAddress,
                                              @NonNull WorkerMessageSender workerMessageSender,
-                                             @NonNull WorkerRpcClient workerRpcClient,
+                                             @NonNull AlertClientService alertClientService,
                                              @NonNull TaskPluginManager taskPluginManager,
-                                             @Nullable StorageOperate storageOperate,
-                                             @NonNull WorkerRegistryClient workerRegistryClient) {
-        super(taskExecutionContext,
-                workerConfig,
-                workerMessageSender,
-                workerRpcClient,
-                taskPluginManager,
-                storageOperate,
-                workerRegistryClient);
+                                             @Nullable StorageOperate storageOperate) {
+        super(taskExecutionContext, workerConfig, masterAddress, workerMessageSender, alertClientService,
+                taskPluginManager, storageOperate);
     }
 
     @Override
@@ -56,8 +50,7 @@ public abstract class WorkerDelayTaskExecuteRunnable extends WorkerTaskExecuteRu
         TaskExecutionContext taskExecutionContext = getTaskExecutionContext();
         return unit.convert(
                 DateUtils.getRemainTime(
-                        DateUtils.timeStampToDate(taskExecutionContext.getFirstSubmitTime()),
-                        taskExecutionContext.getDelayTime() * 60L),
+                        taskExecutionContext.getFirstSubmitTime(), taskExecutionContext.getDelayTime() * 60L),
                 TimeUnit.SECONDS);
     }
 

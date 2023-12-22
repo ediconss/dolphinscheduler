@@ -20,21 +20,26 @@ package org.apache.dolphinscheduler.plugin.datasource.hive;
 import org.apache.dolphinscheduler.plugin.datasource.hive.param.HiveConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor("org.apache.dolphinscheduler.plugin.datasource.api.client.CommonDataSourceClient")
+@PrepareForTest({HiveDataSourceChannel.class, HiveDataSourceClient.class})
 public class HiveDataSourceChannelTest {
 
     @Test
     public void testCreateDataSourceClient() {
-        HiveDataSourceChannel sourceChannel = Mockito.mock(HiveDataSourceChannel.class);
-        HivePooledDataSourceClient dataSourceClient = Mockito.mock(HivePooledDataSourceClient.class);
-        Mockito.when(sourceChannel.createPooledDataSourceClient(Mockito.any(), Mockito.any()))
+        HiveDataSourceChannel sourceChannel = PowerMockito.mock(HiveDataSourceChannel.class);
+        HiveDataSourceClient dataSourceClient = PowerMockito.mock(HiveDataSourceClient.class);
+        PowerMockito.when(sourceChannel.createDataSourceClient(Mockito.any(), Mockito.any()))
                 .thenReturn(dataSourceClient);
-        Assertions.assertNotNull(sourceChannel.createPooledDataSourceClient(new HiveConnectionParam(), DbType.HIVE));
+        Assert.assertNotNull(sourceChannel.createDataSourceClient(new HiveConnectionParam(), DbType.HIVE));
     }
 }

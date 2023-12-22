@@ -19,13 +19,14 @@ import { toRef, Ref } from 'vue'
 import { formatValidate } from './utils'
 import getField from './fields/get-field'
 import { omit, isFunction } from 'lodash'
-import type { IFormItem, IJsonItem, IFormRules } from './types'
+import type { FormRules } from 'naive-ui'
+import type { IFormItem, IJsonItem } from './types'
 
 export default function getElementByJson(
   json: IJsonItem[],
   fields: { [field: string]: any }
 ) {
-  const rules: IFormRules = {}
+  const rules: FormRules = {}
   const initialValues: { [field: string]: any } = {}
   const elements: IFormItem[] = []
   for (const item of json) {

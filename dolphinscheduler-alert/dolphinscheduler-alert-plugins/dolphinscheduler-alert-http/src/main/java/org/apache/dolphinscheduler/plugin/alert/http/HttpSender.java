@@ -31,21 +31,24 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-@Slf4j
 public final class HttpSender {
 
+    private static final Logger logger = LoggerFactory.getLogger(HttpSender.class);
     private static final String URL_SPLICE_CHAR = "?";
     /**
      * request type post
@@ -91,23 +94,19 @@ public final class HttpSender {
         }
 
         try {
-            String resp = this.getResponseString(httpRequest);
+            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+            CloseableHttpResponse response = httpClient.execute(httpRequest);
+            HttpEntity entity = response.getEntity();
+            String resp = EntityUtils.toString(entity, DEFAULT_CHARSET);
             alertResult.setStatus("true");
             alertResult.setMessage(resp);
         } catch (Exception e) {
-            log.error("send http alert msg  exception : {}", e.getMessage());
+            logger.error("send http alert msg  exception : {}", e.getMessage());
             alertResult.setStatus("false");
             alertResult.setMessage("send http request  alert fail.");
         }
 
         return alertResult;
-    }
-
-    public String getResponseString(HttpRequestBase httpRequest) throws IOException {
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        CloseableHttpResponse response = httpClient.execute(httpRequest);
-        HttpEntity entity = response.getEntity();
-        return EntityUtils.toString(entity, DEFAULT_CHARSET);
     }
 
     private void createHttpRequest(String msg) throws MalformedURLException, URISyntaxException {
@@ -120,7 +119,7 @@ public final class HttpSender {
             // GET request add param in url
             setMsgInUrl(msg);
             URL unencodeUrl = new URL(url);
-            URI uri = new URI(unencodeUrl.getProtocol(), unencodeUrl.getAuthority(), unencodeUrl.getPath(),
+            URI uri = new URI(unencodeUrl.getProtocol(), unencodeUrl.getHost(), unencodeUrl.getPath(),
                     unencodeUrl.getQuery(), null);
 
             httpRequest = new HttpGet(uri);
@@ -163,20 +162,51 @@ public final class HttpSender {
      */
     private void setMsgInRequestBody(String msg) {
         try {
-            ObjectNode objectNode = JSONUtils.createObjectNode();
-            if (StringUtils.isNotBlank(bodyParams)) {
-                objectNode = JSONUtils.parseObject(bodyParams);
-            }
-            // set msg content field
-            objectNode.put(contentField, msg);
-            StringEntity entity = new StringEntity(JSONUtils.toJsonString(objectNode), DEFAULT_CHARSET);
+            logger.info("send http alert msg : {}", msg);
+            ObjectNode objectNode = JSONUtils.parseObject(bodyParams);
+            setJSONObjectData(objectNode, msg, contentField.split("\\."), 0);
+            String jsonString = JSONUtils.toJsonString(objectNode);
+            logger.info("send http alert msg : {}", jsonString);
+            StringEntity entity = new StringEntity(jsonString, DEFAULT_CHARSET);
             ((HttpPost) httpRequest).setEntity(entity);
         } catch (Exception e) {
-            log.error("send http alert msg  exception : {}", e.getMessage());
+            logger.error("send http alert msg  exception : {}", e.getMessage());
         }
     }
 
-    public String getRequestUrl() {
-        return httpRequest.getURI().toString();
+    private static void setJSONObjectData(ObjectNode objectNode, String msg, String[] fieldPath, int i) {
+        if (i == fieldPath.length - 1) {
+            if (objectNode.get(fieldPath[i]) == null) {
+                objectNode.put(fieldPath[i], msg);
+            } else {
+                String content = objectNode.get(fieldPath[i]).asText();
+
+                JsonNode jsonNode;
+                try {
+                    ArrayNode jsonNodes = JSONUtils.parseArray(msg);
+                    jsonNode = jsonNodes.get(0);
+                } catch (Exception e) {
+                    jsonNode = JSONUtils.parseObject(msg);
+                }
+
+                Iterator<String> elements = jsonNode.fieldNames();
+                while (elements.hasNext()) {
+                    String key = elements.next();
+                    String value = jsonNode.get(key).asText();
+                    content = content.replace("$" + key + "", value);
+                }
+                content = content.replace("$all", msg);
+                objectNode.put(fieldPath[i], content);
+                return;
+            }
+            return;
+        }
+        ObjectNode node = (ObjectNode) objectNode.get(fieldPath[i]);
+        if (node == null) {
+            node = JSONUtils.createObjectNode();
+            objectNode.set(fieldPath[i], node);
+        }
+        setJSONObjectData(node, msg, fieldPath, ++i);
     }
+
 }

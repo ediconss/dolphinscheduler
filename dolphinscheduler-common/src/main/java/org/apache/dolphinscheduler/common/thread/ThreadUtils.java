@@ -19,17 +19,19 @@ package org.apache.dolphinscheduler.common.thread;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 @UtilityClass
-@Slf4j
 public class ThreadUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(ThreadUtils.class);
 
     /**
      * Wrapper over newDaemonFixedThreadExecutor.
@@ -43,14 +45,6 @@ public class ThreadUtils {
         return Executors.newFixedThreadPool(threadsNum, threadFactory);
     }
 
-    public static ScheduledExecutorService newSingleDaemonScheduledExecutorService(String threadName) {
-        ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setNameFormat(threadName)
-                .setDaemon(true)
-                .build();
-        return Executors.newSingleThreadScheduledExecutor(threadFactory);
-    }
-
     /**
      * Sleep in given mills, this is not accuracy.
      */
@@ -59,7 +53,7 @@ public class ThreadUtils {
             Thread.sleep(millis);
         } catch (final InterruptedException interruptedException) {
             Thread.currentThread().interrupt();
-            log.error("Current thread sleep error", interruptedException);
+            logger.error("Current thread sleep error", interruptedException);
         }
     }
 }

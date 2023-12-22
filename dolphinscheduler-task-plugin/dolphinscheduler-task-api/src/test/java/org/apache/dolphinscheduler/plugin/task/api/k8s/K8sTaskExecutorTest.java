@@ -20,6 +20,7 @@ package org.apache.dolphinscheduler.plugin.task.api.k8s;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.CLUSTER;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_KILL;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.NAMESPACE_NAME;
+import static org.hamcrest.Matchers.is;
 
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskException;
@@ -27,35 +28,27 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.k8s.impl.K8sTaskExecutor;
 import org.apache.dolphinscheduler.plugin.task.api.model.TaskResponse;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import io.fabric8.kubernetes.api.model.NodeSelectorRequirement;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobStatus;
 
 public class K8sTaskExecutorTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(K8sTaskExecutorTest.class);
-
     private K8sTaskExecutor k8sTaskExecutor = null;
     private K8sTaskMainParameters k8sTaskMainParameters = null;
     private final String image = "ds-dev";
-    private final String imagePullPolicy = "IfNotPresent";
     private final String namespace = "{\"name\":\"default\",\"cluster\":\"lab\"}";
     private final double minCpuCores = 2;
     private final double minMemorySpace = 10;
     private final int taskInstanceId = 1000;
     private final String taskName = "k8s_task_test";
     private Job job;
-    @BeforeEach
+    @Before
     public void before() {
         TaskExecutionContext taskRequest = new TaskExecutionContext();
         taskRequest.setTaskInstanceId(taskInstanceId);
@@ -63,24 +56,13 @@ public class K8sTaskExecutorTest {
         Map<String, String> namespace = JSONUtils.toMap(this.namespace);
         String namespaceName = namespace.get(NAMESPACE_NAME);
         String clusterName = namespace.get(CLUSTER);
-        Map<String, String> labelMap = new HashMap<>();
-        labelMap.put("test", "1234");
-
-        NodeSelectorRequirement requirement = new NodeSelectorRequirement();
-        requirement.setKey("node-label");
-        requirement.setOperator("In");
-        requirement.setValues(Arrays.asList("1234", "123456"));
-        k8sTaskExecutor = new K8sTaskExecutor(logger, taskRequest);
+        k8sTaskExecutor = new K8sTaskExecutor(null, taskRequest);
         k8sTaskMainParameters = new K8sTaskMainParameters();
         k8sTaskMainParameters.setImage(image);
-        k8sTaskMainParameters.setImagePullPolicy(imagePullPolicy);
         k8sTaskMainParameters.setNamespaceName(namespaceName);
         k8sTaskMainParameters.setClusterName(clusterName);
         k8sTaskMainParameters.setMinCpuCores(minCpuCores);
         k8sTaskMainParameters.setMinMemorySpace(minMemorySpace);
-        k8sTaskMainParameters.setCommand("[\"perl\" ,\"-Mbignum=bpi\", \"-wle\", \"print bpi(2000)\"]");
-        k8sTaskMainParameters.setLabelMap(labelMap);
-        k8sTaskMainParameters.setNodeSelectorRequirements(Arrays.asList(requirement));
         job = k8sTaskExecutor.buildK8sJob(k8sTaskMainParameters);
     }
     @Test
@@ -88,22 +70,23 @@ public class K8sTaskExecutorTest {
         JobStatus jobStatus = new JobStatus();
         jobStatus.setSucceeded(1);
         job.setStatus(jobStatus);
-        Assertions.assertEquals(0, Integer.compare(0, k8sTaskExecutor.getK8sJobStatus(job)));
+        Assert.assertEquals(0, Integer.compare(0, k8sTaskExecutor.getK8sJobStatus(job)));
     }
     @Test
     public void testSetTaskStatusNormal() {
         int jobStatus = 0;
         TaskResponse taskResponse = new TaskResponse();
+        K8sTaskMainParameters k8STaskMainParameters = new K8sTaskMainParameters();
         k8sTaskExecutor.setJob(job);
-        k8sTaskExecutor.setTaskStatus(jobStatus, String.valueOf(taskInstanceId), taskResponse);
-        Assertions.assertEquals(0, Integer.compare(EXIT_CODE_KILL, taskResponse.getExitStatusCode()));
+        k8sTaskExecutor.setTaskStatus(jobStatus, String.valueOf(taskInstanceId), taskResponse, k8STaskMainParameters);
+        Assert.assertEquals(0, Integer.compare(EXIT_CODE_KILL, taskResponse.getExitStatusCode()));
     }
     @Test
     public void testWaitTimeoutNormal() {
         try {
             k8sTaskExecutor.waitTimeout(true);
         } catch (TaskException e) {
-            Assertions.assertEquals(e.getMessage(), "K8sTask is timeout");
+            Assert.assertThat(e.getMessage(), is("K8sTask is timeout"));
         }
     }
 }

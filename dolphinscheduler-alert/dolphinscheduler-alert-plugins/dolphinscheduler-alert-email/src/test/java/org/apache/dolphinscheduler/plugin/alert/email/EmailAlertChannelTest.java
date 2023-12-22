@@ -23,6 +23,7 @@ import org.apache.dolphinscheduler.alert.api.AlertInfo;
 import org.apache.dolphinscheduler.alert.api.AlertResult;
 import org.apache.dolphinscheduler.alert.api.ShowType;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
+import org.apache.dolphinscheduler.spi.params.PasswordParam;
 import org.apache.dolphinscheduler.spi.params.PluginParamsTransfer;
 import org.apache.dolphinscheduler.spi.params.base.ParamsOptions;
 import org.apache.dolphinscheduler.spi.params.base.PluginParams;
@@ -35,8 +36,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class EmailAlertChannelTest {
 
@@ -65,8 +66,8 @@ public class EmailAlertChannelTest {
 
         alertInfo.setAlertParams(paramsMap);
         AlertResult alertResult = emailAlertChannel.process(alertInfo);
-        Assertions.assertNotNull(alertResult);
-        Assertions.assertEquals("false", alertResult.getStatus());
+        Assert.assertNotNull(alertResult);
+        Assert.assertEquals("false", alertResult.getStatus());
     }
 
     public String getEmailAlertParams() {
@@ -106,8 +107,9 @@ public class EmailAlertChannelTest {
                 .setValue("dolphinscheduler@126.com")
                 .build();
 
-        InputParam mailPassword = InputParam.newBuilder(MailParamsConstants.NAME_MAIL_PASSWD, "passwd")
+        PasswordParam mailPassword = PasswordParam.newBuilder(MailParamsConstants.NAME_MAIL_PASSWD, "passwd")
                 .setPlaceholder("if enable use authentication, you need input password")
+                .setValue("escheduler123")
                 .build();
 
         RadioParam enableTls =

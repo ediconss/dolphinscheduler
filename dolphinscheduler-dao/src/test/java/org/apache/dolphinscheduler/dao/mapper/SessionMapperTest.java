@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SessionMapperTest extends BaseDaoTest {
@@ -57,7 +57,7 @@ public class SessionMapperTest extends BaseDaoTest {
         session.setLastLoginTime(new Date());
         // update
         int update = sessionMapper.updateById(session);
-        Assertions.assertEquals(1, update);
+        Assert.assertEquals(update, 1);
     }
 
     /**
@@ -67,7 +67,7 @@ public class SessionMapperTest extends BaseDaoTest {
     public void testDelete() {
         Session session = insertOne();
         int delete = sessionMapper.deleteById(session.getId());
-        Assertions.assertEquals(1, delete);
+        Assert.assertEquals(delete, 1);
     }
 
     /**
@@ -78,7 +78,7 @@ public class SessionMapperTest extends BaseDaoTest {
         Session session = insertOne();
         // query
         List<Session> sessions = sessionMapper.selectList(null);
-        Assertions.assertNotEquals(0, sessions.size());
+        Assert.assertNotEquals(sessions.size(), 0);
     }
 
     /**
@@ -88,7 +88,7 @@ public class SessionMapperTest extends BaseDaoTest {
     public void testQueryByUserId() {
         Session session = insertOne();
         List<Session> sessions = sessionMapper.queryByUserId(session.getUserId());
-        Assertions.assertNotEquals(0, sessions.size());
+        Assert.assertNotEquals(sessions.size(), 0);
 
     }
 }

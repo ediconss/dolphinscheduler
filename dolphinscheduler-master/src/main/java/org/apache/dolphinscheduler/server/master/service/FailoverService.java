@@ -17,16 +17,21 @@
 
 package org.apache.dolphinscheduler.server.master.service;
 
-import org.apache.dolphinscheduler.registry.api.enums.RegistryNodeType;
+import org.apache.dolphinscheduler.common.enums.NodeType;
 
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * failover service
+ */
 @Component
-@Slf4j
 public class FailoverService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FailoverService.class);
 
     private final MasterFailoverService masterFailoverService;
     private final WorkerFailoverService workerFailoverService;
@@ -43,17 +48,17 @@ public class FailoverService {
      * @param serverHost server host
      * @param nodeType   node type
      */
-    public void failoverServerWhenDown(String serverHost, RegistryNodeType nodeType) {
+    public void failoverServerWhenDown(String serverHost, NodeType nodeType) {
         switch (nodeType) {
             case MASTER:
-                log.info("Master failover starting, masterServer: {}", serverHost);
+                LOGGER.info("Master failover starting, masterServer: {}", serverHost);
                 masterFailoverService.failoverMaster(serverHost);
-                log.info("Master failover finished, masterServer: {}", serverHost);
+                LOGGER.info("Master failover finished, masterServer: {}", serverHost);
                 break;
             case WORKER:
-                log.info("Worker failover starting, workerServer: {}", serverHost);
+                LOGGER.info("Worker failover staring, workerServer: {}", serverHost);
                 workerFailoverService.failoverWorker(serverHost);
-                log.info("Worker failover finished, workerServer: {}", serverHost);
+                LOGGER.info("Worker failover finished, workerServer: {}", serverHost);
                 break;
             default:
                 break;

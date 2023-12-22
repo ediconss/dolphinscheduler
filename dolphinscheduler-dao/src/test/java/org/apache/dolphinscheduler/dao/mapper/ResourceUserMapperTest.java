@@ -23,8 +23,8 @@ import org.apache.dolphinscheduler.dao.entity.ResourcesUser;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ResourceUserMapperTest extends BaseDaoTest {
@@ -58,7 +58,7 @@ public class ResourceUserMapperTest extends BaseDaoTest {
         queue.setCreateTime(new Date());
         // update
         int update = resourceUserMapper.updateById(queue);
-        Assertions.assertEquals(1, update);
+        Assert.assertEquals(1, update);
     }
 
     /**
@@ -68,7 +68,7 @@ public class ResourceUserMapperTest extends BaseDaoTest {
     public void testDelete() {
         ResourcesUser queue = insertOne();
         int delete = resourceUserMapper.deleteById(queue.getId());
-        Assertions.assertEquals(1, delete);
+        Assert.assertEquals(1, delete);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ResourceUserMapperTest extends BaseDaoTest {
         ResourcesUser queue = insertOne();
         // query
         List<ResourcesUser> queues = resourceUserMapper.selectList(null);
-        Assertions.assertNotEquals(0, queues.size());
+        Assert.assertNotEquals(queues.size(), 0);
     }
 
     /**
@@ -92,7 +92,7 @@ public class ResourceUserMapperTest extends BaseDaoTest {
         int delete = resourceUserMapper.deleteResourceUser(
                 queue.getUserId(),
                 queue.getResourcesId());
-        Assertions.assertNotEquals(0, delete);
+        Assert.assertNotEquals(delete, 0);
     }
 
     /**
@@ -106,6 +106,6 @@ public class ResourceUserMapperTest extends BaseDaoTest {
         int delete = resourceUserMapper.deleteResourceUserArray(
                 resourcesUser.getUserId(),
                 resourceIdArray);
-        Assertions.assertNotEquals(0, delete);
+        Assert.assertNotEquals(delete, 0);
     }
 }

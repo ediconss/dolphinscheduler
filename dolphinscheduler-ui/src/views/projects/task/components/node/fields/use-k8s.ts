@@ -14,12 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  useCustomParams,
-  useNamespace,
-  useCustomLabels,
-  useNodeSelectors
-} from '.'
+import { useCustomParams, useNamespace } from '.'
 import type { IJsonItem } from '../types'
 import { useI18n } from 'vue-i18n'
 
@@ -56,70 +51,14 @@ export function useK8s(model: { [field: string]: any }): IJsonItem[] {
       type: 'input',
       field: 'image',
       name: t('project.node.image'),
-      span: 18,
       props: {
         placeholder: t('project.node.image_tips')
       },
       validate: {
         trigger: ['input', 'blur'],
-        required: true,
-        message: t('project.node.image_tips')
+        message: t('project.node.min_memory_tips')
       }
     },
-    {
-      type: 'select',
-      field: 'imagePullPolicy',
-      name: t('project.node.image_pull_policy'),
-      span: 6,
-      options: IMAGE_PULL_POLICY_LIST,
-      validate: {
-        trigger: ['input', 'blur'],
-        required: true,
-        message: t('project.node.image_pull_policy_tips')
-      }
-    },
-    {
-      type: 'input',
-      field: 'command',
-      name: t('project.node.command'),
-      props: {
-        placeholder: t('project.node.command_tips')
-      }
-    },
-    {
-      type: 'input',
-      field: 'args',
-      name: t('project.node.args'),
-      props: {
-        placeholder: t('project.node.args_tips')
-      }
-    },
-    ...useCustomLabels({
-      model,
-      field: 'customizedLabels',
-      name: 'custom_labels'
-    }),
-    ...useNodeSelectors({
-      model,
-      field: 'nodeSelectors',
-      name: 'node_selectors'
-    }),
     ...useCustomParams({ model, field: 'localParams', isSimple: true })
   ]
 }
-
-
-export const IMAGE_PULL_POLICY_LIST = [
-  {
-    value: 'IfNotPresent',
-    label: 'IfNotPresent'
-  },
-  {
-    value: 'Always',
-    label: 'Always'
-  },
-  {
-    value: 'Never',
-    label: 'Never'
-  }
-]

@@ -33,8 +33,8 @@ import org.apache.dolphinscheduler.service.process.ProcessService;
 
 import java.math.BigDecimal;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,8 +42,9 @@ import org.springframework.stereotype.Component;
  * DataQualityResultOperator
  */
 @Component
-@Slf4j
 public class DataQualityResultOperator {
+
+    private final Logger logger = LoggerFactory.getLogger(DataQualityResultOperator.class);
 
     @Autowired
     private ProcessService processService;
@@ -93,18 +94,18 @@ public class DataQualityResultOperator {
     private void checkDqExecuteResult(TaskEvent taskResponseEvent,
                                       DqExecuteResult dqExecuteResult,
                                       ProcessInstance processInstance) {
-        if (isFailed(dqExecuteResult)) {
+        if (isFailure(dqExecuteResult)) {
             DqFailureStrategy dqFailureStrategy = DqFailureStrategy.of(dqExecuteResult.getFailureStrategy());
             if (dqFailureStrategy != null) {
                 dqExecuteResult.setState(DqTaskState.FAILURE.getCode());
                 sendDqTaskResultAlert(dqExecuteResult, processInstance);
                 switch (dqFailureStrategy) {
                     case ALERT:
-                        log.info("task is failure, continue and alert");
+                        logger.info("task is failure, continue and alert");
                         break;
                     case BLOCK:
                         taskResponseEvent.setState(TaskExecutionStatus.FAILURE);
-                        log.info("task is failure, end and alert");
+                        logger.info("task is failure, end and alert");
                         break;
                     default:
                         break;
@@ -122,7 +123,7 @@ public class DataQualityResultOperator {
      * @param dqExecuteResult
      * @return
      */
-    private boolean isFailed(DqExecuteResult dqExecuteResult) {
+    private boolean isFailure(DqExecuteResult dqExecuteResult) {
         CheckType checkType = CheckType.of(dqExecuteResult.getCheckType());
 
         double statisticsValue = dqExecuteResult.getStatisticsValue();
@@ -131,36 +132,36 @@ public class DataQualityResultOperator {
 
         OperatorType operatorType = OperatorType.of(dqExecuteResult.getOperator());
 
-        boolean isFailed = false;
+        boolean isFailure = false;
         if (operatorType != null) {
             double srcValue = 0;
             switch (checkType) {
                 case COMPARISON_MINUS_STATISTICS:
                     srcValue = comparisonValue - statisticsValue;
-                    isFailed = !getCompareResult(operatorType, srcValue, threshold);
+                    isFailure = getCompareResult(operatorType, srcValue, threshold);
                     break;
                 case STATISTICS_MINUS_COMPARISON:
                     srcValue = statisticsValue - comparisonValue;
-                    isFailed = !getCompareResult(operatorType, srcValue, threshold);
+                    isFailure = getCompareResult(operatorType, srcValue, threshold);
                     break;
                 case STATISTICS_COMPARISON_PERCENTAGE:
                     if (comparisonValue > 0) {
                         srcValue = statisticsValue / comparisonValue * 100;
                     }
-                    isFailed = !getCompareResult(operatorType, srcValue, threshold);
+                    isFailure = getCompareResult(operatorType, srcValue, threshold);
                     break;
                 case STATISTICS_COMPARISON_DIFFERENCE_COMPARISON_PERCENTAGE:
                     if (comparisonValue > 0) {
                         srcValue = Math.abs(comparisonValue - statisticsValue) / comparisonValue * 100;
                     }
-                    isFailed = !getCompareResult(operatorType, srcValue, threshold);
+                    isFailure = getCompareResult(operatorType, srcValue, threshold);
                     break;
                 default:
                     break;
             }
         }
 
-        return isFailed;
+        return isFailure;
     }
 
     private void sendDqTaskResultAlert(DqExecuteResult dqExecuteResult, ProcessInstance processInstance) {

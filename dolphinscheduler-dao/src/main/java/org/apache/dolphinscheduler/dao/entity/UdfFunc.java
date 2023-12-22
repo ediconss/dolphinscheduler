@@ -22,7 +22,6 @@ import org.apache.dolphinscheduler.common.utils.JSONUtils;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Objects;
 
 import lombok.Data;
 
@@ -125,7 +124,7 @@ public class UdfFunc {
 
         UdfFunc udfFunc = (UdfFunc) o;
 
-        if (!Objects.equals(id, udfFunc.id)) {
+        if (id != udfFunc.id) {
             return false;
         }
         return !(funcName != null ? !funcName.equals(udfFunc.funcName) : udfFunc.funcName != null);

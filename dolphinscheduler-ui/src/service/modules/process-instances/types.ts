@@ -79,6 +79,7 @@ interface ProcessInstanceReq {
   scheduleTime?: string
   taskDefinitionJson?: string
   taskRelationJson?: string
+  tenantCode?: string
   timeout?: number
 }
 
@@ -100,7 +101,6 @@ interface IWorkflowInstance {
   count?: number
   disabled?: boolean
   buttonType?: string
-  testFlag: number
 }
 
 export {

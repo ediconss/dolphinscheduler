@@ -18,8 +18,8 @@
 package org.apache.dolphinscheduler.server.worker.rpc;
 
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
-import org.apache.dolphinscheduler.remote.command.BaseMessage;
-import org.apache.dolphinscheduler.remote.command.MessageType;
+import org.apache.dolphinscheduler.remote.command.BaseCommand;
+import org.apache.dolphinscheduler.remote.command.CommandType;
 import org.apache.dolphinscheduler.remote.exceptions.RemotingException;
 import org.apache.dolphinscheduler.server.worker.message.MessageRetryRunner;
 import org.apache.dolphinscheduler.server.worker.message.MessageSender;
@@ -31,14 +31,16 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
 public class WorkerMessageSender {
+
+    private final Logger logger = LoggerFactory.getLogger(WorkerMessageSender.class);
 
     @Autowired
     private MessageRetryRunner messageRetryRunner;
@@ -46,7 +48,7 @@ public class WorkerMessageSender {
     @Autowired
     private List<MessageSender> messageSenders;
 
-    private Map<MessageType, MessageSender> messageSenderMap = new HashMap<>();
+    private Map<CommandType, MessageSender> messageSenderMap = new HashMap<>();
 
     @PostConstruct
     public void init() {
@@ -56,30 +58,33 @@ public class WorkerMessageSender {
 
     // todo: use message rather than context
     public void sendMessageWithRetry(@NonNull TaskExecutionContext taskExecutionContext,
-                                     @NonNull MessageType messageType) {
+                                     @NonNull String messageReceiverAddress,
+                                     @NonNull CommandType messageType) {
         MessageSender messageSender = messageSenderMap.get(messageType);
         if (messageSender == null) {
             throw new IllegalArgumentException("The messageType is invalidated, messageType: " + messageType);
         }
-        BaseMessage baseMessage = messageSender.buildMessage(taskExecutionContext);
+        BaseCommand baseCommand = messageSender.buildMessage(taskExecutionContext, messageReceiverAddress);
         try {
-            messageRetryRunner.addRetryMessage(taskExecutionContext.getTaskInstanceId(), messageType, baseMessage);
-            messageSender.sendMessage(baseMessage);
+            messageRetryRunner.addRetryMessage(taskExecutionContext.getTaskInstanceId(), messageType, baseCommand);
+            messageSender.sendMessage(baseCommand);
         } catch (RemotingException e) {
-            log.error("Send message error, messageType: {}, message: {}", messageType, baseMessage);
+            logger.error("Send message error, messageType: {}, message: {}", messageType, baseCommand);
         }
     }
 
-    public void sendMessage(@NonNull TaskExecutionContext taskExecutionContext, @NonNull MessageType messageType) {
+    public void sendMessage(@NonNull TaskExecutionContext taskExecutionContext,
+                            @NonNull String messageReceiverAddress,
+                            @NonNull CommandType messageType) {
         MessageSender messageSender = messageSenderMap.get(messageType);
         if (messageSender == null) {
             throw new IllegalArgumentException("The messageType is invalidated, messageType: " + messageType);
         }
-        BaseMessage baseMessage = messageSender.buildMessage(taskExecutionContext);
+        BaseCommand baseCommand = messageSender.buildMessage(taskExecutionContext, messageReceiverAddress);
         try {
-            messageSender.sendMessage(baseMessage);
+            messageSender.sendMessage(baseCommand);
         } catch (RemotingException e) {
-            log.error("Send message error, messageType: {}, message: {}", messageType, baseMessage);
+            logger.error("Send message error, messageType: {}, message: {}", messageType, baseCommand);
         }
     }
 

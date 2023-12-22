@@ -35,11 +35,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({"id", "pid", "name", "fullName", "description", "isDirctory", "children", "type"})
 public abstract class ResourceComponent {
 
-    public ResourceComponent(int id, String pid, String name, String fullName, String description, boolean isDirctory) {
+    public ResourceComponent(int id, int pid, String name, String fullName, String description, boolean isDirctory) {
         this.id = id;
         this.pid = pid;
         this.name = name;
         this.fullName = fullName;
+        this.description = description;
         this.isDirctory = isDirctory;
         int directoryFlag = isDirctory ? 1 : 0;
         this.idValue = String.format("%s_%s", id, directoryFlag);
@@ -52,7 +53,7 @@ public abstract class ResourceComponent {
     /**
      * parent id
      */
-    protected String pid;
+    protected int pid;
     /**
      * name
      */

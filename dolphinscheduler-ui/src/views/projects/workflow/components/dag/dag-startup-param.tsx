@@ -103,7 +103,6 @@ export default defineComponent({
   render() {
     const { t } = this
 
-    // @ts-ignore
     return (
       <div class={styles.box}>
         <ul class={styles['box-bd']}>
@@ -153,10 +152,6 @@ export default defineComponent({
                 ? this.startupParam?.workerGroup
                 : '-'}
             </span>
-          </li>
-          <li>
-            <span class={styles.tab}>{t('project.workflow.tenant_code')}:</span>
-            <span class={styles.content}>{this.startupParam?.tenantCode}</span>
           </li>
           <li>
             <span class={styles.tab}>

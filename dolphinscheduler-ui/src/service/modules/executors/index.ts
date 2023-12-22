@@ -18,7 +18,6 @@
 import { axios } from '@/service/service'
 import {
   ExecuteReq,
-  ExecuteTaskReq,
   ProjectCodeReq,
   ProcessDefinitionCodeReq,
   ProcessInstanceReq
@@ -27,14 +26,6 @@ import {
 export function execute(data: ExecuteReq, code: number): any {
   return axios({
     url: `/projects/${code}/executors/execute`,
-    method: 'post',
-    data
-  })
-}
-
-export function executeTask(data: ExecuteTaskReq, code: number): any {
-  return axios({
-    url: `/projects/${code}/executors/execute-task`,
     method: 'post',
     data
   })

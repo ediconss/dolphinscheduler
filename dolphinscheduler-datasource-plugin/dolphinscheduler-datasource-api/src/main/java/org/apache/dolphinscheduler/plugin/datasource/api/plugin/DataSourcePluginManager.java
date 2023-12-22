@@ -27,15 +27,17 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class DataSourcePluginManager {
 
-    private final Map<String, DataSourceChannel> datasourceChannelMap = new ConcurrentHashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(DataSourcePluginManager.class);
+
+    private final Map<String, DataSourceChannel> datasourceClientMap = new ConcurrentHashMap<>();
 
     public Map<String, DataSourceChannel> getDataSourceChannelMap() {
-        return Collections.unmodifiableMap(datasourceChannelMap);
+        return Collections.unmodifiableMap(datasourceClientMap);
     }
 
     public void installPlugin() {
@@ -46,20 +48,20 @@ public class DataSourcePluginManager {
             final DataSourceChannelFactory factory = entry.getValue();
             final String name = entry.getKey();
 
-            log.info("Registering datasource plugin: {}", name);
+            logger.info("Registering datasource plugin: {}", name);
 
-            if (datasourceChannelMap.containsKey(name)) {
+            if (datasourceClientMap.containsKey(name)) {
                 throw new IllegalStateException(format("Duplicate datasource plugins named '%s'", name));
             }
 
             loadDatasourceClient(factory);
 
-            log.info("Registered datasource plugin: {}", name);
+            logger.info("Registered datasource plugin: {}", name);
         }
     }
 
     private void loadDatasourceClient(DataSourceChannelFactory datasourceChannelFactory) {
         DataSourceChannel datasourceChannel = datasourceChannelFactory.create();
-        datasourceChannelMap.put(datasourceChannelFactory.getName(), datasourceChannel);
+        datasourceClientMap.put(datasourceChannelFactory.getName(), datasourceChannel);
     }
 }

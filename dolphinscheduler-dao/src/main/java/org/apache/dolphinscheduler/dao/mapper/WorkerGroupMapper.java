@@ -55,7 +55,7 @@ public interface WorkerGroupMapper extends BaseMapper<WorkerGroup> {
     int updateById(@Param("et") WorkerGroup entity);
 
     /**
-     * query worker group by name
+     * query worer grouop by name
      *
      * @param name name
      * @return worker group list

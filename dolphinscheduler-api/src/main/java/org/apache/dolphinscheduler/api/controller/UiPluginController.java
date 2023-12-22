@@ -27,6 +27,8 @@ import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.PluginType;
 import org.apache.dolphinscheduler.dao.entity.User;
 
+import springfox.documentation.annotations.ApiIgnore;
+
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +41,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * ui plugin controller
@@ -51,7 +52,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * We use from-creat to dynamically generate UI interfaces. Related parameters are mainly provided by pluginParams.
  * From-create can generate dynamic ui based on this parameter.
  */
-@Tag(name = "UI_PLUGINS_TAG")
+@Api(tags = "UI_PLUGINS_TAG")
 @RestController
 @RequestMapping("ui-plugins")
 public class UiPluginController extends BaseController {
@@ -59,30 +60,30 @@ public class UiPluginController extends BaseController {
     @Autowired
     UiPluginService uiPluginService;
 
-    @Operation(summary = "queryUiPluginsByType", description = "QUERY_UI_PLUGINS_BY_TYPE")
-    @Parameters({
-            @Parameter(name = "pluginType", description = "pluginType", required = true, schema = @Schema(implementation = PluginType.class)),
+    @ApiOperation(value = "queryUiPluginsByType", notes = "QUERY_UI_PLUGINS_BY_TYPE")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pluginType", value = "pluginType", required = true, dataTypeClass = PluginType.class),
     })
     @GetMapping(value = "/query-by-type")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiException(QUERY_PLUGINS_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result queryUiPluginsByType(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+    public Result queryUiPluginsByType(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                        @RequestParam(value = "pluginType") PluginType pluginType) {
 
         Map<String, Object> result = uiPluginService.queryUiPluginsByType(pluginType);
         return returnDataList(result);
     }
 
-    @Operation(summary = "queryUiPluginDetailById", description = "QUERY_UI_PLUGIN_DETAIL_BY_ID")
-    @Parameters({
-            @Parameter(name = "id", description = "PLUGIN_ID", required = true, schema = @Schema(implementation = int.class, example = "100")),
+    @ApiOperation(value = "queryUiPluginDetailById", notes = "QUERY_UI_PLUGIN_DETAIL_BY_ID")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "PLUGIN_ID", required = true, dataTypeClass = int.class, example = "100"),
     })
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiException(QUERY_PLUGINS_ERROR)
     @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result queryUiPluginDetailById(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+    public Result queryUiPluginDetailById(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                           @PathVariable("id") Integer pluginId) {
 
         Map<String, Object> result = uiPluginService.queryUiPluginDetailById(pluginId);

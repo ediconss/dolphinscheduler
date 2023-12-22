@@ -17,6 +17,8 @@
 
 package org.apache.dolphinscheduler.plugin.alert.email.template;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.dolphinscheduler.alert.api.ShowType;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.alert.email.EmailConstants;
@@ -25,8 +27,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +41,11 @@ public class DefaultHTMLTemplateTest {
 
         String tableTypeMessage = template.getMessageFromTemplate(list2String(), ShowType.TABLE, true);
 
-        Assertions.assertEquals(tableTypeMessage, generateMockTableTypeResultByHand());
+        assertEquals(tableTypeMessage, generateMockTableTypeResultByHand());
 
         String textTypeMessage = template.getMessageFromTemplate(list2String(), ShowType.TEXT, true);
 
-        Assertions.assertEquals(textTypeMessage, generateMockTextTypeResultByHand());
+        assertEquals(textTypeMessage, generateMockTextTypeResultByHand());
 
         String mapjson = "{\"taskInstanceId\":94,\"taskName\":\"000\",\"taskType\":\"DATA_QUALITY\","
                 + "\"processDefinitionId\":0,\"processInstanceId\":58,\"state\":\"RUNNING_EXECUTION\","
@@ -52,7 +53,7 @@ public class DefaultHTMLTemplateTest {
                 + "\"logPath\":\"/Users/mac/学习/dolphinscheduler/dolphinscheduler/logs/20220717/6222644042400_1-58-94.log\"}";
         textTypeMessage = template.getMessageFromTemplate(mapjson, ShowType.TEXT, true);
         String result = textTypeMessage;
-        Assertions.assertEquals(textTypeMessage, result);
+        assertEquals(textTypeMessage, result);
     }
 
     private String list2String() {

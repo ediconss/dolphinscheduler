@@ -17,8 +17,6 @@
 
 package org.apache.dolphinscheduler.plugin.task.sqoop;
 
-import org.apache.commons.lang3.ObjectUtils;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -76,9 +74,6 @@ public class EntityTestUtils {
                     Object[] objects = new Object[parameterTypes.length];
                     for (int i = 0; i < parameterTypes.length; i++) {
                         objects[i] = OBJECT_MAP.get(parameterTypes[i].getName());
-                    }
-                    if (ObjectUtils.allNull(objects)) {
-                        break;
                     }
                     method.invoke(tempInstance, objects);
                 } else {

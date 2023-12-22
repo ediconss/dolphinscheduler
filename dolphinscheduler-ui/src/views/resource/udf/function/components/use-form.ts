@@ -31,8 +31,7 @@ export const useForm = () => {
       argTypes: '',
       database: '',
       description: '',
-      resourceId: -1,
-      fullName: ''
+      resourceId: -1
     },
     saving: false,
     rules: {
@@ -64,19 +63,10 @@ export const useForm = () => {
         }
       },
       resourceId: {
-        required: false,
-        trigger: ['input', 'blur'],
-        validator() {
-          if (state.functionForm.resourceId === -1) {
-            return new Error(t('resource.function.enter_name_tips'))
-          }
-        }
-      },
-      fullName: {
         required: true,
         trigger: ['input', 'blur'],
         validator() {
-          if (state.functionForm.fullName == '') {
+          if (state.functionForm.resourceId === -1) {
             return new Error(t('resource.function.enter_name_tips'))
           }
         }

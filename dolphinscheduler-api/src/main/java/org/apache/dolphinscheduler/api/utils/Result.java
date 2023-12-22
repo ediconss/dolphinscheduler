@@ -51,7 +51,7 @@ public class Result<T> {
         this.msg = msg;
     }
 
-    public Result(Status status) {
+    private Result(Status status) {
         if (status != null) {
             this.code = status.getCode();
             this.msg = status.getMsg();
@@ -75,7 +75,7 @@ public class Result<T> {
         return new Result<>(Status.SUCCESS.getCode(), Status.SUCCESS.getMsg(), data);
     }
 
-    public static <T> Result<T> success() {
+    public static Result success() {
         return success(null);
     }
 

@@ -17,17 +17,17 @@
 
 package org.apache.dolphinscheduler.api.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.annotations.ApiModelProperty;
 
 public class CreateTokenRequest {
 
-    @Schema(example = "1", required = true)
+    @ApiModelProperty(example = "1", required = true)
     Integer userId;
 
-    @Schema(example = "2022-12-31 00:00:00", required = true)
+    @ApiModelProperty(example = "2022-12-31 00:00:00", required = true)
     String expireTime;
 
-    @Schema(example = "abc123xyz")
+    @ApiModelProperty(example = "abc123xyz")
     String token;
 
     public Integer getUserId() {

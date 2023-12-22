@@ -16,7 +16,7 @@
  */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useCustomParams, useMainJar, useResources, useYarnQueue } from '.'
+import { useCustomParams, useMainJar, useResources } from '.'
 import type { IJsonItem } from '../types'
 
 export function useMr(model: { [field: string]: any }): IJsonItem[] {
@@ -68,7 +68,6 @@ export function useMr(model: { [field: string]: any }): IJsonItem[] {
         placeholder: t('project.node.app_name_tips')
       }
     },
-    useYarnQueue(),
     {
       type: 'input',
       field: 'mainArgs',

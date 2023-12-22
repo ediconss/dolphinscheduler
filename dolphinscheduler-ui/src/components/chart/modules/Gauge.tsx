@@ -15,13 +15,7 @@
  * limitations under the License.
  */
 
-import {
-  defineComponent,
-  onMounted,
-  onBeforeUnmount,
-  PropType,
-  ref
-} from 'vue'
+import { defineComponent, PropType, ref } from 'vue'
 import initChart from '@/components/chart'
 import type { Ref } from 'vue'
 
@@ -44,9 +38,6 @@ const GaugeChart = defineComponent({
   props,
   setup(props) {
     const gaugeChartRef: Ref<HTMLDivElement | null> = ref(null)
-    const windowWidth = window.innerWidth
-    // The original size was based on the screen width of 2560
-    const defaultFontSize = windowWidth > 2560 ? 20 : (windowWidth / 2560) * 20
 
     const option = {
       series: [
@@ -81,13 +72,12 @@ const GaugeChart = defineComponent({
           axisLabel: {
             color: 'auto',
             distance: 40,
-            fontSize: defaultFontSize
+            fontSize: 20
           },
           detail: {
             valueAnimation: true,
             formatter: '{value} %',
-            color: 'auto',
-            fontSize: defaultFontSize * 1.5
+            color: 'auto'
           },
           data: [
             {
@@ -98,37 +88,7 @@ const GaugeChart = defineComponent({
       ]
     }
 
-    const resize = (chart: any) => {
-      const clientWidth = gaugeChartRef.value?.clientWidth || 400
-      const axisLabelFontSize =
-        clientWidth > 400
-          ? defaultFontSize
-          : (clientWidth / 400) * defaultFontSize
-      chart &&
-        chart.setOption({
-          series: [
-            {
-              axisLabel: {
-                fontSize: axisLabelFontSize
-              },
-              detail: {
-                fontSize: axisLabelFontSize * 1.5
-              }
-            }
-          ]
-        })
-      chart && chart.resize()
-    }
-
-    initChart(gaugeChartRef, option, resize)
-
-    onMounted(() => {
-      addEventListener('resize', resize)
-    })
-
-    onBeforeUnmount(() => {
-      removeEventListener('resize', resize)
-    })
+    initChart(gaugeChartRef, option)
 
     return { gaugeChartRef }
   },

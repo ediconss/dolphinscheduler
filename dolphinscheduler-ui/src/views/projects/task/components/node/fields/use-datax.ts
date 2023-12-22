@@ -129,9 +129,7 @@ export function useDataX(model: { [field: string]: any }): IJsonItem[] {
     'ORACLE',
     'SQLSERVER',
     'CLICKHOUSE',
-    'DATABEND',
-    'HIVE',
-    'PRESTO'
+    'HIVE'
   ]
   onMounted(() => {
     initConstants()

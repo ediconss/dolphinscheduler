@@ -24,7 +24,6 @@ import lombok.Getter;
 
 import org.apache.dolphinscheduler.e2e.pages.common.NavBarPage;
 
-import java.time.Duration;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -43,7 +42,7 @@ public class UdfManagePage extends NavBarPage implements ResourcePage.Tab {
     @FindBy(className = "btn-create-directory")
     private WebElement buttonCreateDirectory;
 
-    @FindBy(className = "btn-upload-resource")
+    @FindBy(className = "btn-upload-udf")
     private WebElement buttonUploadUdf;
 
     @FindBy(className = "items")
@@ -57,7 +56,7 @@ public class UdfManagePage extends NavBarPage implements ResourcePage.Tab {
 
     private final UploadFileBox uploadFileBox;
 
-    private final RenameBox renameBox;
+    private final RenameDirectoryBox renameDirectoryBox;
 
     private final CreateDirectoryBox createDirectoryBox;
 
@@ -66,22 +65,23 @@ public class UdfManagePage extends NavBarPage implements ResourcePage.Tab {
 
         uploadFileBox = new UploadFileBox();
 
-        renameBox = new RenameBox();
+        renameDirectoryBox = new RenameDirectoryBox();
 
         createDirectoryBox = new CreateDirectoryBox();
     }
 
-    public UdfManagePage createDirectory(String name) {
+    public UdfManagePage createDirectory(String name, String description) {
         buttonCreateDirectory().click();
 
         createDirectoryBox().inputDirectoryName().sendKeys(name);
+        createDirectoryBox().inputDescription().sendKeys(description);
         createDirectoryBox().buttonSubmit().click();
 
         return this;
     }
 
     public UdfManagePage uploadFile(String filePath) {
-        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(buttonUploadUdf));
+        new WebDriverWait(driver, 10).until(ExpectedConditions.elementToBeClickable(buttonUploadUdf));
 
         buttonUploadUdf().click();
 
@@ -110,15 +110,15 @@ public class UdfManagePage extends NavBarPage implements ResourcePage.Tab {
         udfList()
             .stream()
             .filter(it -> it.getText().contains(currentName))
-            .flatMap(it -> it.findElements(By.className("btn-rename")).stream())
+            .flatMap(it -> it.findElements(By.className("btn-edit")).stream())
             .filter(WebElement::isDisplayed)
             .findFirst()
             .orElseThrow(() -> new RuntimeException("No rename button in udf manage list"))
             .click();
 
-        renameBox().inputName().clear();
-        renameBox().inputName().sendKeys(AfterName);
-        renameBox().buttonSubmit().click();
+        renameDirectoryBox().inputName().clear();
+        renameDirectoryBox().inputName().sendKeys(AfterName);
+        renameDirectoryBox().buttonSubmit().click();
 
         return this;
     }
@@ -139,16 +139,22 @@ public class UdfManagePage extends NavBarPage implements ResourcePage.Tab {
     }
 
     @Getter
-    public class RenameBox {
-        RenameBox() {
+    public class RenameDirectoryBox {
+        RenameDirectoryBox() {
             PageFactory.initElements(driver, this);
         }
 
         @FindBys({
-            @FindBy(className = "input-name"),
-            @FindBy(tagName = "input"),
+                @FindBy(className = "input-directory-name"),
+                @FindBy(tagName = "input"),
         })
         private WebElement inputName;
+
+        @FindBys({
+                @FindBy(className = "input-description"),
+                @FindBy(tagName = "textarea"),
+        })
+        private WebElement inputDescription;
 
         @FindBy(className = "btn-submit")
         private WebElement buttonSubmit;
@@ -187,6 +193,12 @@ public class UdfManagePage extends NavBarPage implements ResourcePage.Tab {
                 @FindBy(tagName = "input"),
         })
         private WebElement inputDirectoryName;
+
+        @FindBys({
+                @FindBy(className = "input-description"),
+                @FindBy(tagName = "textarea"),
+        })
+        private WebElement inputDescription;
 
         @FindBy(className = "btn-submit")
         private WebElement buttonSubmit;

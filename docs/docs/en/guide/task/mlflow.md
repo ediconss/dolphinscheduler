@@ -5,7 +5,7 @@
 [MLflow](https://mlflow.org) is an excellent open source platform to manage the ML lifecycle, including experimentation,
 reproducibility, deployment, and a central model registry.
 
-MLflow task plugin used to execute MLflow tasks, Currently contains MLflow Projects and MLflow Models. (Model Registry will soon be rewarded for support)
+MLflow task plugin used to execute MLflow tasks，Currently contains MLflow Projects and MLflow Models. (Model Registry will soon be rewarded for support)
 
 - MLflow Projects: Package data science code in a format to reproduce runs on any platform.
 - MLflow Models: Deploy machine learning models in diverse serving environments.
@@ -81,7 +81,7 @@ The MLflow plugin currently supports and will support the following:
 | Repository      | Repository url of MLflow Project, Support git address and directory on worker. If it's in a subdirectory, We add `#` to support this (same as `mlflow run`) , for example `https://github.com/mlflow/mlflow#examples/xgboost/xgboost_native`. |
 | Project Version | Version of the project, default master.                                                                                                                                                                                                       |
 
-You can now use this feature to run all MLFlow projects on GitHub (For example [MLflow examples](https://github.com/mlflow/mlflow/tree/master/examples) ). You can also create your own machine learning library to reuse your work, and then use DolphinScheduler to use your library with one click.
+You can now use this feature to run all MLFlow projects on Github (For example [MLflow examples](https://github.com/mlflow/mlflow/tree/master/examples) ). You can also create your own machine learning library to reuse your work, and then use DolphinScheduler to use your library with one click.
 
 ### MLflow Models
 

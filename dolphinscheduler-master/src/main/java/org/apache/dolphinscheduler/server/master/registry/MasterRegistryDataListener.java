@@ -17,18 +17,23 @@
 
 package org.apache.dolphinscheduler.server.master.registry;
 
+import static org.apache.dolphinscheduler.common.constants.Constants.REGISTRY_DOLPHINSCHEDULER_MASTERS;
+import static org.apache.dolphinscheduler.common.constants.Constants.REGISTRY_DOLPHINSCHEDULER_WORKERS;
+
 import org.apache.dolphinscheduler.common.constants.Constants;
+import org.apache.dolphinscheduler.common.enums.NodeType;
 import org.apache.dolphinscheduler.registry.api.Event;
 import org.apache.dolphinscheduler.registry.api.SubscribeListener;
-import org.apache.dolphinscheduler.registry.api.enums.RegistryNodeType;
 import org.apache.dolphinscheduler.service.bean.SpringApplicationContext;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
-@Slf4j
 public class MasterRegistryDataListener implements SubscribeListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(MasterRegistryDataListener.class);
 
     private final MasterRegistryClient masterRegistryClient;
 
@@ -43,9 +48,9 @@ public class MasterRegistryDataListener implements SubscribeListener {
             return;
         }
         // monitor master
-        if (path.startsWith(RegistryNodeType.MASTER.getRegistryPath() + Constants.SINGLE_SLASH)) {
+        if (path.startsWith(REGISTRY_DOLPHINSCHEDULER_MASTERS + Constants.SINGLE_SLASH)) {
             handleMasterEvent(event);
-        } else if (path.startsWith(RegistryNodeType.WORKER.getRegistryPath() + Constants.SINGLE_SLASH)) {
+        } else if (path.startsWith(REGISTRY_DOLPHINSCHEDULER_WORKERS + Constants.SINGLE_SLASH)) {
             // monitor worker
             handleWorkerEvent(event);
         }
@@ -55,10 +60,10 @@ public class MasterRegistryDataListener implements SubscribeListener {
         final String path = event.path();
         switch (event.type()) {
             case ADD:
-                log.info("master node added : {}", path);
+                logger.info("master node added : {}", path);
                 break;
             case REMOVE:
-                masterRegistryClient.removeMasterNodePath(path, RegistryNodeType.MASTER, true);
+                masterRegistryClient.removeMasterNodePath(path, NodeType.MASTER, true);
 
                 break;
             default:
@@ -70,11 +75,11 @@ public class MasterRegistryDataListener implements SubscribeListener {
         final String path = event.path();
         switch (event.type()) {
             case ADD:
-                log.info("worker node added : {}", path);
+                logger.info("worker node added : {}", path);
                 break;
             case REMOVE:
-                log.info("worker node deleted : {}", path);
-                masterRegistryClient.removeWorkerNodePath(path, RegistryNodeType.WORKER, true);
+                logger.info("worker node deleted : {}", path);
+                masterRegistryClient.removeWorkerNodePath(path, NodeType.WORKER, true);
                 break;
             default:
                 break;

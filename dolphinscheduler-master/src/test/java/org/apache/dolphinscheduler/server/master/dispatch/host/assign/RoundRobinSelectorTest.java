@@ -20,20 +20,18 @@ package org.apache.dolphinscheduler.server.master.dispatch.host.assign;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * round robin selector
  */
 public class RoundRobinSelectorTest {
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testSelectWithIllegalArgumentException() {
         RoundRobinSelector selector = new RoundRobinSelector();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            selector.select(null);
-        });
+        selector.select(null);
     }
 
     @Test
@@ -50,47 +48,47 @@ public class RoundRobinSelectorTest {
 
         HostWorker result;
         result = selector.select(hostOneList);
-        Assertions.assertEquals("192.168.1.1", result.getIp());
+        Assert.assertEquals("192.168.1.1", result.getIp());
 
         result = selector.select(hostOneList);
-        Assertions.assertEquals("192.168.1.2", result.getIp());
+        Assert.assertEquals("192.168.1.2", result.getIp());
 
         result = selector.select(hostOneList);
-        Assertions.assertEquals("192.168.1.1", result.getIp());
+        Assert.assertEquals("192.168.1.1", result.getIp());
 
         result = selector.select(hostOneList);
-        Assertions.assertEquals("192.168.1.1", result.getIp());
+        Assert.assertEquals("192.168.1.1", result.getIp());
 
         result = selector.select(hostOneList);
-        Assertions.assertEquals("192.168.1.2", result.getIp());
+        Assert.assertEquals("192.168.1.2", result.getIp());
 
         // add new host
         result = selector.select(hostTwoList);
-        Assertions.assertEquals("192.168.1.1", result.getIp());
+        Assert.assertEquals("192.168.1.1", result.getIp());
 
         result = selector.select(hostTwoList);
-        Assertions.assertEquals("192.168.1.3", result.getIp());
+        Assert.assertEquals("192.168.1.3", result.getIp());
 
         result = selector.select(hostTwoList);
-        Assertions.assertEquals("192.168.1.1", result.getIp());
+        Assert.assertEquals("192.168.1.1", result.getIp());
 
         result = selector.select(hostTwoList);
-        Assertions.assertEquals("192.168.1.2", result.getIp());
+        Assert.assertEquals("192.168.1.2", result.getIp());
         result = selector.select(hostTwoList);
-        Assertions.assertEquals("192.168.1.1", result.getIp());
+        Assert.assertEquals("192.168.1.1", result.getIp());
 
         result = selector.select(hostTwoList);
-        Assertions.assertEquals("192.168.1.3", result.getIp());
+        Assert.assertEquals("192.168.1.3", result.getIp());
 
         // remove host3
         result = selector.select(hostOneList);
-        Assertions.assertEquals("192.168.1.1", result.getIp());
+        Assert.assertEquals("192.168.1.1", result.getIp());
 
         result = selector.select(hostOneList);
-        Assertions.assertEquals("192.168.1.2", result.getIp());
+        Assert.assertEquals("192.168.1.2", result.getIp());
 
         result = selector.select(hostOneList);
-        Assertions.assertEquals("192.168.1.1", result.getIp());
+        Assert.assertEquals("192.168.1.1", result.getIp());
     }
 
     @Test
@@ -100,7 +98,7 @@ public class RoundRobinSelectorTest {
         result = selector.select(
                 Arrays.asList(new HostWorker("192.168.1.1", 11, 20, "kris"),
                         new HostWorker("192.168.1.2", 22, 80, "kris")));
-        Assertions.assertEquals("192.168.1.2", result.getIp());
+        Assert.assertEquals("192.168.1.2", result.getIp());
     }
 
 }

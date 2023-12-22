@@ -116,11 +116,6 @@ public class TaskDefinition {
     private Flag flag;
 
     /**
-     * task is cache: yes/no
-     */
-    private Flag isCache;
-
-    /**
      * task priority
      */
     private Priority taskPriority;
@@ -286,7 +281,6 @@ public class TaskDefinition {
                 && Objects.equals(taskType, that.taskType)
                 && Objects.equals(taskParams, that.taskParams)
                 && flag == that.flag
-                && isCache == that.isCache
                 && taskPriority == that.taskPriority
                 && Objects.equals(workerGroup, that.workerGroup)
                 && timeoutFlag == that.timeoutFlag

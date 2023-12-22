@@ -18,7 +18,6 @@
 package org.apache.dolphinscheduler.dao.entity;
 
 import java.util.Date;
-import java.util.Objects;
 
 import lombok.Data;
 
@@ -74,7 +73,7 @@ public class AccessToken {
         }
         AccessToken that = (AccessToken) o;
 
-        if (!Objects.equals(id, that.id)) {
+        if (id != that.id) {
             return false;
         }
         if (userId != that.userId) {

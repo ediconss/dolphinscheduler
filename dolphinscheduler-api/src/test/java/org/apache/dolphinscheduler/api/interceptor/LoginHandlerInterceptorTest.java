@@ -33,8 +33,9 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +46,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @ActiveProfiles(value = {ProfileType.H2})
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = ApiApplicationServer.class)
 @Transactional
 @Rollback
@@ -68,7 +71,7 @@ public class LoginHandlerInterceptorTest {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         // test no token and no cookie
-        Assertions.assertFalse(interceptor.preHandle(request, response, null));
+        Assert.assertFalse(interceptor.preHandle(request, response, null));
 
         User mockUser = new User();
         mockUser.setId(1);
@@ -77,17 +80,17 @@ public class LoginHandlerInterceptorTest {
 
         // test no token
         when(authenticator.getAuthUser(request)).thenReturn(mockUser);
-        Assertions.assertTrue(interceptor.preHandle(request, response, null));
+        Assert.assertTrue(interceptor.preHandle(request, response, null));
 
         // test token
         String token = "123456";
         when(request.getHeader("token")).thenReturn(token);
         when(userMapper.queryUserByToken(eq(token), any(Date.class))).thenReturn(mockUser);
-        Assertions.assertTrue(interceptor.preHandle(request, response, null));
+        Assert.assertTrue(interceptor.preHandle(request, response, null));
 
         // test disable user
         mockUser.setState(0);
         when(authenticator.getAuthUser(request)).thenReturn(mockUser);
-        Assertions.assertFalse(interceptor.preHandle(request, response, null));
+        Assert.assertFalse(interceptor.preHandle(request, response, null));
     }
 }

@@ -32,22 +32,28 @@ The key features for DolphinScheduler are as follows:
 - For Kubernetes
   - [Start with Kubernetes](https://dolphinscheduler.apache.org/en-us/docs/3.1.5/guide/installation/kubernetes)
 
+|                                                                                                            Stability                                                                                                             |                                                                                     Accessibility                                                                                      |                                                                                    Features                                                                                    |                                                                                       Scalability                                                                                        |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Decentralized multi-master and multi-worker                                                                                                                                                                                      | Visualization of workflow key information, such as task status, task type, retry times, task operation machine information, visual variables, and so on at a glance.                   |  Support pause, recover operation                                                                                                                                              | Support customized task types                                                                                                                                                            |
+| support HA                                                                                                                                                                                                                       | Visualization of all workflow operations, dragging tasks to draw DAGs, configuring data sources and resources. At the same time, for third-party systems, provide API mode operations. | Users on DolphinScheduler can achieve many-to-one or one-to-one mapping relationship through tenants and Hadoop users, which is very important for scheduling large data jobs. | The scheduler supports distributed scheduling, and the overall scheduling capability will increase linearly with the scale of the cluster. Master and Worker support dynamic adjustment. |
+| Overload processing: By using the task queue mechanism, the number of schedulable tasks on a single machine can be flexibly configured. Machine jam can be avoided with high tolerance to numbers of tasks cached in task queue. | One-click deployment                                                                                                                                                                   | Support traditional shell tasks, and big data platform task scheduling: MR, Spark, SQL (MySQL, PostgreSQL, hive, spark SQL), Python, Procedure, Sub_Process                    |                                                                                                                                                                                          |
+
 ## User Interface Screenshots
 
 * **Homepage:** Project and workflow overview, including the latest workflow instance and task instance status statistics.
-![home](images/home.png)
+  ![home](images/home.png)
 
 * **Workflow Definition:** Create and manage workflow by drag and drop, easy to build and maintain complex workflow, support [bulk of tasks](https://dolphinscheduler.apache.org/en-us/docs/3.1.5/introduction-to-functions_menu/task_menu) out of box.
-![workflow-definition](images/workflow-definition.png)
+  ![workflow-definition](images/workflow-definition.png)
 
 * **Workflow Tree View:** Abstract tree structure could clearer understanding of the relationship between tasks
-![workflow-tree](images/workflow-tree.png)
+  ![workflow-tree](images/workflow-tree.png)
 
 * **Data source:** Manage support multiple external data sources, provide unified data access capabilities for such as MySQL, PostgreSQL, Hive, Trino, etc.
-![data-source](images/data-source.png)
+  ![data-source](images/data-source.png)
 
 * **Monitor:** View the status of the master, worker and database in real time, including server resource usage and load, do quick health check without logging in to the server.
-![monitor](images/monitor.png)
+  ![monitor](images/monitor.png)
 
 ## Suggestions & Bug Reports
 
@@ -75,6 +81,3 @@ Welcome to join the Apache DolphinScheduler community by:
 DolphinScheduler enriches the <a href="https://landscape.cncf.io/?landscape=observability-and-analysis&license=apache-license-2-0">CNCF CLOUD NATIVE Landscape.</a >
 
 </p >
-
-
-/opt/soft/datax

@@ -17,7 +17,6 @@
 
 package org.apache.dolphinscheduler.plugin.task.hivecli;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -25,50 +24,33 @@ import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
 
-import org.apache.commons.io.FileUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class HiveCliTaskTest {
 
     public static final String EXPECTED_HIVE_CLI_TASK_EXECUTE_FROM_SCRIPT_COMMAND =
-            "hive -f 123_node.sql";
+            "hive -e \"SHOW DATABASES;\"";
 
     public static final String EXPECTED_HIVE_CLI_TASK_EXECUTE_FROM_FILE_COMMAND =
-            "hive -f 123_node.sql";
+            "hive -f sql_tasks/hive_task.sql";
 
     public static final String EXPECTED_HIVE_CLI_TASK_EXECUTE_WITH_OPTIONS =
-            "hive -f 123_node.sql --verbose";
-
-    private MockedStatic<FileUtils> mockedStaticFileUtils;
-
-    @BeforeEach
-    public void setUp() {
-        mockedStaticFileUtils = Mockito.mockStatic(FileUtils.class);
-    }
-
-    @AfterEach
-    public void after() {
-        mockedStaticFileUtils.close();
-    }
+            "hive -e \"SHOW DATABASES;\" --verbose";
 
     @Test
     public void hiveCliTaskExecuteSqlFromScript() throws Exception {
         String hiveCliTaskParameters = buildHiveCliTaskExecuteSqlFromScriptParameters();
         HiveCliTask hiveCliTask = prepareHiveCliTaskForTest(hiveCliTaskParameters);
         hiveCliTask.init();
-        Assertions.assertEquals(hiveCliTask.buildCommand(), EXPECTED_HIVE_CLI_TASK_EXECUTE_FROM_SCRIPT_COMMAND);
+        Assert.assertEquals(hiveCliTask.buildCommand(), EXPECTED_HIVE_CLI_TASK_EXECUTE_FROM_SCRIPT_COMMAND);
     }
 
     @Test
@@ -76,7 +58,7 @@ public class HiveCliTaskTest {
         String hiveCliTaskParameters = buildHiveCliTaskExecuteSqlFromFileParameters();
         HiveCliTask hiveCliTask = prepareHiveCliTaskForTest(hiveCliTaskParameters);
         hiveCliTask.init();
-        Assertions.assertEquals(hiveCliTask.buildCommand(), EXPECTED_HIVE_CLI_TASK_EXECUTE_FROM_FILE_COMMAND);
+        Assert.assertEquals(hiveCliTask.buildCommand(), EXPECTED_HIVE_CLI_TASK_EXECUTE_FROM_FILE_COMMAND);
     }
 
     @Test
@@ -84,14 +66,13 @@ public class HiveCliTaskTest {
         String hiveCliTaskParameters = buildHiveCliTaskExecuteWithOptionsParameters();
         HiveCliTask hiveCliTask = prepareHiveCliTaskForTest(hiveCliTaskParameters);
         hiveCliTask.init();
-        Assertions.assertEquals(hiveCliTask.buildCommand(), EXPECTED_HIVE_CLI_TASK_EXECUTE_WITH_OPTIONS);
+        Assert.assertEquals(hiveCliTask.buildCommand(), EXPECTED_HIVE_CLI_TASK_EXECUTE_WITH_OPTIONS);
     }
 
     private HiveCliTask prepareHiveCliTaskForTest(final String hiveCliTaskParameters) {
         TaskExecutionContext taskExecutionContext = Mockito.mock(TaskExecutionContext.class);
         when(taskExecutionContext.getTaskParams()).thenReturn(hiveCliTaskParameters);
         HiveCliTask hiveCliTask = spy(new HiveCliTask(taskExecutionContext));
-        doReturn("123_node.sql").when(hiveCliTask).generateSqlScriptFile(Mockito.any());
         return hiveCliTask;
     }
 

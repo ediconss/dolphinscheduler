@@ -49,7 +49,7 @@ public interface UdfFuncMapper extends BaseMapper<UdfFunc> {
     /**
      * udf function page
      * @param page page
-     * @param ids userId
+     * @param userId userId
      * @param searchVal searchVal
      * @return udf function IPage
      */
@@ -59,7 +59,7 @@ public interface UdfFuncMapper extends BaseMapper<UdfFunc> {
 
     /**
      * query udf function by type
-     * @param ids userId
+     * @param userId userId
      * @param type type
      * @return udf function list
      */
@@ -94,13 +94,6 @@ public interface UdfFuncMapper extends BaseMapper<UdfFunc> {
      * @return  UDF function list
      */
     List<UdfFunc> listUdfByResourceId(@Param("resourceIds") Integer[] resourceIds);
-
-    /**
-     * list UDF by resource fullName
-     * @param   resourceFullNames  resource fullName array
-     * @return  UDF function list
-     */
-    List<UdfFunc> listUdfByResourceFullName(@Param("resourceFullNames") String[] resourceFullNames);
 
     /**
      * list authorized UDF by resource id

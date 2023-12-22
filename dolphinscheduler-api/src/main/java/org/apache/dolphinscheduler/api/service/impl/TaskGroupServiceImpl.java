@@ -26,16 +26,11 @@ import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.AuthorizationType;
 import org.apache.dolphinscheduler.common.enums.Flag;
-import org.apache.dolphinscheduler.common.enums.UserType;
-import org.apache.dolphinscheduler.dao.entity.Project;
-import org.apache.dolphinscheduler.dao.entity.ProjectUser;
 import org.apache.dolphinscheduler.dao.entity.TaskGroup;
 import org.apache.dolphinscheduler.dao.entity.User;
-import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
-import org.apache.dolphinscheduler.dao.mapper.ProjectUserMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskGroupMapper;
+import org.apache.dolphinscheduler.service.process.ProcessService;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -44,10 +39,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,23 +55,21 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
  * task Group Service
  */
 @Service
-@Slf4j
 public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupService {
 
     @Autowired
     private TaskGroupMapper taskGroupMapper;
 
     @Autowired
-    private ProjectMapper projectMapper;
-
-    @Autowired
-    private ProjectUserMapper projectUserMapper;
-
-    @Autowired
     private TaskGroupQueueService taskGroupQueueService;
 
     @Autowired
+    private ProcessService processService;
+
+    @Autowired
     private ExecutorService executorService;
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskGroupServiceImpl.class);
 
     /**
      * create a Task group
@@ -92,27 +85,26 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
     public Map<String, Object> createTaskGroup(User loginUser, Long projectCode, String name, String description,
                                                int groupSize) {
         Map<String, Object> result = new HashMap<>();
-        if (!hasProjectPerm(loginUser, projectCode, result, true)) {
+        boolean canOperatorPermissions = canOperatorPermissions(loginUser, null, AuthorizationType.TASK_GROUP,
+                ApiFuncIdentificationConstant.TASK_GROUP_CREATE);
+        if (!canOperatorPermissions) {
+            putMsg(result, Status.NO_CURRENT_OPERATING_PERMISSION);
             return result;
         }
         if (checkDescriptionLength(description)) {
-            log.warn("Parameter description is too long.");
             putMsg(result, Status.DESCRIPTION_TOO_LONG_ERROR);
             return result;
         }
         if (name == null) {
-            log.warn("Parameter name can ot be null.");
             putMsg(result, Status.NAME_NULL);
             return result;
         }
         if (groupSize <= 0) {
-            log.warn("Parameter task group size is must bigger than 1.");
             putMsg(result, Status.TASK_GROUP_SIZE_ERROR);
             return result;
         }
         TaskGroup taskGroup1 = taskGroupMapper.queryByName(loginUser.getId(), name);
         if (taskGroup1 != null) {
-            log.warn("Task group with the same name already exists, taskGroupName:{}.", taskGroup1.getName());
             putMsg(result, Status.TASK_GROUP_NAME_EXSIT);
             return result;
         }
@@ -130,11 +122,9 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
 
         if (taskGroupMapper.insert(taskGroup) > 0) {
             permissionPostHandle(AuthorizationType.TASK_GROUP, loginUser.getId(),
-                    Collections.singletonList(taskGroup.getId()), log);
-            log.info("Create task group complete, taskGroupName:{}.", taskGroup.getName());
+                    Collections.singletonList(taskGroup.getId()), logger);
             putMsg(result, Status.SUCCESS);
         } else {
-            log.error("Create task group error, taskGroupName:{}.", taskGroup.getName());
             putMsg(result, Status.CREATE_TASK_GROUP_ERROR);
             return result;
         }
@@ -154,22 +144,21 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
     @Override
     public Map<String, Object> updateTaskGroup(User loginUser, int id, String name, String description, int groupSize) {
         Map<String, Object> result = new HashMap<>();
-        TaskGroup taskGroup = taskGroupMapper.selectById(id);
-        if (!hasProjectPerm(loginUser, taskGroup.getProjectCode(), result, true)) {
+        boolean canOperatorPermissions = canOperatorPermissions(loginUser, null, AuthorizationType.TASK_GROUP,
+                ApiFuncIdentificationConstant.TASK_GROUP_EDIT);
+        if (!canOperatorPermissions) {
+            putMsg(result, Status.NO_CURRENT_OPERATING_PERMISSION);
             return result;
         }
         if (checkDescriptionLength(description)) {
-            log.warn("Parameter description is too long.");
             putMsg(result, Status.DESCRIPTION_TOO_LONG_ERROR);
             return result;
         }
         if (name == null) {
-            log.warn("Parameter name can ot be null.");
             putMsg(result, Status.NAME_NULL);
             return result;
         }
         if (groupSize <= 0) {
-            log.warn("Parameter task group size is must bigger than 1.");
             putMsg(result, Status.TASK_GROUP_SIZE_ERROR);
             return result;
         }
@@ -179,12 +168,11 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
                 .ne(TaskGroup::getId, id));
 
         if (exists > 0) {
-            log.error("Task group with the same name already exists.");
             putMsg(result, Status.TASK_GROUP_NAME_EXSIT);
             return result;
         }
+        TaskGroup taskGroup = taskGroupMapper.selectById(id);
         if (taskGroup.getStatus() != Flag.YES.getCode()) {
-            log.warn("Task group has been closed, taskGroupId:{}.", id);
             putMsg(result, Status.TASK_GROUP_STATUS_ERROR);
             return result;
         }
@@ -195,13 +183,8 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
             taskGroup.setName(name);
         }
         int i = taskGroupMapper.updateById(taskGroup);
-        if (i > 0) {
-            log.info("Update task group complete, taskGroupId:{}.", id);
-            putMsg(result, Status.SUCCESS);
-        } else {
-            log.error("Update task group error, taskGroupId:{}.", id);
-            putMsg(result, Status.UPDATE_TASK_GROUP_ERROR);
-        }
+        logger.info("update result:{}", i);
+        putMsg(result, Status.SUCCESS);
         return result;
     }
 
@@ -256,12 +239,17 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
     @Override
     public Map<String, Object> queryTaskGroupByProjectCode(User loginUser, int pageNo, int pageSize, Long projectCode) {
         Map<String, Object> result = new HashMap<>();
-        if (!hasProjectPerm(loginUser, projectCode, result, false)) {
+        Page<TaskGroup> page = new Page<>(pageNo, pageSize);
+        PageInfo<TaskGroup> emptyPageInfo = new PageInfo<>(pageNo, pageSize);
+        Set<Integer> ids = resourcePermissionCheckService.userOwnedResourceIdsAcquisition(AuthorizationType.TASK_GROUP,
+                loginUser.getId(), logger);
+        if (ids.isEmpty()) {
+            result.put(Constants.DATA_LIST, emptyPageInfo);
+            putMsg(result, Status.SUCCESS);
             return result;
         }
-        Page<TaskGroup> page = new Page<>(pageNo, pageSize);
         IPage<TaskGroup> taskGroupPaging =
-                taskGroupMapper.queryTaskGroupPagingByProjectCode(page, projectCode);
+                taskGroupMapper.queryTaskGroupPagingByProjectCode(page, new ArrayList<>(ids), projectCode);
 
         return getStringObjectMap(pageNo, pageSize, result, taskGroupPaging);
     }
@@ -310,8 +298,16 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
                                        Integer status) {
         Map<String, Object> result = new HashMap<>();
         Page<TaskGroup> page = new Page<>(pageNo, pageSize);
+        PageInfo<TaskGroup> pageInfo = new PageInfo<>(pageNo, pageSize);
+        Set<Integer> ids = resourcePermissionCheckService.userOwnedResourceIdsAcquisition(AuthorizationType.TASK_GROUP,
+                userId, logger);
+        if (ids.isEmpty()) {
+            result.put(Constants.DATA_LIST, pageInfo);
+            putMsg(result, Status.SUCCESS);
+            return result;
+        }
         IPage<TaskGroup> taskGroupPaging =
-                taskGroupMapper.queryTaskGroupPaging(page, name, status);
+                taskGroupMapper.queryTaskGroupPaging(page, new ArrayList<>(ids), name, status);
 
         return getStringObjectMap(pageNo, pageSize, result, taskGroupPaging);
     }
@@ -335,16 +331,11 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
         }
         TaskGroup taskGroup = taskGroupMapper.selectById(id);
         if (taskGroup.getStatus() == Flag.NO.getCode()) {
-            log.info("Task group has been closed, taskGroupId:{}.", id);
             putMsg(result, Status.TASK_GROUP_STATUS_CLOSED);
             return result;
         }
         taskGroup.setStatus(Flag.NO.getCode());
-        int update = taskGroupMapper.updateById(taskGroup);
-        if (update > 0)
-            log.info("Task group close complete, taskGroupId:{}.", id);
-        else
-            log.error("Task group close error, taskGroupId:{}.", id);
+        taskGroupMapper.updateById(taskGroup);
         putMsg(result, Status.SUCCESS);
         return result;
     }
@@ -368,17 +359,12 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
         }
         TaskGroup taskGroup = taskGroupMapper.selectById(id);
         if (taskGroup.getStatus() == Flag.YES.getCode()) {
-            log.info("Task group has been started, taskGroupId:{}.", id);
             putMsg(result, Status.TASK_GROUP_STATUS_OPENED);
             return result;
         }
         taskGroup.setStatus(Flag.YES.getCode());
         taskGroup.setUpdateTime(new Date(System.currentTimeMillis()));
         int update = taskGroupMapper.updateById(taskGroup);
-        if (update > 0)
-            log.info("Task group start complete, taskGroupId:{}.", id);
-        else
-            log.error("Task group start error, taskGroupId:{}.", id);
         putMsg(result, Status.SUCCESS);
         return result;
     }
@@ -413,55 +399,7 @@ public class TaskGroupServiceImpl extends BaseServiceImpl implements TaskGroupSe
             return result;
         }
         taskGroupQueueService.modifyPriority(queueId, priority);
-        log.info("Modify task group queue priority complete, queueId:{}, priority:{}.", queueId, priority);
         putMsg(result, Status.SUCCESS);
         return result;
     }
-
-    @Override
-    public void deleteTaskGroupByProjectCode(long projectCode) {
-        List<TaskGroup> taskGroups = taskGroupMapper.selectByProjectCode(projectCode);
-        if (CollectionUtils.isEmpty(taskGroups)) {
-            return;
-        }
-        List<Integer> taskGroupIds = taskGroups.stream()
-                .map(TaskGroup::getId)
-                .collect(Collectors.toList());
-        taskGroupQueueService.deleteByTaskGroupIds(taskGroupIds);
-        taskGroupMapper.deleteBatchIds(taskGroupIds);
-    }
-
-    private boolean hasProjectPerm(User loginUser, long projectCode, Map<String, Object> result,
-                                   boolean writePermission) {
-        Project project = projectMapper.queryByCode(projectCode);
-        if (project == null) {
-            log.warn("Project does not exist");
-            putMsg(result, Status.PROJECT_NOT_FOUND, "");
-        }
-
-        if (loginUser.getUserType() == UserType.ADMIN_USER) {
-            return true;
-        }
-
-        if (project.getUserId().equals(loginUser.getId())) {
-            return true;
-        }
-
-        ProjectUser projectUser = projectUserMapper.queryProjectRelation(project.getId(), loginUser.getId());
-        if (projectUser == null) {
-            log.warn("User {} does not have operation permission for project {}", loginUser.getUserName(),
-                    project.getCode());
-            putMsg(result, Status.USER_NO_OPERATION_PROJECT_PERM, loginUser.getUserName(), project.getCode());
-            return false;
-        }
-        if (writePermission && projectUser.getPerm() != Constants.DEFAULT_ADMIN_PERMISSION) {
-            log.warn("User {} does not have write permission for project {}", loginUser.getUserName(),
-                    project.getCode());
-            putMsg(result, Status.USER_NO_WRITE_PROJECT_PERM, loginUser.getUserName(), project.getCode());
-            return false;
-        }
-
-        return true;
-    }
-
 }

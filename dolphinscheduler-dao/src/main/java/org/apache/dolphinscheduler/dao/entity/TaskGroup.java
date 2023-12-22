@@ -72,7 +72,7 @@ public class TaskGroup implements Serializable {
      */
     private Date updateTime;
     /**
-     * project code
+     * project Id
      */
     private long projectCode;
 

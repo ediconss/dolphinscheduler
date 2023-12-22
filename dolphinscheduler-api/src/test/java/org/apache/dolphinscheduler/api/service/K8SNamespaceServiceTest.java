@@ -31,32 +31,29 @@ import org.apache.dolphinscheduler.dao.mapper.ClusterMapper;
 import org.apache.dolphinscheduler.dao.mapper.K8sNamespaceMapper;
 import org.apache.dolphinscheduler.dao.mapper.UserMapper;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@RunWith(MockitoJUnitRunner.class)
 public class K8SNamespaceServiceTest {
 
     private static final Logger logger = LoggerFactory.getLogger(K8SNamespaceServiceTest.class);
@@ -79,7 +76,7 @@ public class K8SNamespaceServiceTest {
     private String namespace = "default";
     private Long clusterCode = 100L;
 
-    @BeforeEach
+    @Before
     public void setUp() throws Exception {
         Mockito.when(
                 k8sClientService.upsertNamespaceAndResourceToK8s(Mockito.any(K8sNamespace.class), Mockito.anyString()))
@@ -87,7 +84,7 @@ public class K8SNamespaceServiceTest {
         Mockito.when(k8sClientService.deleteNamespaceToK8s(Mockito.anyString(), Mockito.anyLong())).thenReturn(null);
     }
 
-    @AfterEach
+    @After
     public void tearDown() throws Exception {
     }
 
@@ -101,7 +98,7 @@ public class K8SNamespaceServiceTest {
         Result result = k8sNamespaceService.queryListPaging(getLoginUser(), namespace, 1, 10);
         logger.info(result.toString());
         PageInfo<K8sNamespace> pageInfo = (PageInfo<K8sNamespace>) result.getData();
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(pageInfo.getTotalList()));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(pageInfo.getTotalList()));
     }
 
     @Test
@@ -110,20 +107,20 @@ public class K8SNamespaceServiceTest {
         Map<String, Object> result =
                 k8sNamespaceService.createK8sNamespace(getLoginUser(), null, clusterCode, 10.0, 100);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.REQUEST_PARAMS_NOT_VALID_ERROR, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.REQUEST_PARAMS_NOT_VALID_ERROR, result.get(Constants.STATUS));
         // k8s is null
         result = k8sNamespaceService.createK8sNamespace(getLoginUser(), namespace, null, 10.0, 100);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.REQUEST_PARAMS_NOT_VALID_ERROR, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.REQUEST_PARAMS_NOT_VALID_ERROR, result.get(Constants.STATUS));
         // correct
         Mockito.when(clusterMapper.queryByClusterCode(Mockito.anyLong())).thenReturn(getCluster());
         result = k8sNamespaceService.createK8sNamespace(getLoginUser(), namespace, clusterCode, 10.0, 100);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
         // null limit cpu and mem
         result = k8sNamespaceService.createK8sNamespace(getLoginUser(), namespace, clusterCode, null, null);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
     }
 
     @Test
@@ -132,15 +129,15 @@ public class K8SNamespaceServiceTest {
 
         Map<String, Object> result = k8sNamespaceService.updateK8sNamespace(getLoginUser(), 1, null, null, null);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
 
         result = k8sNamespaceService.updateK8sNamespace(getLoginUser(), 1, null, -1.0, 100);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.REQUEST_PARAMS_NOT_VALID_ERROR, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.REQUEST_PARAMS_NOT_VALID_ERROR, result.get(Constants.STATUS));
 
         result = k8sNamespaceService.updateK8sNamespace(getLoginUser(), 1, null, 1.0, 100);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
     }
 
     @Test
@@ -151,22 +148,22 @@ public class K8SNamespaceServiceTest {
         // namespace null
         Result result = k8sNamespaceService.verifyNamespaceK8s(null, clusterCode);
         logger.info(result.toString());
-        Assertions.assertEquals(result.getCode().intValue(), Status.REQUEST_PARAMS_NOT_VALID_ERROR.getCode());
+        Assert.assertEquals(result.getCode().intValue(), Status.REQUEST_PARAMS_NOT_VALID_ERROR.getCode());
 
         // k8s null
         result = k8sNamespaceService.verifyNamespaceK8s(namespace, null);
         logger.info(result.toString());
-        Assertions.assertEquals(result.getCode().intValue(), Status.REQUEST_PARAMS_NOT_VALID_ERROR.getCode());
+        Assert.assertEquals(result.getCode().intValue(), Status.REQUEST_PARAMS_NOT_VALID_ERROR.getCode());
 
         // exist
         result = k8sNamespaceService.verifyNamespaceK8s(namespace, clusterCode);
         logger.info(result.toString());
-        Assertions.assertEquals(result.getCode().intValue(), Status.K8S_NAMESPACE_EXIST.getCode());
+        Assert.assertEquals(result.getCode().intValue(), Status.K8S_NAMESPACE_EXIST.getCode());
 
         // not exist
         result = k8sNamespaceService.verifyNamespaceK8s(namespace, 9999L);
         logger.info(result.toString());
-        Assertions.assertEquals(result.getCode().intValue(), Status.SUCCESS.getCode());
+        Assert.assertEquals(result.getCode().intValue(), Status.SUCCESS.getCode());
     }
 
     @Test
@@ -176,7 +173,7 @@ public class K8SNamespaceServiceTest {
 
         Map<String, Object> result = k8sNamespaceService.deleteNamespaceById(getLoginUser(), 1);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.SUCCESS, result.get(Constants.STATUS));
     }
 
     @Test
@@ -190,15 +187,15 @@ public class K8SNamespaceServiceTest {
         Map<String, Object> result = k8sNamespaceService.queryAuthorizedNamespace(loginUser, 2);
         logger.info(result.toString());
         List<K8sNamespace> namespaces = (List<K8sNamespace>) result.get(Constants.DATA_LIST);
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(namespaces));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(namespaces));
 
         // test non-admin user
         loginUser.setUserType(UserType.GENERAL_USER);
         loginUser.setId(3);
         result = k8sNamespaceService.queryAuthorizedNamespace(loginUser, 2);
-        Assertions.assertEquals(Status.USER_NO_OPERATION_PERM, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.USER_NO_OPERATION_PERM, result.get(Constants.STATUS));
         namespaces = (List<K8sNamespace>) result.get(Constants.DATA_LIST);
-        Assertions.assertTrue(CollectionUtils.isEmpty(namespaces));
+        Assert.assertTrue(CollectionUtils.isEmpty(namespaces));
     }
 
     @Test
@@ -212,16 +209,16 @@ public class K8SNamespaceServiceTest {
         Map<String, Object> result = k8sNamespaceService.queryUnauthorizedNamespace(loginUser, 2);
         logger.info(result.toString());
         List<K8sNamespace> namespaces = (List<K8sNamespace>) result.get(Constants.DATA_LIST);
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(namespaces));
+        Assert.assertTrue(CollectionUtils.isNotEmpty(namespaces));
 
         // test non-admin user
         loginUser.setId(2);
         loginUser.setUserType(UserType.GENERAL_USER);
         result = k8sNamespaceService.queryUnauthorizedNamespace(loginUser, 3);
         logger.info(result.toString());
-        Assertions.assertEquals(Status.USER_NO_OPERATION_PERM, result.get(Constants.STATUS));
+        Assert.assertEquals(Status.USER_NO_OPERATION_PERM, result.get(Constants.STATUS));
         namespaces = (List<K8sNamespace>) result.get(Constants.DATA_LIST);
-        Assertions.assertTrue(CollectionUtils.isEmpty(namespaces));
+        Assert.assertTrue(CollectionUtils.isEmpty(namespaces));
     }
 
     @Test
@@ -240,7 +237,7 @@ public class K8SNamespaceServiceTest {
         Mockito.when(k8sNamespaceMapper.selectList(Mockito.any())).thenReturn(k8sNamespaces);
         Mockito.when(clusterMapper.queryAllClusterList()).thenReturn(clusters);
         List<K8sNamespace> result = k8sNamespaceService.queryNamespaceAvailable(getLoginUser());
-        Assertions.assertEquals(result.get(0).getClusterName(), cluster.getName());
+        Assert.assertEquals(result.get(0).getClusterName(), cluster.getName());
     }
 
     private User getLoginUser() {

@@ -26,8 +26,6 @@ import org.apache.dolphinscheduler.api.service.LoggerService;
 import org.apache.dolphinscheduler.api.service.ProjectService;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.constants.Constants;
-import org.apache.dolphinscheduler.common.log.remote.RemoteLogUtils;
-import org.apache.dolphinscheduler.common.utils.LogUtils;
 import org.apache.dolphinscheduler.dao.entity.Project;
 import org.apache.dolphinscheduler.dao.entity.ResponseTaskLog;
 import org.apache.dolphinscheduler.dao.entity.TaskDefinition;
@@ -35,21 +33,17 @@ import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
-import org.apache.dolphinscheduler.dao.repository.TaskInstanceDao;
 import org.apache.dolphinscheduler.remote.utils.Host;
 import org.apache.dolphinscheduler.service.log.LogClient;
+import org.apache.dolphinscheduler.service.process.ProcessService;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,13 +53,14 @@ import com.google.common.primitives.Bytes;
  * logger service impl
  */
 @Service
-@Slf4j
 public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoggerServiceImpl.class);
 
     private static final String LOG_HEAD_FORMAT = "[LOG-PATH]: %s, [HOST]:  %s%s";
 
     @Autowired
-    private TaskInstanceDao taskInstanceDao;
+    private ProcessService processService;
 
     @Autowired
     private LogClient logClient;
@@ -82,7 +77,6 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
     /**
      * view log
      *
-     * @param loginUser   login user
      * @param taskInstId task instance id
      * @param skipLineNum skip line number
      * @param limit limit
@@ -90,22 +84,18 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Result<ResponseTaskLog> queryLog(User loginUser, int taskInstId, int skipLineNum, int limit) {
+    public Result<ResponseTaskLog> queryLog(int taskInstId, int skipLineNum, int limit, String filter) {
 
-        TaskInstance taskInstance = taskInstanceDao.queryById(taskInstId);
+        TaskInstance taskInstance = processService.findTaskInstanceById(taskInstId);
 
         if (taskInstance == null) {
-            log.error("Task instance does not exist, taskInstanceId:{}.", taskInstId);
             return Result.error(Status.TASK_INSTANCE_NOT_FOUND);
         }
         if (StringUtils.isBlank(taskInstance.getHost())) {
-            log.error("Host of task instance is null, taskInstanceId:{}.", taskInstId);
             return Result.error(Status.TASK_INSTANCE_HOST_IS_NULL);
         }
-        Project project = projectMapper.queryProjectByTaskInstanceId(taskInstId);
-        projectService.checkProjectAndAuthThrowException(loginUser, project, VIEW_LOG);
         Result<ResponseTaskLog> result = new Result<>(Status.SUCCESS.getCode(), Status.SUCCESS.getMsg());
-        String log = queryLog(taskInstance, skipLineNum, limit);
+        String log = queryLog(taskInstance, skipLineNum, limit, filter);
         int lineNum = log.split("\\r\\n").length;
         result.setData(new ResponseTaskLog(lineNum, log));
         return result;
@@ -114,18 +104,15 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
     /**
      * get log size
      *
-     * @param loginUser   login user
      * @param taskInstId task instance id
      * @return log byte array
      */
     @Override
-    public byte[] getLogBytes(User loginUser, int taskInstId) {
-        TaskInstance taskInstance = taskInstanceDao.queryById(taskInstId);
+    public byte[] getLogBytes(int taskInstId) {
+        TaskInstance taskInstance = processService.findTaskInstanceById(taskInstId);
         if (taskInstance == null || StringUtils.isBlank(taskInstance.getHost())) {
             throw new ServiceException("task instance is null or host is null");
         }
-        Project project = projectMapper.queryProjectByTaskInstanceId(taskInstId);
-        projectService.checkProjectAndAuthThrowException(loginUser, project, DOWNLOAD_LOG);
         return getLogBytes(taskInstance);
     }
 
@@ -141,7 +128,8 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Map<String, Object> queryLog(User loginUser, long projectCode, int taskInstId, int skipLineNum, int limit) {
+    public Map<String, Object> queryLog(User loginUser, long projectCode, int taskInstId, int skipLineNum, int limit,
+                                        String filter) {
         Project project = projectMapper.queryByCode(projectCode);
         // check user access for project
         Map<String, Object> result = projectService.checkProjectAndAuth(loginUser, project, projectCode, VIEW_LOG);
@@ -149,7 +137,7 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
             return result;
         }
         // check whether the task instance can be found
-        TaskInstance task = taskInstanceDao.queryById(taskInstId);
+        TaskInstance task = processService.findTaskInstanceById(taskInstId);
         if (task == null || StringUtils.isBlank(task.getHost())) {
             putMsg(result, Status.TASK_INSTANCE_NOT_FOUND);
             return result;
@@ -160,7 +148,7 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
             putMsg(result, Status.TASK_INSTANCE_NOT_FOUND, taskInstId);
             return result;
         }
-        String log = queryLog(task, skipLineNum, limit);
+        String log = queryLog(task, skipLineNum, limit, filter);
         result.put(Constants.DATA_LIST, log);
         return result;
     }
@@ -182,7 +170,7 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
             throw new ServiceException("user has no permission");
         }
         // check whether the task instance can be found
-        TaskInstance task = taskInstanceDao.queryById(taskInstId);
+        TaskInstance task = processService.findTaskInstanceById(taskInstId);
         if (task == null || StringUtils.isBlank(task.getHost())) {
             throw new ServiceException("task instance is null or host is null");
         }
@@ -202,41 +190,25 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
      * @param limit       limit
      * @return log string data
      */
-    private String queryLog(TaskInstance taskInstance, int skipLineNum, int limit) {
+    private String queryLog(TaskInstance taskInstance, int skipLineNum, int limit, String filter) {
         Host host = Host.of(taskInstance.getHost());
-        String logPath = taskInstance.getLogPath();
 
-        log.info("Query task instance log, taskInstanceId:{}, taskInstanceName:{}, host:{}, logPath:{}, port:{}",
-                taskInstance.getId(), taskInstance.getName(), host.getIp(), logPath, host.getPort());
+        logger.info("log host : {} , logPath : {} , port : {}", host.getIp(), taskInstance.getLogPath(),
+                host.getPort());
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder log = new StringBuilder();
         if (skipLineNum == 0) {
             String head = String.format(LOG_HEAD_FORMAT,
-                    logPath,
+                    taskInstance.getLogPath(),
                     host,
                     Constants.SYSTEM_LINE_SEPARATOR);
-            sb.append(head);
+            log.append(head);
         }
 
-        String logContent = logClient
-                .rollViewLog(host.getIp(), host.getPort(), logPath, skipLineNum, limit);
+        log.append(logClient
+                .rollViewLog(host.getIp(), host.getPort(), taskInstance.getLogPath(), skipLineNum, limit, filter));
 
-        if (skipLineNum == 0 && StringUtils.isEmpty(logContent) && RemoteLogUtils.isRemoteLoggingEnable()) {
-            // When getting the log for the first time (skipLineNum=0) returns empty, get the log from remote target
-            try {
-                log.info("Get log {} from remote target", logPath);
-                RemoteLogUtils.getRemoteLog(logPath);
-                List<String> lines = LogUtils.readPartFileContentFromLocal(logPath, skipLineNum, limit);
-                logContent = LogUtils.rollViewLogLines(lines);
-                FileUtils.delete(new File(logPath));
-            } catch (IOException e) {
-                log.error("Error while getting log from remote target", e);
-            }
-        }
-
-        sb.append(logContent);
-
-        return sb.toString();
+        return log.toString();
     }
 
     /**
@@ -247,28 +219,11 @@ public class LoggerServiceImpl extends BaseServiceImpl implements LoggerService 
      */
     private byte[] getLogBytes(TaskInstance taskInstance) {
         Host host = Host.of(taskInstance.getHost());
-        String logPath = taskInstance.getLogPath();
-
         byte[] head = String.format(LOG_HEAD_FORMAT,
-                logPath,
+                taskInstance.getLogPath(),
                 host,
                 Constants.SYSTEM_LINE_SEPARATOR).getBytes(StandardCharsets.UTF_8);
-
-        byte[] logBytes = logClient.getLogBytes(host.getIp(), host.getPort(), logPath);
-
-        if (logBytes.length == 0 && RemoteLogUtils.isRemoteLoggingEnable()) {
-            // get task log from remote target
-            try {
-                log.info("Get log {} from remote target", logPath);
-                RemoteLogUtils.getRemoteLog(logPath);
-                File logFile = new File(logPath);
-                logBytes = FileUtils.readFileToByteArray(logFile);
-                FileUtils.delete(logFile);
-            } catch (IOException e) {
-                log.error("Error while getting log from remote target", e);
-            }
-        }
-
-        return Bytes.concat(head, logBytes);
+        return Bytes.concat(head,
+                logClient.getLogBytes(host.getIp(), host.getPort(), taskInstance.getLogPath()));
     }
 }

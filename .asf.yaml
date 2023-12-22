@@ -19,18 +19,21 @@ github:
   description: Apache DolphinScheduler is the modern data orchestration platform. Agile to create high performance workflow with low-code
   homepage: https://dolphinscheduler.apache.org/
   labels:
-    - cloud-native
-    - orchestration
     - airflow
-    - workflow
+    - schedule
     - job-scheduler
+    - oozie
     - task-scheduler
     - azkaban
-    - workflow-orchestration
+    - distributed-schedule-system
+    - workflow-scheduling-system
+    - etl-dependency
+    - workflow-platform
+    - cronjob-schedule
+    - job-schedule
+    - task-schedule
     - workflow-schedule
-    - powerful-data-pipelines
-    - data-pipelines
-  dependabot_updates: false
+    - data-schedule
   enabled_merge_buttons:
     squash: true
     merge: false
@@ -38,14 +41,10 @@ github:
   protected_branches:
     dev:
       required_status_checks:
-        # strict means "Require branches to be up to date before merging".
-        strict: true
         contexts:
           - Build
           - Unit Test
           - E2E
-          - Docs
-          - "Mergeable: milestone-label-check"
       required_pull_request_reviews:
         dismiss_stale_reviews: true
         required_approving_review_count: 1

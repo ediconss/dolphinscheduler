@@ -17,7 +17,7 @@
 
 package org.apache.dolphinscheduler.plugin.alert.script;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 /**
  * ProcessUtilsTest

@@ -17,12 +17,12 @@
 
 package org.apache.dolphinscheduler.server.master.dispatch.enums;
 
-// todo: refactor this enum
+/**
+ *  executor type
+ */
 public enum ExecutorType {
 
     WORKER,
 
-    CLIENT,
-    MASTER,
-    ;
+    CLIENT;
 }

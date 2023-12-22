@@ -22,8 +22,8 @@ import org.apache.dolphinscheduler.dao.entity.PluginDefine;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class PluginDefineTest extends BaseDaoTest {
@@ -35,15 +35,15 @@ public class PluginDefineTest extends BaseDaoTest {
     public void testQueryAllPluginDefineList() {
         createPluginDefine();
         List<PluginDefine> pluginDefines = pluginDefineMapper.queryAllPluginDefineList();
-        Assertions.assertTrue(pluginDefines.size() > 0);
+        Assert.assertTrue(pluginDefines.size() > 0);
     }
 
     @Test
     public void testQeryByPluginType() {
         PluginDefine pluginDefine = createPluginDefine();
         List<PluginDefine> pluginDefines = pluginDefineMapper.queryByPluginType(pluginDefine.getPluginType());
-        Assertions.assertTrue(pluginDefines.size() > 0);
-        Assertions.assertEquals(pluginDefines.get(0).getPluginType(), pluginDefine.getPluginType());
+        Assert.assertTrue(pluginDefines.size() > 0);
+        Assert.assertEquals(pluginDefines.get(0).getPluginType(), pluginDefine.getPluginType());
     }
 
     @Test
@@ -51,9 +51,9 @@ public class PluginDefineTest extends BaseDaoTest {
         PluginDefine pluginDefine = createPluginDefine();
         PluginDefine pluginDefineSaved =
                 pluginDefineMapper.queryByNameAndType(pluginDefine.getPluginName(), pluginDefine.getPluginType());
-        Assertions.assertNotNull(pluginDefineSaved);
-        Assertions.assertEquals(pluginDefineSaved.getPluginType(), pluginDefine.getPluginType());
-        Assertions.assertEquals(pluginDefineSaved.getPluginName(), pluginDefine.getPluginName());
+        Assert.assertNotNull(pluginDefineSaved);
+        Assert.assertEquals(pluginDefineSaved.getPluginType(), pluginDefine.getPluginType());
+        Assert.assertEquals(pluginDefineSaved.getPluginName(), pluginDefine.getPluginName());
     }
 
     /**

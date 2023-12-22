@@ -70,6 +70,21 @@ public class DependentUtils {
     public static List<DateInterval> getDateIntervalList(Date businessDate, String dateValue) {
         List<DateInterval> result = new ArrayList<>();
         switch (dateValue) {
+            case "currentMinute":
+                result = DependentDateUtils.getLastMinutesInterval(businessDate, 0);
+                break;
+            case "last1Minute":
+                result = DependentDateUtils.getLastMinutesInterval(businessDate, 1);
+                break;
+            case "last5Minute":
+                result = DependentDateUtils.getLastMinutesInterval(businessDate, 5);
+                break;
+            case "last10Minute":
+                result = DependentDateUtils.getLastMinutesInterval(businessDate, 10);
+                break;
+            case "last30Minute":
+                result = DependentDateUtils.getLastMinutesInterval(businessDate, 30);
+                break;
             case "currentHour":
                 result = DependentDateUtils.getLastHoursInterval(businessDate, 0);
                 break;
@@ -147,6 +162,9 @@ public class DependentUtils {
                 break;
             default:
                 break;
+        }
+        for (DateInterval dateInterval : result) {
+            System.out.println(dateInterval.getStartTime() + "--" + dateInterval.getEndTime());
         }
         return result;
     }

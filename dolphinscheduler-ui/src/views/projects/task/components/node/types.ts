@@ -17,7 +17,10 @@
 
 import { VNode } from 'vue'
 import type { SelectOption } from 'naive-ui'
-import type { TaskExecuteType, TaskType } from '@/store/project/types'
+import type {
+  TaskExecuteType,
+  TaskType
+} from '@/views/projects/task/constants/task-type'
 import type { IDataBase } from '@/service/modules/data-source/types'
 import type {
   IFormItem,
@@ -66,17 +69,6 @@ interface ILocalParam {
   value?: string
 }
 
-interface ILabel {
-  label: string
-  value: string
-}
-
-interface IMatchExpression {
-  key: string
-  operator: string
-  values: string
-}
-
 interface IResponseJsonItem extends Omit<IJsonItemParams, 'type'> {
   type: 'input' | 'select' | 'radio' | 'group'
   emit: 'change'[]
@@ -113,22 +105,8 @@ interface ISwitchResult {
   nextNode?: number
 }
 
-interface IDependentParameters {
-  checkInterval?: number
-  failurePolicy?: 'DEPENDENT_FAILURE_FAILURE' | 'DEPENDENT_FAILURE_WAITING'
-  failureWaitingTime?: number
-  relation?: RelationType
-  dependTaskList?: IDependTask[]
-}
-
-/*
- * resourceName: resource full name
- * res: resource file name
- */
 interface ISourceItem {
-  id?: number
-  resourceName: string
-  res?: string
+  id: number
 }
 
 interface ISqoopTargetData {
@@ -223,8 +201,6 @@ interface ISparkParameters {
   executorMemory?: string
   numExecutors?: number
   others?: string
-  yarnQueue?: string
-  sqlExecutionType?: string
 }
 
 interface IRuleParameters {
@@ -236,7 +212,6 @@ interface IRuleParameters {
   operator?: string
   src_connector_type?: number
   src_datasource_id?: number
-  src_database?: string
   src_table?: string
   field_length?: number
   begin_time?: string
@@ -251,7 +226,6 @@ interface IRuleParameters {
   statistics_name?: string
   target_connector_type?: number
   target_datasource_id?: number
-  target_database?: string
   target_table?: string
   threshold?: string
   mapping_columns?: string
@@ -261,12 +235,10 @@ interface ITaskParams {
   resourceList?: ISourceItem[]
   mainJar?: ISourceItem
   localParams?: ILocalParam[]
-  runType?: string
-  jvmArgs?: string
-  isModulePath?: boolean
   rawScript?: string
   initScript?: string
   programType?: string
+  sparkVersion?: string
   flinkVersion?: string
   jobManagerMemory?: string
   taskManagerMemory?: string
@@ -294,6 +266,7 @@ interface ITaskParams {
   datasource?: string
   sql?: string
   sqlType?: string
+  segmentSeparator?: string
   sendEmail?: boolean
   displayRows?: number
   title?: string
@@ -319,7 +292,10 @@ interface ITaskParams {
   switchResult?: ISwitchResult
   dependTaskList?: IDependTask[]
   nextNode?: number
-  dependence?: IDependentParameters
+  dependence?: {
+    relation?: RelationType
+    dependTaskList?: IDependTask[]
+  }
   customConfig?: number
   json?: string
   dsType?: string
@@ -340,16 +316,11 @@ interface ITaskParams {
   zeppelinParagraphId?: string
   zeppelinRestEndpoint?: string
   restEndpoint?: string
-  zeppelinUsername?: string
-  username?: string
-  zeppelinPassword?: string
-  password?: string
   zeppelinProductionNoteDirectory?: string
   productionNoteDirectory?: string
   hiveCliOptions?: string
   hiveSqlScript?: string
   hiveCliTaskExecutionType?: string
-  sqlExecutionType?: string
   noteId?: string
   paragraphId?: string
   condaEnvName?: string
@@ -375,11 +346,6 @@ interface ITaskParams {
   minCpuCores?: string
   minMemorySpace?: string
   image?: string
-  imagePullPolicy?: string
-  command?: string
-  args?: string
-  customizedLabels?: ILabel[]
-  nodeSelectors?: IMatchExpression[]
   algorithm?: string
   params?: string
   searchParams?: string
@@ -422,31 +388,7 @@ interface ITaskParams {
   pythonEnvTool?: string
   requirements?: string
   condaPythonVersion?: string
-  isRestartTask?: boolean
-  isJsonFormat?: boolean
-  jsonData?: string
-  migrationType?: string
-  replicationTaskIdentifier?: string
-  sourceEndpointArn?: string
-  targetEndpointArn?: string
-  replicationInstanceArn?: string
-  tableMappings?: string
-  replicationTaskArn?: string
-  jsonFormat?: boolean
-  destinationLocationArn?: string
-  sourceLocationArn?: string
-  name?: string
-  cloudWatchLogGroupArn?: string
-  yamlContent?: string
-  paramScript?: ILocalParam[]
-  factoryName?: string
-  resourceGroupName?: string
-  pipelineName?: string
-  maxNumOfSubWorkflowInstances?: number
-  degreeOfParallelism?: number
-  filterCondition?: string
-  listParameters?: Array<any>
-  yarnQueue?: string
+  config?: string
 }
 
 interface INodeData
@@ -464,7 +406,6 @@ interface INodeData
     >,
     ISqoopTargetData,
     ISqoopSourceData,
-    IDependentParameters,
     Omit<IRuleParameters, 'mapping_columns'> {
   id?: string
   taskType?: ITaskType
@@ -477,7 +418,6 @@ interface INodeData
   cpuQuota?: number
   memoryMax?: number
   flag?: 'YES' | 'NO'
-  isCache?: boolean
   taskGroupId?: number
   taskGroupPriority?: number
   taskPriority?: string
@@ -490,8 +430,8 @@ interface INodeData
   preTasks?: number[]
   preTaskOptions?: []
   postTaskOptions?: []
-  resourceList?: string[]
-  mainJar?: string
+  resourceList?: number[]
+  mainJar?: number
   timeoutSetting?: boolean
   isCustomTask?: boolean
   method?: string
@@ -509,11 +449,10 @@ interface INodeData
 interface ITaskData
   extends Omit<
     INodeData,
-    'isCache' | 'timeoutFlag' | 'taskPriority' | 'timeoutNotifyStrategy'
+    'timeoutFlag' | 'taskPriority' | 'timeoutNotifyStrategy'
   > {
   name?: string
   taskPriority?: string
-  isCache?: 'YES' | 'NO'
   timeoutFlag?: 'OPEN' | 'CLOSE'
   timeoutNotifyStrategy?: string | []
   taskParams?: ITaskParams
@@ -543,6 +482,5 @@ export {
   FormRules,
   IJsonItemParams,
   IResponseJsonItem,
-  IDateType,
-  IDependentParameters
+  IDateType
 }

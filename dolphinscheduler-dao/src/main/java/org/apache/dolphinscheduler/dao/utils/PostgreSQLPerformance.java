@@ -26,10 +26,12 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class PostgreSQLPerformance extends BaseDBPerformance {
+
+    private static final Logger logger = LoggerFactory.getLogger(PostgreSQLPerformance.class);
 
     /**
      * get monitor record
@@ -66,7 +68,7 @@ public class PostgreSQLPerformance extends BaseDBPerformance {
             }
         } catch (Exception e) {
             monitorRecord.setState(Flag.NO);
-            log.error("SQLException ", e);
+            logger.error("SQLException ", e);
         }
         return monitorRecord;
     }

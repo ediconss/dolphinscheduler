@@ -35,9 +35,9 @@ import java.util.TimeZone;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public final class DateUtils {
 
     static final long C0 = 1L;
@@ -48,6 +48,7 @@ public final class DateUtils {
     static final long C5 = C4 * 60L;
     static final long C6 = C5 * 24L;
 
+    private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
     private static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS =
             DateTimeFormatter.ofPattern(DateConstants.YYYY_MM_DD_HH_MM_SS);
 
@@ -217,7 +218,7 @@ public final class DateUtils {
             }
             return localDateTime2Date(ldt, ZoneId.of(timezone));
         } catch (Exception e) {
-            log.error("error while parse date:" + date, e);
+            logger.error("error while parse date:" + date, e);
         }
         return null;
     }
@@ -355,10 +356,6 @@ public final class DateUtils {
         if (end == null) {
             end = new Date();
         }
-        if (start.after(end)) {
-            log.warn("start Time {} is later than end Time {}", start, end);
-            return null;
-        }
         return format2Duration(differMs(start, end));
     }
 
@@ -455,6 +452,56 @@ public final class DateUtils {
         cal.setTime(date);
         cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY) + offsetHour);
         cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal.getTime();
+    }
+
+    /**
+     * return YYYY-MM-DD hh:MM:00
+     *
+     * @param inputMinute day
+     * @return start of minute
+     */
+    public static Date getEndOfMinute(Date inputMinute) {
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(inputMinute);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal.getTime();
+    }
+
+    /**
+     * return YYYY-MM-DD hh:MM:00
+     *
+     * @param inputMinute day
+     * @return start of minute
+     */
+    public static Date getStartOfMinute(Date inputMinute) {
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(inputMinute);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal.getTime();
+    }
+
+    /**
+     * get some Minute of hour
+     *
+     * @param date       date
+     * @param offsetMinute Minute
+     * @return some Minute of hour
+     */
+    public static Date getSomeMinuteOfHour(Date date, int offsetMinute) {
+        Calendar cal = Calendar.getInstance();
+
+        cal.setTime(date);
+        cal.set(Calendar.MINUTE, cal.get(Calendar.MINUTE) + offsetMinute);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
@@ -581,14 +628,6 @@ public final class DateUtils {
             return 0;
         }
         long usedTime = (System.currentTimeMillis() - baseTime.getTime()) / 1000;
-        return intervalSeconds - usedTime;
-    }
-
-    public static long getRemainTime(Long baseTime, long intervalSeconds) {
-        if (baseTime == null) {
-            return 0;
-        }
-        long usedTime = (System.currentTimeMillis() - baseTime) / 1000;
         return intervalSeconds - usedTime;
     }
 
@@ -728,7 +767,7 @@ public final class DateUtils {
             LocalDateTime ldt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern(format));
             return localDateTime2Date(ldt);
         } catch (Exception e) {
-            log.error("error while parse date:" + date, e);
+            logger.error("error while parse date:" + date, e);
         }
         return null;
     }

@@ -20,45 +20,31 @@ package org.apache.dolphinscheduler.tools.datasource;
 import org.apache.dolphinscheduler.dao.upgrade.SchemaUtils;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 import org.apache.dolphinscheduler.tools.datasource.dao.UpgradeDao;
-import org.apache.dolphinscheduler.tools.datasource.upgrader.DolphinSchedulerUpgrader;
-import org.apache.dolphinscheduler.tools.datasource.upgrader.DolphinSchedulerVersion;
-
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class DolphinSchedulerManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(DolphinSchedulerManager.class);
 
     private final UpgradeDao upgradeDao;
 
-    private Map<DolphinSchedulerVersion, DolphinSchedulerUpgrader> upgraderMap = new HashMap<>();
-
-    public DolphinSchedulerManager(DataSource dataSource, List<UpgradeDao> daos,
-                                   List<DolphinSchedulerUpgrader> dolphinSchedulerUpgraders) throws Exception {
+    public DolphinSchedulerManager(DataSource dataSource, List<UpgradeDao> daos) throws Exception {
         final DbType type = getCurrentDbType(dataSource);
         upgradeDao = daos.stream()
                 .filter(it -> it.getDbType() == type)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(
                         "Cannot find UpgradeDao implementation for db type: " + type));
-        if (CollectionUtils.isNotEmpty(dolphinSchedulerUpgraders)) {
-            upgraderMap = dolphinSchedulerUpgraders.stream()
-                    .collect(Collectors.toMap(DolphinSchedulerUpgrader::getCurrentVersion, Function.identity()));
-        }
     }
 
     private DbType getCurrentDbType(DataSource dataSource) throws Exception {
@@ -81,14 +67,14 @@ public class DolphinSchedulerManager {
         if (upgradeDao.isExistsTable("t_escheduler_version")
                 || upgradeDao.isExistsTable("t_ds_version")
                 || upgradeDao.isExistsTable("t_escheduler_queue")) {
-            log.info("The database has been initialized. Skip the initialization step");
+            logger.info("The database has been initialized. Skip the initialization step");
             return true;
         }
         return false;
     }
 
     public void initDolphinSchedulerSchema() {
-        log.info("Start initializing the DolphinScheduler manager table structure");
+        logger.info("Start initializing the DolphinScheduler manager table structure");
         upgradeDao.initSchema();
     }
 
@@ -96,7 +82,7 @@ public class DolphinSchedulerManager {
         // Gets a list of all upgrades
         List<String> schemaList = SchemaUtils.getAllSchemaList();
         if (schemaList == null || schemaList.size() == 0) {
-            log.info("There is no schema to upgrade!");
+            logger.info("There is no schema to upgrade!");
         } else {
             String version;
             // Gets the version of the current system
@@ -109,7 +95,7 @@ public class DolphinSchedulerManager {
             } else if (upgradeDao.isExistsTable("t_escheduler_queue")) {
                 version = "1.0.0";
             } else {
-                log.error("Unable to determine current software version, so cannot upgrade");
+                logger.error("Unable to determine current software version, so cannot upgrade");
                 throw new RuntimeException("Unable to determine current software version, so cannot upgrade");
             }
             // The target version of the upgrade
@@ -118,14 +104,20 @@ public class DolphinSchedulerManager {
             for (String schemaDir : schemaList) {
                 schemaVersion = schemaDir.split("_")[0];
                 if (SchemaUtils.isAGreatVersion(schemaVersion, version)) {
-                    log.info("upgrade DolphinScheduler metadata version from {} to {}", version, schemaVersion);
-                    log.info("Begin upgrading DolphinScheduler's table structure");
+                    logger.info("upgrade DolphinScheduler metadata version from {} to {}", version, schemaVersion);
+                    logger.info("Begin upgrading DolphinScheduler's table structure");
                     upgradeDao.upgradeDolphinScheduler(schemaDir);
-                    DolphinSchedulerVersion.getVersion(schemaVersion).ifPresent(v -> upgraderMap.get(v).doUpgrade());
+                    if ("1.3.0".equals(schemaVersion)) {
+                        upgradeDao.upgradeDolphinSchedulerWorkerGroup();
+                    } else if ("1.3.2".equals(schemaVersion)) {
+                        upgradeDao.upgradeDolphinSchedulerResourceList();
+                    } else if ("2.0.0".equals(schemaVersion)) {
+                        upgradeDao.upgradeDolphinSchedulerTo200(schemaDir);
+                    }
                     version = schemaVersion;
                 }
             }
-            // todo: do we need to do this in all version > 2.0.6?
+
             if (SchemaUtils.isAGreatVersion("2.0.6", currentVersion)
                     && SchemaUtils.isAGreatVersion(SchemaUtils.getSoftVersion(), currentVersion)) {
                 upgradeDao.upgradeDolphinSchedulerResourceFileSize();

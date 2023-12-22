@@ -33,6 +33,7 @@ export function useForm() {
         delete state.formRef.model[key]
       }
     }
+
     setValues(initialValues)
   }
 

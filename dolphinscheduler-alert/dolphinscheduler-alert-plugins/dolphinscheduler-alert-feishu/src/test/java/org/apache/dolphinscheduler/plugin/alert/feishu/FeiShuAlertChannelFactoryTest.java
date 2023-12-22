@@ -23,8 +23,8 @@ import org.apache.dolphinscheduler.spi.params.base.PluginParams;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class FeiShuAlertChannelFactoryTest {
 
@@ -33,13 +33,13 @@ public class FeiShuAlertChannelFactoryTest {
         FeiShuAlertChannelFactory feiShuAlertChannelFactory = new FeiShuAlertChannelFactory();
         List<PluginParams> params = feiShuAlertChannelFactory.params();
         JSONUtils.toJsonString(params);
-        Assertions.assertEquals(6, params.size());
+        Assert.assertEquals(6, params.size());
     }
 
     @Test
     public void testCreate() {
         FeiShuAlertChannelFactory feiShuAlertChannelFactory = new FeiShuAlertChannelFactory();
         AlertChannel alertChannel = feiShuAlertChannelFactory.create();
-        Assertions.assertNotNull(alertChannel);
+        Assert.assertNotNull(alertChannel);
     }
 }

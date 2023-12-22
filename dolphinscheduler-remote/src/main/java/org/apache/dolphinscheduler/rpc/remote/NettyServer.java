@@ -29,7 +29,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -46,8 +48,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 /**
  * NettyServer
  */
-@Slf4j
 public class NettyServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     /**
      * boss group
@@ -154,12 +157,12 @@ public class NettyServer {
             try {
                 future = serverBootstrap.bind(serverConfig.getListenPort()).sync();
             } catch (Exception e) {
-                log.error("NettyRemotingServer bind fail {}, exit", e.getMessage(), e);
+                logger.error("NettyRemotingServer bind fail {}, exit", e.getMessage(), e);
                 throw new RuntimeException(
                         String.format("NettyRemotingServer bind %s fail", serverConfig.getListenPort()));
             }
             if (future.isSuccess()) {
-                log.info("NettyRemotingServer bind success at port : {}", serverConfig.getListenPort());
+                logger.info("NettyRemotingServer bind success at port : {}", serverConfig.getListenPort());
             } else if (future.cause() != null) {
                 throw new RuntimeException(
                         String.format("NettyRemotingServer bind %s fail", serverConfig.getListenPort()),
@@ -196,9 +199,9 @@ public class NettyServer {
                 }
 
             } catch (Exception ex) {
-                log.error("netty server close exception", ex);
+                logger.error("netty server close exception", ex);
             }
-            log.info("netty server closed");
+            logger.info("netty server closed");
         }
     }
 

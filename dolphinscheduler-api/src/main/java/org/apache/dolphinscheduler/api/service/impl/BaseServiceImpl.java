@@ -18,7 +18,6 @@
 package org.apache.dolphinscheduler.api.service.impl;
 
 import org.apache.dolphinscheduler.api.enums.Status;
-import org.apache.dolphinscheduler.api.exceptions.ServiceException;
 import org.apache.dolphinscheduler.api.permission.ResourcePermissionCheckService;
 import org.apache.dolphinscheduler.api.service.BaseService;
 import org.apache.dolphinscheduler.api.utils.Result;
@@ -32,20 +31,21 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * base service impl
  */
-@Slf4j
 public class BaseServiceImpl implements BaseService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BaseServiceImpl.class);
 
     @Autowired
     protected ResourcePermissionCheckService resourcePermissionCheckService;
@@ -56,8 +56,8 @@ public class BaseServiceImpl implements BaseService {
         try {
             resourcePermissionCheckService.postHandle(authorizationType, userId, ids, logger);
         } catch (Exception e) {
-            log.error("Post handle error, userId:{}.", userId, e);
-            throw new RuntimeException("Resource association user error", e);
+            logger.error("post handle error", e);
+            throw new RuntimeException("resource association user error", e);
         }
     }
 
@@ -177,27 +177,45 @@ public class BaseServiceImpl implements BaseService {
      */
     @Override
     public boolean canOperatorPermissions(User user, Object[] ids, AuthorizationType type, String permissionKey) {
-        boolean operationPermissionCheck =
-                resourcePermissionCheckService.operationPermissionCheck(type, user.getId(), permissionKey, log);
+        boolean operationPermissionCheck = resourcePermissionCheckService.operationPermissionCheck(type,
+                type.equals(AuthorizationType.PROJECTS) ? ids : null, user.getId(), permissionKey, logger);
         boolean resourcePermissionCheck = resourcePermissionCheckService.resourcePermissionCheck(type, ids,
-                user.getUserType().equals(UserType.ADMIN_USER) ? 0 : user.getId(), log);
+                user.getUserType().equals(UserType.ADMIN_USER) ? 0 : user.getId(), logger);
         return operationPermissionCheck && resourcePermissionCheck;
     }
 
     /**
      * check and parse date parameters
+     *
+     * @param startDateStr start date string
+     * @param endDateStr end date string
+     * @return map<status,startDate,endDate>
      */
     @Override
-    public Date checkAndParseDateParameters(String startDateStr) throws ServiceException {
+    public Map<String, Object> checkAndParseDateParameters(String startDateStr, String endDateStr) {
+        Map<String, Object> result = new HashMap<>();
         Date start = null;
         if (!StringUtils.isEmpty(startDateStr)) {
             start = DateUtils.stringToDate(startDateStr);
             if (Objects.isNull(start)) {
-                log.warn("Parameter startDateStr is invalid.");
-                throw new ServiceException(Status.REQUEST_PARAMS_NOT_VALID_ERROR, Constants.START_END_DATE);
+                putMsg(result, Status.REQUEST_PARAMS_NOT_VALID_ERROR, Constants.START_END_DATE);
+                return result;
             }
         }
-        return start;
+        result.put(Constants.START_TIME, start);
+
+        Date end = null;
+        if (!StringUtils.isEmpty(endDateStr)) {
+            end = DateUtils.stringToDate(endDateStr);
+            if (Objects.isNull(end)) {
+                putMsg(result, Status.REQUEST_PARAMS_NOT_VALID_ERROR, Constants.START_END_DATE);
+                return result;
+            }
+        }
+        result.put(Constants.END_TIME, end);
+
+        putMsg(result, Status.SUCCESS);
+        return result;
     }
 
     @Override

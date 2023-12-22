@@ -26,10 +26,10 @@ import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -52,13 +52,13 @@ public class EnvironmentControllerTest extends AbstractControllerTest {
 
     public static final String desc = "this is environment description";
 
-    @BeforeEach
+    @Before
     public void before() throws Exception {
         testCreateEnvironment();
     }
 
     @Override
-    @AfterEach
+    @After
     public void after() throws Exception {
         testDeleteEnvironment();
     }
@@ -81,8 +81,8 @@ public class EnvironmentControllerTest extends AbstractControllerTest {
                 new TypeReference<Result<String>>() {
                 });
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
-        Assertions.assertNotNull(result.getData());
+        Assert.assertTrue(result != null && result.isSuccess());
+        Assert.assertNotNull(result.getData());
         logger.info("create environment return result:{}", mvcResult.getResponse().getContentAsString());
 
         environmentCode = (String) result.getData();
@@ -105,7 +105,7 @@ public class EnvironmentControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info("update environment return result:{}", mvcResult.getResponse().getContentAsString());
 
     }
@@ -124,7 +124,7 @@ public class EnvironmentControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info(mvcResult.getResponse().getContentAsString());
         logger.info("query environment by id :{}, return result:{}", environmentCode,
                 mvcResult.getResponse().getContentAsString());
@@ -147,7 +147,7 @@ public class EnvironmentControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info("query list-paging environment return result:{}", mvcResult.getResponse().getContentAsString());
     }
 
@@ -164,7 +164,7 @@ public class EnvironmentControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info("query all environment return result:{}", mvcResult.getResponse().getContentAsString());
 
     }
@@ -183,7 +183,7 @@ public class EnvironmentControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result.isStatus(Status.ENVIRONMENT_NAME_EXISTS));
+        Assert.assertTrue(result.isStatus(Status.ENVIRONMENT_NAME_EXISTS));
         logger.info("verify environment return result:{}", mvcResult.getResponse().getContentAsString());
 
     }
@@ -203,7 +203,7 @@ public class EnvironmentControllerTest extends AbstractControllerTest {
 
         Result result = JSONUtils.parseObject(mvcResult.getResponse().getContentAsString(), Result.class);
         logger.info(result.toString());
-        Assertions.assertTrue(result != null && result.isSuccess());
+        Assert.assertTrue(result != null && result.isSuccess());
         logger.info("delete environment return result:{}", mvcResult.getResponse().getContentAsString());
     }
 }

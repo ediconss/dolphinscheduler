@@ -20,24 +20,26 @@ package org.apache.dolphinscheduler.server.master.processor.queue;
 import org.apache.dolphinscheduler.common.utils.NetUtils;
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.apache.dolphinscheduler.plugin.task.api.enums.TaskExecutionStatus;
-import org.apache.dolphinscheduler.remote.command.task.TaskExecuteResultMessage;
-import org.apache.dolphinscheduler.remote.command.task.TaskExecuteRunningMessage;
+import org.apache.dolphinscheduler.remote.command.TaskExecuteResultCommand;
+import org.apache.dolphinscheduler.remote.command.TaskExecuteRunningCommand;
 import org.apache.dolphinscheduler.server.master.cache.impl.ProcessInstanceExecCacheManagerImpl;
 import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteThreadPool;
 import org.apache.dolphinscheduler.server.master.utils.DataQualityResultOperator;
 import org.apache.dolphinscheduler.service.process.ProcessService;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import java.util.Date;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import io.netty.channel.Channel;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class TaskResponseServiceTest {
 
     @Mock(name = "processService")
@@ -67,11 +69,11 @@ public class TaskResponseServiceTest {
     @Mock
     private TaskExecuteThreadPool taskExecuteThreadPool;
 
-    @BeforeEach
+    @Before
     public void before() {
         taskEventService.start();
 
-        TaskExecuteRunningMessage taskExecuteRunningMessage = new TaskExecuteRunningMessage("127.0.0.1:5678",
+        TaskExecuteRunningCommand taskExecuteRunningMessage = new TaskExecuteRunningCommand("127.0.0.1:5678",
                 "127.0.0.1:1234",
                 System.currentTimeMillis());
         taskExecuteRunningMessage.setProcessId(1);
@@ -80,19 +82,19 @@ public class TaskResponseServiceTest {
         taskExecuteRunningMessage.setExecutePath("path");
         taskExecuteRunningMessage.setLogPath("logPath");
         taskExecuteRunningMessage.setHost("127.*.*.*");
-        taskExecuteRunningMessage.setStartTime(System.currentTimeMillis());
+        taskExecuteRunningMessage.setStartTime(new Date());
 
         ackEvent = TaskEvent.newRunningEvent(taskExecuteRunningMessage,
                 channel,
                 taskExecuteRunningMessage.getMessageSenderAddress());
 
-        TaskExecuteResultMessage taskExecuteResultMessage = new TaskExecuteResultMessage(NetUtils.getAddr(1234),
+        TaskExecuteResultCommand taskExecuteResultMessage = new TaskExecuteResultCommand(NetUtils.getAddr(1234),
                 NetUtils.getAddr(5678),
                 System.currentTimeMillis());
         taskExecuteResultMessage.setProcessInstanceId(1);
         taskExecuteResultMessage.setTaskInstanceId(22);
         taskExecuteResultMessage.setStatus(TaskExecutionStatus.SUCCESS.getCode());
-        taskExecuteResultMessage.setEndTime(System.currentTimeMillis());
+        taskExecuteResultMessage.setEndTime(new Date());
         taskExecuteResultMessage.setVarPool("varPol");
         taskExecuteResultMessage.setAppIds("ids");
         taskExecuteResultMessage.setProcessId(1);
@@ -111,7 +113,7 @@ public class TaskResponseServiceTest {
         taskEventService.addEvent(resultEvent);
     }
 
-    @AfterEach
+    @After
     public void after() {
         if (taskEventService != null) {
             taskEventService.stop();

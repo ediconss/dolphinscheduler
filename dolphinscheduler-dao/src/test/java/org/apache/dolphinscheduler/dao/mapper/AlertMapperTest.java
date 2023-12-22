@@ -17,6 +17,11 @@
 
 package org.apache.dolphinscheduler.dao.mapper;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+
 import org.apache.dolphinscheduler.common.enums.AlertStatus;
 import org.apache.dolphinscheduler.common.enums.WarningType;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
@@ -28,8 +33,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -48,7 +52,7 @@ public class AlertMapperTest extends BaseDaoTest {
     @Test
     public void testInsert() {
         Alert expectedAlert = createAlert();
-        Assertions.assertTrue(expectedAlert.getId() > 0);
+        assertThat(expectedAlert.getId(), greaterThan(0));
     }
 
     /**
@@ -60,7 +64,7 @@ public class AlertMapperTest extends BaseDaoTest {
     public void testSelectById() {
         Alert expectedAlert = createAlert();
         Alert actualAlert = alertMapper.selectById(expectedAlert.getId());
-        Assertions.assertEquals(expectedAlert, actualAlert);
+        assertEquals(expectedAlert, actualAlert);
     }
 
     /**
@@ -79,7 +83,7 @@ public class AlertMapperTest extends BaseDaoTest {
 
         Alert actualAlert = alertMapper.selectById(expectedAlert.getId());
 
-        Assertions.assertEquals(expectedAlert, actualAlert);
+        assertEquals(expectedAlert, actualAlert);
     }
 
     /**
@@ -93,7 +97,7 @@ public class AlertMapperTest extends BaseDaoTest {
 
         Alert actualAlert = alertMapper.selectById(expectedAlert.getId());
 
-        Assertions.assertNull(actualAlert);
+        assertNull(actualAlert);
     }
 
     /**

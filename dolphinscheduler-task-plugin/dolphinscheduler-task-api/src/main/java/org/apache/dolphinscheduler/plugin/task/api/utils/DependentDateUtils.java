@@ -29,6 +29,30 @@ public class DependentDateUtils {
     /**
      * get last day interval list
      * @param businessDate businessDate
+     * @param minuteNumber minuteNumber
+     * @return DateInterval list
+     */
+    public static List<DateInterval> getLastMinutesInterval(Date businessDate, int minuteNumber) {
+        List<DateInterval> dateIntervals = new ArrayList<>();
+        if (minuteNumber == 0) {
+            Date lastMinute = DateUtils.getSomeMinuteOfHour(businessDate, 0);
+            Date beginTime = DateUtils.getStartOfMinute(lastMinute);
+            Date endTime = DateUtils.getEndOfMinute(lastMinute);
+            dateIntervals.add(new DateInterval(beginTime, endTime));
+            return dateIntervals;
+        }
+        for (int index = minuteNumber; index > 0; index--) {
+            Date lastMinute = DateUtils.getSomeMinuteOfHour(businessDate, -index);
+            Date beginTime = DateUtils.getStartOfMinute(lastMinute);
+            Date endTime = DateUtils.getEndOfMinute(lastMinute);
+            dateIntervals.add(new DateInterval(beginTime, endTime));
+        }
+        return dateIntervals;
+    }
+
+    /**
+     * get last day interval list
+     * @param businessDate businessDate
      * @param hourNumber hourNumber
      * @return DateInterval list
      */

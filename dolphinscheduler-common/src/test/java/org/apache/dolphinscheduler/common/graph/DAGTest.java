@@ -16,14 +16,15 @@
  */
 package org.apache.dolphinscheduler.common.graph;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +33,12 @@ public class DAGTest {
     private DAG<Integer, String, String> graph;
     private static final Logger logger = LoggerFactory.getLogger(DAGTest.class);
 
-    @BeforeEach
+    @Before
     public void setup() {
         graph = new DAG<>();
     }
 
-    @AfterEach
+    @After
     public void tearDown() {
         clear();
     }
@@ -46,7 +47,7 @@ public class DAGTest {
         graph = null;
         graph = new DAG<>();
 
-        Assertions.assertEquals(graph.getNodesCount(), 0);
+        assertEquals(graph.getNodesCount(), 0);
     }
 
     private void makeGraph() {
@@ -64,20 +65,20 @@ public class DAGTest {
         }
 
         // construction side
-        Assertions.assertTrue(graph.addEdge(1, 2));
+        assertTrue(graph.addEdge(1, 2));
 
-        Assertions.assertTrue(graph.addEdge(2, 5));
+        assertTrue(graph.addEdge(2, 5));
 
-        Assertions.assertTrue(graph.addEdge(3, 5));
+        assertTrue(graph.addEdge(3, 5));
 
-        Assertions.assertTrue(graph.addEdge(4, 6));
+        assertTrue(graph.addEdge(4, 6));
 
-        Assertions.assertTrue(graph.addEdge(5, 6));
+        assertTrue(graph.addEdge(5, 6));
 
-        Assertions.assertTrue(graph.addEdge(6, 7));
+        assertTrue(graph.addEdge(6, 7));
 
-        Assertions.assertEquals(graph.getNodesCount(), 7);
-        Assertions.assertEquals(graph.getEdgesCount(), 6);
+        assertEquals(graph.getNodesCount(), 7);
+        assertEquals(graph.getEdgesCount(), 6);
 
     }
 
@@ -92,12 +93,12 @@ public class DAGTest {
         graph.addNode(2, null);
         graph.addNode(5, "v(5)");
 
-        Assertions.assertEquals(graph.getNodesCount(), 3);
+        assertEquals(graph.getNodesCount(), 3);
 
-        Assertions.assertEquals(graph.getNode(1), "v(1)");
-        Assertions.assertTrue(graph.containsNode(1));
+        assertEquals(graph.getNode(1), "v(1)");
+        assertTrue(graph.containsNode(1));
 
-        Assertions.assertFalse(graph.containsNode(10));
+        assertFalse(graph.containsNode(10));
     }
 
     /**
@@ -107,24 +108,24 @@ public class DAGTest {
     public void testAddEdge() {
         clear();
 
-        Assertions.assertFalse(graph.addEdge(1, 2, "edge(1 -> 2)", false));
+        assertFalse(graph.addEdge(1, 2, "edge(1 -> 2)", false));
 
         graph.addNode(1, "v(1)");
 
-        Assertions.assertTrue(graph.addEdge(1, 2, "edge(1 -> 2)", true));
+        assertTrue(graph.addEdge(1, 2, "edge(1 -> 2)", true));
 
         graph.addNode(2, "v(2)");
 
-        Assertions.assertTrue(graph.addEdge(1, 2, "edge(1 -> 2)", true));
+        assertTrue(graph.addEdge(1, 2, "edge(1 -> 2)", true));
 
-        Assertions.assertFalse(graph.containsEdge(1, 3));
+        assertFalse(graph.containsEdge(1, 3));
 
-        Assertions.assertTrue(graph.containsEdge(1, 2));
-        Assertions.assertEquals(graph.getEdgesCount(), 1);
+        assertTrue(graph.containsEdge(1, 2));
+        assertEquals(graph.getEdgesCount(), 1);
 
         int node = 3;
         graph.addNode(node, "v(3)");
-        Assertions.assertFalse(graph.addEdge(node, node));
+        assertFalse(graph.addEdge(node, node));
 
     }
 
@@ -135,7 +136,7 @@ public class DAGTest {
     public void testSubsequentNodes() {
         makeGraph();
 
-        Assertions.assertEquals(graph.getSubsequentNodes(1).size(), 1);
+        assertEquals(graph.getSubsequentNodes(1).size(), 1);
 
     }
 
@@ -146,10 +147,10 @@ public class DAGTest {
     public void testIndegree() {
         makeGraph();
 
-        Assertions.assertEquals(graph.getIndegree(1), 0);
-        Assertions.assertEquals(graph.getIndegree(2), 1);
-        Assertions.assertEquals(graph.getIndegree(3), 0);
-        Assertions.assertEquals(graph.getIndegree(4), 0);
+        assertEquals(graph.getIndegree(1), 0);
+        assertEquals(graph.getIndegree(2), 1);
+        assertEquals(graph.getIndegree(3), 0);
+        assertEquals(graph.getIndegree(4), 0);
     }
 
     /**
@@ -159,11 +160,11 @@ public class DAGTest {
     public void testBeginNode() {
         makeGraph();
 
-        Assertions.assertEquals(graph.getBeginNode().size(), 3);
+        assertEquals(graph.getBeginNode().size(), 3);
 
-        Assertions.assertTrue(graph.getBeginNode().contains(1));
-        Assertions.assertTrue(graph.getBeginNode().contains(3));
-        Assertions.assertTrue(graph.getBeginNode().contains(4));
+        assertTrue(graph.getBeginNode().contains(1));
+        assertTrue(graph.getBeginNode().contains(3));
+        assertTrue(graph.getBeginNode().contains(4));
     }
 
     /**
@@ -173,9 +174,9 @@ public class DAGTest {
     public void testEndNode() {
         makeGraph();
 
-        Assertions.assertEquals(graph.getEndNode().size(), 1);
+        assertEquals(graph.getEndNode().size(), 1);
 
-        Assertions.assertTrue(graph.getEndNode().contains(7));
+        assertTrue(graph.getEndNode().contains(7));
     }
 
     /**
@@ -195,25 +196,25 @@ public class DAGTest {
             graph.addEdge(2, 3);
             graph.addEdge(3, 4);
 
-            Assertions.assertFalse(graph.hasCycle());
+            assertFalse(graph.hasCycle());
         } catch (Exception e) {
             e.printStackTrace();
-            Assertions.fail();
+            fail();
         }
 
         try {
             boolean addResult = graph.addEdge(4, 1);
 
             if (!addResult) {
-                Assertions.assertTrue(true);
+                assertTrue(true);
             }
 
             graph.addEdge(5, 1);
 
-            Assertions.assertFalse(graph.hasCycle());
+            assertFalse(graph.hasCycle());
         } catch (Exception e) {
             e.printStackTrace();
-            Assertions.fail();
+            fail();
         }
 
         clear();
@@ -231,10 +232,10 @@ public class DAGTest {
             graph.addEdge(4, 5);
             graph.addEdge(5, 2);// 会失败，添加不进去，所以下一步无环
 
-            Assertions.assertFalse(graph.hasCycle());
+            assertFalse(graph.hasCycle());
         } catch (Exception e) {
             e.printStackTrace();
-            Assertions.fail();
+            fail();
         }
     }
 
@@ -253,10 +254,10 @@ public class DAGTest {
             topoList.add(6);
             topoList.add(7);
 
-            Assertions.assertEquals(graph.topologicalSort(), topoList);
+            assertEquals(graph.topologicalSort(), topoList);
         } catch (Exception e) {
             e.printStackTrace();
-            Assertions.fail();
+            fail();
         }
     }
 
@@ -278,11 +279,11 @@ public class DAGTest {
             topoList.add(4);
             topoList.add(5);
 
-            Assertions.assertEquals(graph.topologicalSort(), topoList);
+            assertEquals(graph.topologicalSort(), topoList);
 
         } catch (Exception e) {
             e.printStackTrace();
-            Assertions.fail();
+            fail();
         }
 
     }
@@ -305,21 +306,21 @@ public class DAGTest {
         }
 
         // construction node
-        Assertions.assertTrue(graph.addEdge(1, 2));
+        assertTrue(graph.addEdge(1, 2));
 
-        Assertions.assertTrue(graph.addEdge(1, 3));
+        assertTrue(graph.addEdge(1, 3));
 
-        Assertions.assertTrue(graph.addEdge(2, 5));
-        Assertions.assertTrue(graph.addEdge(3, 4));
+        assertTrue(graph.addEdge(2, 5));
+        assertTrue(graph.addEdge(3, 4));
 
-        Assertions.assertTrue(graph.addEdge(4, 6));
+        assertTrue(graph.addEdge(4, 6));
 
-        Assertions.assertTrue(graph.addEdge(5, 6));
+        assertTrue(graph.addEdge(5, 6));
 
-        Assertions.assertTrue(graph.addEdge(6, 7));
-        Assertions.assertTrue(graph.addEdge(6, 8));
+        assertTrue(graph.addEdge(6, 7));
+        assertTrue(graph.addEdge(6, 8));
 
-        Assertions.assertEquals(graph.getNodesCount(), 8);
+        assertEquals(graph.getNodesCount(), 8);
 
         logger.info(Arrays.toString(graph.topologicalSort().toArray()));
 
@@ -331,7 +332,7 @@ public class DAGTest {
             logger.info(i + " subsequentNodes : " + graph.getSubsequentNodes(i));
         }
         logger.info(6 + "  previousNodesb: " + graph.getPreviousNodes(6));
-        Assertions.assertEquals(5, graph.getSubsequentNodes(2).toArray()[0]);
+        assertEquals(5, graph.getSubsequentNodes(2).toArray()[0]);
 
     }
 
@@ -341,7 +342,7 @@ public class DAGTest {
         try {
             graph.topologicalSort();
         } catch (Exception e) {
-            Assertions.assertTrue(e.getMessage().contains("serious error: graph has cycle"));
+            assertTrue(e.getMessage().contains("serious error: graph has cycle"));
         }
     }
 

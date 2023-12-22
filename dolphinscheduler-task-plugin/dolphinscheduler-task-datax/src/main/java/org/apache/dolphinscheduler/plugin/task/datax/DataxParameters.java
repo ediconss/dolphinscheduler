@@ -238,7 +238,7 @@ public class DataxParameters extends AbstractParameters {
                     && StringUtils.isNotEmpty(sql)
                     && StringUtils.isNotEmpty(targetTable);
         } else {
-            return StringUtils.isNotEmpty(json);
+            return !resourceList.isEmpty() || StringUtils.isNotEmpty(json);
         }
     }
 

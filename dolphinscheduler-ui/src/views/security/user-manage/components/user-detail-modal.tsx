@@ -110,7 +110,7 @@ export const UserModal = defineComponent({
           rules={this.formRules}
           labelPlacement='left'
           labelAlign='left'
-          labelWidth={120}
+          labelWidth={80}
         >
           <NFormItem label={t('security.user.username')} path='userName'>
             <NInput

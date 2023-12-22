@@ -23,8 +23,8 @@ import org.apache.dolphinscheduler.spi.params.base.PluginParams;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class DingTalkAlertChannelFactoryTest {
 
@@ -33,13 +33,13 @@ public class DingTalkAlertChannelFactoryTest {
         DingTalkAlertChannelFactory dingTalkAlertChannelFactory = new DingTalkAlertChannelFactory();
         List<PluginParams> params = dingTalkAlertChannelFactory.params();
         JSONUtils.toJsonString(params);
-        Assertions.assertEquals(12, params.size());
+        Assert.assertEquals(12, params.size());
     }
 
     @Test
     public void testCreate() {
         DingTalkAlertChannelFactory dingTalkAlertChannelFactory = new DingTalkAlertChannelFactory();
         AlertChannel alertChannel = dingTalkAlertChannelFactory.create();
-        Assertions.assertNotNull(alertChannel);
+        Assert.assertNotNull(alertChannel);
     }
 }

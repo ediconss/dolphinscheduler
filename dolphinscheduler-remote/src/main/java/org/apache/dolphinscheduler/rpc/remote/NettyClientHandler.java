@@ -30,7 +30,9 @@ import org.apache.dolphinscheduler.rpc.protocol.RpcProtocol;
 
 import java.lang.reflect.InvocationTargetException;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -40,8 +42,9 @@ import io.netty.handler.timeout.IdleStateEvent;
  * NettyClientHandler
  */
 @ChannelHandler.Sharable
-@Slf4j
 public class NettyClientHandler extends ChannelInboundHandlerAdapter {
+
+    private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
 
     private static final ThreadPoolManager threadPoolManager = ThreadPoolManager.INSTANCE;
 
@@ -59,7 +62,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
         RpcRequestCache rpcRequest = RpcRequestTable.get(reqId);
 
         if (null == rpcRequest) {
-            log.warn("rpc read error,this request does not exist");
+            logger.warn("rpc read error,this request does not exist");
             return;
         }
         threadPoolManager.addExecuteTask(() -> readHandler(rsp, rpcRequest, reqId));
@@ -85,10 +88,10 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
                 consumerConfig.getServiceCallBackClass().getDeclaredConstructor().newInstance().run(rsp.getResult());
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
                     | InvocationTargetException e) {
-                log.error("rpc service call back error,serviceName {},rsp {}", serviceName, rsp);
+                logger.error("rpc service call back error,serviceName {},rsp {}", serviceName, rsp);
             }
         } else {
-            log.error("rpc response error ,serviceName {},rsp {}", serviceName, rsp);
+            logger.error("rpc response error ,serviceName {},rsp {}", serviceName, rsp);
         }
 
     }
@@ -102,7 +105,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
             messageHeader.setEventType(EventType.HEARTBEAT.getType());
             rpcProtocol.setMsgHeader(messageHeader);
             ctx.channel().writeAndFlush(rpcProtocol);
-            log.debug("send heart beat msg...");
+            logger.debug("send heart beat msg...");
         } else {
             super.userEventTriggered(ctx, evt);
         }
@@ -110,7 +113,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("exceptionCaught : {}", cause.getMessage(), cause);
+        logger.error("exceptionCaught : {}", cause.getMessage(), cause);
         ctx.channel().close();
     }
 

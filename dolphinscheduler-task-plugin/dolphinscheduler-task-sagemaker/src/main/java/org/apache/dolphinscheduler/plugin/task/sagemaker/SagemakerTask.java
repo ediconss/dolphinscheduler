@@ -29,7 +29,8 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskConstants;
 import org.apache.dolphinscheduler.plugin.task.api.TaskException;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.model.Property;
-import org.apache.dolphinscheduler.plugin.task.api.utils.ParameterUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParamUtils;
+import org.apache.dolphinscheduler.plugin.task.api.parser.ParameterUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,20 +46,18 @@ import com.amazonaws.services.sagemaker.AmazonSageMakerClientBuilder;
 import com.amazonaws.services.sagemaker.model.StartPipelineExecutionRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * SagemakerTask task, Used to start Sagemaker pipeline
  */
 public class SagemakerTask extends AbstractRemoteTask {
 
-    private static final ObjectMapper objectMapper = JsonMapper.builder()
-            .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
-            .configure(READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
-            .configure(REQUIRE_SETTERS_FOR_GETTERS, true)
-            .propertyNamingStrategy(new PropertyNamingStrategy.UpperCamelCaseStrategy())
-            .build();
+    private static final ObjectMapper objectMapper =
+            new ObjectMapper().configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .configure(ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
+                    .configure(READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
+                    .configure(REQUIRE_SETTERS_FOR_GETTERS, true)
+                    .setPropertyNamingStrategy(new PropertyNamingStrategy.UpperCamelCaseStrategy());
     /**
      * SageMaker parameters
      */
@@ -81,10 +80,10 @@ public class SagemakerTask extends AbstractRemoteTask {
 
     @Override
     public void init() {
+        logger.info("Sagemaker task params {}", taskRequest.getTaskParams());
 
         parameters = JSONUtils.parseObject(taskRequest.getTaskParams(), SagemakerParameters.class);
 
-        log.info("Initialize Sagemaker task params {}", JSONUtils.toPrettyJsonString(parameters));
         if (parameters == null) {
             throw new SagemakerTaskException("Sagemaker task params is empty");
         }
@@ -151,11 +150,11 @@ public class SagemakerTask extends AbstractRemoteTask {
         try {
             startPipelineRequest = objectMapper.readValue(requestJson, StartPipelineExecutionRequest.class);
         } catch (Exception e) {
-            log.error("can not parse SagemakerRequestJson from json: {}", requestJson);
+            logger.error("can not parse SagemakerRequestJson from json: {}", requestJson);
             throw new SagemakerTaskException("can not parse SagemakerRequestJson ", e);
         }
 
-        log.info("Sagemaker task create StartPipelineRequest: {}", startPipelineRequest);
+        logger.info("Sagemaker task create StartPipelineRequest: {}", startPipelineRequest);
         return startPipelineRequest;
     }
 
@@ -165,8 +164,9 @@ public class SagemakerTask extends AbstractRemoteTask {
     }
 
     private String parseRequstJson(String requestJson) {
+        // combining local and global parameters
         Map<String, Property> paramsMap = taskRequest.getPrepareParamsMap();
-        return ParameterUtils.convertParameterPlaceholders(requestJson, ParameterUtils.convert(paramsMap));
+        return ParameterUtils.convertParameterPlaceholders(requestJson, ParamUtils.convert(paramsMap));
     }
 
     protected AmazonSageMaker createClient() {

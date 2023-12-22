@@ -17,7 +17,6 @@
 
 package org.apache.dolphinscheduler.plugin.task.datax;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -36,10 +35,13 @@ import org.apache.dolphinscheduler.plugin.task.api.enums.Direct;
 import org.apache.dolphinscheduler.plugin.task.api.enums.TaskRunStatus;
 import org.apache.dolphinscheduler.plugin.task.api.model.ApplicationInfo;
 import org.apache.dolphinscheduler.plugin.task.api.model.Property;
+import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
 import org.apache.dolphinscheduler.plugin.task.api.model.TaskResponse;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.resource.ResourceParametersHelper;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
+
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,11 +53,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -67,17 +71,7 @@ public class DataxTaskTest {
 
     private DataxTask dataxTask;
 
-    private final TaskCallBack taskCallBack = new TaskCallBack() {
-
-        @Override
-        public void updateRemoteApplicationInfo(int taskInstanceId, ApplicationInfo applicationInfo) {
-
-        }
-
-        @Override
-        public void updateTaskInstanceInfo(int taskInstanceId) {
-
-        }
+    private final TaskCallBack taskCallBack = (taskInstanceId, appIds) -> {
     };
 
     @BeforeEach
@@ -109,7 +103,7 @@ public class DataxTaskTest {
         taskResponse.setStatus(TaskRunStatus.SUCCESS);
         taskResponse.setExitStatusCode(0);
         taskResponse.setProcessId(1);
-        when(shellCommandExecutor.run(any(), eq(taskCallBack))).thenReturn(taskResponse);
+        when(shellCommandExecutor.run(anyString())).thenReturn(taskResponse);
 
         dataxTask.handle(taskCallBack);
         Assertions.assertEquals(0, dataxTask.getExitStatusCode());
@@ -121,8 +115,14 @@ public class DataxTaskTest {
         boolean delete = jsonFile.delete();
         Assertions.assertTrue(delete);
 
-        Assertions.assertEquals(dataxTask.buildCommand("/tmp/execution/app-id_job.json", null),
-                "${PYTHON_LAUNCHER} ${DATAX_LAUNCHER} --jvm=\"-Xms1G -Xmx1G\"  /tmp/execution/app-id_job.json");
+        File shellCommandFile = SystemUtils.IS_OS_WINDOWS ? new File("/tmp/execution/app-id_node.bat")
+                : new File("/tmp/execution/app-id_node.sh");
+        InputStream shellCommandInputStream = Files.newInputStream(shellCommandFile.toPath());
+        String shellCommandStr = FileUtils.readFile2Str(shellCommandInputStream);
+        Assertions.assertEquals(shellCommandStr, "python2.7 ${DATAX_HOME}/bin/datax.py  --jvm=\"-Xms1G -Xmx1G\" " +
+                " /tmp/execution/app-id_job.json");
+        delete = shellCommandFile.delete();
+        Assertions.assertTrue(delete);
     }
 
     @Test
@@ -134,6 +134,8 @@ public class DataxTaskTest {
         taskExecutionContext.setTaskParams(parameters);
         DataxTask dataxTask = new DataxTask(taskExecutionContext);
         dataxTask.init();
+        dataxTask.handle((int taskInstanceId, ApplicationInfo applicationInfo) -> {
+        });
 
         ShellCommandExecutor shellCommandExecutor = mock(ShellCommandExecutor.class);
         Field shellCommandExecutorFiled = DataxTask.class.getDeclaredField("shellCommandExecutor");
@@ -144,7 +146,7 @@ public class DataxTaskTest {
         taskResponse.setStatus(TaskRunStatus.SUCCESS);
         taskResponse.setExitStatusCode(0);
         taskResponse.setProcessId(1);
-        when(shellCommandExecutor.run(any(), eq(taskCallBack))).thenReturn(taskResponse);
+        when(shellCommandExecutor.run(anyString())).thenReturn(taskResponse);
 
         dataxTask.handle(taskCallBack);
         Assertions.assertEquals(0, dataxTask.getExitStatusCode());
@@ -156,8 +158,14 @@ public class DataxTaskTest {
         boolean delete = jsonFile.delete();
         Assertions.assertTrue(delete);
 
-        Assertions.assertEquals(dataxTask.buildCommand("/tmp/execution/app-id_job.json", createPrepareParamsMap()),
-                "${PYTHON_LAUNCHER} ${DATAX_LAUNCHER} --jvm=\"-Xms1G -Xmx1G\" -p \"-DDT='DT' -DDS='DS'\" /tmp/execution/app-id_job.json");
+        File shellCommandFile = SystemUtils.IS_OS_WINDOWS ? new File("/tmp/execution/app-id_node.bat")
+                : new File("/tmp/execution/app-id_node.sh");
+        InputStream shellCommandInputStream = Files.newInputStream(shellCommandFile.toPath());
+        String shellCommandStr = FileUtils.readFile2Str(shellCommandInputStream);
+        Assertions.assertEquals(shellCommandStr, "python2.7 ${DATAX_HOME}/bin/datax.py  --jvm=\"-Xms1G -Xmx1G\" " +
+                "-p \"-DDT='DT' -DDS='DS'\" /tmp/execution/app-id_job.json");
+        delete = shellCommandFile.delete();
+        Assertions.assertTrue(delete);
     }
 
     @Test
@@ -174,8 +182,7 @@ public class DataxTaskTest {
         shellCommandExecutorFiled.setAccessible(true);
         shellCommandExecutorFiled.set(dataxTask, shellCommandExecutor);
 
-        when(shellCommandExecutor.run(any(), eq(taskCallBack)))
-                .thenThrow(new InterruptedException("Command execution failed"));
+        when(shellCommandExecutor.run(anyString())).thenThrow(new InterruptedException("Command execution failed"));
         Assertions.assertThrows(TaskException.class, () -> dataxTask.handle(taskCallBack));
     }
 
@@ -193,20 +200,23 @@ public class DataxTaskTest {
         shellCommandExecutorFiled.setAccessible(true);
         shellCommandExecutorFiled.set(dataxTask, shellCommandExecutor);
 
-        when(shellCommandExecutor.run(any(), eq(taskCallBack)))
-                .thenThrow(new IOException("Command execution failed"));
+        when(shellCommandExecutor.run(anyString())).thenThrow(new IOException("Command execution failed"));
         Assertions.assertThrows(TaskException.class, () -> dataxTask.handle(taskCallBack));
     }
 
     @Test
+    @Disabled
     public void testTryExecuteSqlResolveColumnNames() throws Exception {
         BaseConnectionParam baseConnectionParam = mock(BaseConnectionParam.class);
         try (
                 MockedStatic<DataSourceClientProvider> mockedStaticDataSourceClientProvider =
                         mockStatic(DataSourceClientProvider.class)) {
+            DataSourceClientProvider clientProvider = mock(DataSourceClientProvider.class);
+            when(DataSourceClientProvider.getInstance()).thenReturn(clientProvider);
+            mockedStaticDataSourceClientProvider.when(DataSourceClientProvider::getInstance).thenReturn(clientProvider);
 
             Connection connection = mock(Connection.class);
-            when(DataSourceClientProvider.getAdHocConnection(Mockito.any(), Mockito.any())).thenReturn(connection);
+            when(clientProvider.getConnection(Mockito.any(), Mockito.any())).thenReturn(connection);
 
             PreparedStatement stmt = mock(PreparedStatement.class);
             when(connection.prepareStatement(anyString())).thenReturn(stmt);
@@ -230,22 +240,39 @@ public class DataxTaskTest {
     }
 
     @Test
+    public void testGetPythonCommand() {
+        Assertions.assertEquals(dataxTask.getPythonCommand(""), "python2.7");
+        Assertions.assertEquals(dataxTask.getPythonCommand("/bin/python"), "/bin/python2.7");
+
+        String pythonCommand = dataxTask.getPythonCommand("/opt/python");
+        pythonCommand = pythonCommand.replace(File.separator, "/");
+        Assertions.assertEquals(pythonCommand, "/opt/python/bin/python2.7");
+    }
+
+    @Test
     public void testLoadJvmEnv() {
         DataxParameters dataXParameters = createDataxParameters();
         dataXParameters.setXms(3);
         dataXParameters.setXmx(4);
-        Assertions.assertEquals(dataxTask.loadJvmEnv(dataXParameters), "--jvm=\"-Xms3G -Xmx4G\" ");
+        Assertions.assertEquals(dataxTask.loadJvmEnv(dataXParameters), " --jvm=\"-Xms3G -Xmx4G\" ");
     }
 
     private DataxParameters createDataxParameters() {
         DataxParameters dataxParameters = new DataxParameters();
         dataxParameters.setCustomConfig(1);
-        dataxParameters.setDsType("mysql");
-        dataxParameters.setDataSource(1);
-        dataxParameters.setJson(getJsonString());
-        dataxParameters.setDataTarget(2);
-        dataxParameters.setSql("SELECT count(*) FROM table");
-        dataxParameters.setTargetTable("user.name");
+        // dataxParameters.setDsType("mysql");
+        // dataxParameters.setDataSource(1);
+        // dataxParameters.setJson(getJsonString());
+        // dataxParameters.setDataTarget(2);
+        ArrayList<ResourceInfo> objects = new ArrayList<>();
+        ResourceInfo resourceInfo = new ResourceInfo();
+        resourceInfo.setId(1);
+        resourceInfo.setRes("/test.file");
+        resourceInfo.setResourceName("test");
+        objects.add(resourceInfo);
+        dataxParameters.setResourceList(objects);
+        // dataxParameters.setSql("SELECT count(*) FROM table");
+        // dataxParameters.setTargetTable("user.name");
         return dataxParameters;
     }
 

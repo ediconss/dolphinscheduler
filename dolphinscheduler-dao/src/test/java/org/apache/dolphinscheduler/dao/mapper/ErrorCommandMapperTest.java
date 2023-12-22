@@ -26,8 +26,8 @@ import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ErrorCommandMapperTest extends BaseDaoTest {
@@ -85,7 +85,7 @@ public class ErrorCommandMapperTest extends BaseDaoTest {
                 null,
                 projectCodeArray);
 
-        Assertions.assertNotEquals(0, commandCounts.size());
-        Assertions.assertNotEquals(0, commandCounts2.size());
+        Assert.assertNotEquals(commandCounts.size(), 0);
+        Assert.assertNotEquals(commandCounts2.size(), 0);
     }
 }

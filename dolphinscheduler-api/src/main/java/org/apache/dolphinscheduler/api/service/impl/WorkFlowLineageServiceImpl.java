@@ -52,8 +52,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -61,7 +59,6 @@ import org.springframework.util.CollectionUtils;
 /**
  * work flow lineage service impl
  */
-@Slf4j
 @Service
 public class WorkFlowLineageServiceImpl extends BaseServiceImpl implements WorkFlowLineageService {
 
@@ -82,7 +79,6 @@ public class WorkFlowLineageServiceImpl extends BaseServiceImpl implements WorkF
         Map<String, Object> result = new HashMap<>();
         Project project = projectMapper.queryByCode(projectCode);
         if (project == null) {
-            log.error("Project does not exist, projectCode:{}.", projectCode);
             putMsg(result, Status.PROJECT_NOT_FOUND, projectCode);
             return result;
         }
@@ -98,7 +94,6 @@ public class WorkFlowLineageServiceImpl extends BaseServiceImpl implements WorkF
         Map<String, Object> result = new HashMap<>();
         Project project = projectMapper.queryByCode(projectCode);
         if (project == null) {
-            log.error("Project does not exist, projectCode:{}.", projectCode);
             putMsg(result, Status.PROJECT_NOT_FOUND, projectCode);
             return result;
         }
@@ -171,7 +166,6 @@ public class WorkFlowLineageServiceImpl extends BaseServiceImpl implements WorkF
         Map<String, Object> result = new HashMap<>();
         Project project = projectMapper.queryByCode(projectCode);
         if (project == null) {
-            log.error("Project does not exist, projectCode:{}.", projectCode);
             putMsg(result, Status.PROJECT_NOT_FOUND, projectCode);
             return result;
         }
@@ -233,8 +227,7 @@ public class WorkFlowLineageServiceImpl extends BaseServiceImpl implements WorkF
                     DependentParameters dependentParameters =
                             JSONUtils.parseObject(taskDefinitionLog.getDependence(), DependentParameters.class);
                     if (dependentParameters != null) {
-                        List<DependentTaskModel> dependTaskList =
-                                dependentParameters.getDependTaskList();
+                        List<DependentTaskModel> dependTaskList = dependentParameters.getDependTaskList();
                         if (!CollectionUtils.isEmpty(dependTaskList)) {
                             for (DependentTaskModel taskModel : dependTaskList) {
                                 List<DependentItem> dependItemList = taskModel.getDependItemList();

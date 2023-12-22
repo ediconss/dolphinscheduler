@@ -20,7 +20,6 @@ package org.apache.dolphinscheduler.dao.entity;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
 import java.util.Date;
-import java.util.Objects;
 
 import lombok.Data;
 
@@ -91,7 +90,7 @@ public class DataSource {
 
         DataSource that = (DataSource) o;
 
-        if (!Objects.equals(id, that.id)) {
+        if (id != that.id) {
             return false;
         }
         return name.equals(that.name);

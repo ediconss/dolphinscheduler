@@ -23,17 +23,19 @@ import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * project query request
  */
-@Schema(name = "PROJECT-QUERY")
+@ApiModel("PROJECT-QUERY")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class ProjectQueryRequest extends PageQueryDto {
 
-    @Schema(example = "pro123")
+    @ApiModelProperty(example = "pro123")
     private String searchVal;
 }

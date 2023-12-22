@@ -19,13 +19,15 @@ package org.apache.dolphinscheduler.plugin.task.api.parser;
 
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * placeholder utils
  */
-@Slf4j
 public class PlaceholderUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(PlaceholderUtils.class);
 
     /**
      * Prefix of the position to be replaced
@@ -94,7 +96,7 @@ public class PlaceholderUtils {
             try {
                 return paramsMap.get(placeholderName);
             } catch (Exception ex) {
-                log.error("resolve placeholder '{}' in [ {} ]", placeholderName, value, ex);
+                logger.error("resolve placeholder '{}' in [ {} ]", placeholderName, value, ex);
                 return null;
             }
         }

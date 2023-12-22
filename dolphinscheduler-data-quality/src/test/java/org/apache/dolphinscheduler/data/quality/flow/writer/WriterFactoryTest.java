@@ -25,8 +25,8 @@ import org.apache.dolphinscheduler.data.quality.flow.batch.writer.WriterFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * WriterFactoryTest
@@ -49,6 +49,6 @@ public class WriterFactoryTest {
             flag = 1;
         }
 
-        Assertions.assertEquals(1, flag);
+        Assert.assertEquals(1, flag);
     }
 }

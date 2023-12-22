@@ -17,19 +17,19 @@
 
 package org.apache.dolphinscheduler.server.worker.utils;
 
-import org.apache.dolphinscheduler.common.constants.TenantConstants;
 import org.apache.dolphinscheduler.common.exception.StorageOperateNoConfiguredException;
 import org.apache.dolphinscheduler.common.utils.FileUtils;
 import org.apache.dolphinscheduler.common.utils.OSUtils;
 import org.apache.dolphinscheduler.common.utils.PropertyUtils;
-import org.apache.dolphinscheduler.plugin.storage.api.StorageOperate;
 import org.apache.dolphinscheduler.plugin.task.api.TaskException;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
 import org.apache.dolphinscheduler.server.worker.metrics.WorkerServerMetrics;
+import org.apache.dolphinscheduler.service.storage.StorageOperate;
+import org.apache.dolphinscheduler.service.utils.CommonUtils;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -45,19 +45,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 
-@Slf4j
 public class TaskExecutionCheckerUtils {
 
     public static void checkTenantExist(WorkerConfig workerConfig, TaskExecutionContext taskExecutionContext) {
         try {
             String tenantCode = taskExecutionContext.getTenantCode();
-            if (TenantConstants.DEFAULT_TENANT_CODE.equals(tenantCode)) {
-                log.warn("Current tenant is default tenant, will use {} to execute the task",
-                        TenantConstants.BOOTSTRAPT_SYSTEM_USER);
-                return;
-            }
             boolean osUserExistFlag;
             // if Using distributed is true and Currently supported systems are linux,Should not let it
             // automatically
@@ -95,58 +89,48 @@ public class TaskExecutionCheckerUtils {
                     taskExecutionContext.getProcessInstanceId(),
                     taskExecutionContext.getTaskInstanceId());
             taskExecutionContext.setExecutePath(execLocalPath);
-            taskExecutionContext.setAppInfoPath(FileUtils.getAppInfoPath(execLocalPath));
-            Path executePath = Paths.get(taskExecutionContext.getExecutePath());
-            createDirectory(executePath);
-            if (!TenantConstants.DEFAULT_TENANT_CODE.equals(taskExecutionContext.getTenantCode())) {
-                setOwner(executePath, taskExecutionContext.getTenantCode());
-            }
+            createDirectoryWithOwner(Paths.get(execLocalPath), taskExecutionContext.getTenantCode());
         } catch (Throwable ex) {
             throw new TaskException("Cannot create process execute dir", ex);
         }
     }
 
     public static void downloadResourcesIfNeeded(StorageOperate storageOperate,
-                                                 TaskExecutionContext taskExecutionContext) {
+                                                 TaskExecutionContext taskExecutionContext, Logger logger) {
         String execLocalPath = taskExecutionContext.getExecutePath();
-        String tenant = taskExecutionContext.getTenantCode();
-        String actualTenant =
-                TenantConstants.DEFAULT_TENANT_CODE.equals(tenant) ? TenantConstants.BOOTSTRAPT_SYSTEM_USER : tenant;
-
         Map<String, String> projectRes = taskExecutionContext.getResources();
         if (MapUtils.isEmpty(projectRes)) {
             return;
         }
         List<Pair<String, String>> downloadFiles = new ArrayList<>();
-        projectRes.keySet().forEach(fullName -> {
-            String fileName = storageOperate.getResourceFileName(actualTenant, fullName);
-            projectRes.put(fullName, fileName);
-            File resFile = new File(execLocalPath, fileName);
+        projectRes.forEach((key, value) -> {
+            File resFile = new File(execLocalPath, key);
             boolean notExist = !resFile.exists();
             if (notExist) {
-                downloadFiles.add(Pair.of(fullName, fileName));
+                downloadFiles.add(Pair.of(key, value));
             } else {
-                log.info("file : {} exists ", resFile.getName());
+                logger.info("file : {} exists ", resFile.getName());
             }
         });
-        if (!downloadFiles.isEmpty() && !PropertyUtils.isResourceStorageStartup()) {
+        if (!downloadFiles.isEmpty() && !PropertyUtils.getResUploadStartupState()) {
             throw new StorageOperateNoConfiguredException("Storage service config does not exist!");
         }
 
         if (CollectionUtils.isNotEmpty(downloadFiles)) {
             for (Pair<String, String> fileDownload : downloadFiles) {
                 try {
+                    // query the tenant code of the resource according to the name of the resource
                     String fullName = fileDownload.getLeft();
-                    String fileName = fileDownload.getRight();
-                    log.info("get resource file from path:{}", fullName);
-
+                    String tenantCode = fileDownload.getRight();
+                    String resPath = storageOperate.getResourceFileName(tenantCode, fullName);
+                    logger.info("get resource file from path:{}", resPath);
                     long resourceDownloadStartTime = System.currentTimeMillis();
-                    storageOperate.download(actualTenant, fullName,
-                            execLocalPath + File.separator + fileName, true);
+                    storageOperate.download(tenantCode, resPath, execLocalPath + File.separator + fullName, false,
+                            true);
                     WorkerServerMetrics
                             .recordWorkerResourceDownloadTime(System.currentTimeMillis() - resourceDownloadStartTime);
                     WorkerServerMetrics.recordWorkerResourceDownloadSize(
-                            Files.size(Paths.get(execLocalPath, fileName)));
+                            Files.size(Paths.get(execLocalPath, fullName)));
                     WorkerServerMetrics.incWorkerResourceDownloadSuccessCount();
                 } catch (Exception e) {
                     WorkerServerMetrics.incWorkerResourceDownloadFailureCount();
@@ -156,20 +140,13 @@ public class TaskExecutionCheckerUtils {
         }
     }
 
-    private static void createDirectory(Path filePath) {
+    private static void createDirectoryWithOwner(Path filePath, String tenant) {
         if (Files.exists(filePath)) {
             return;
         }
         try {
             Files.createDirectories(filePath);
-        } catch (IOException e) {
-            throw new TaskException("Create directory " + filePath + " failed ", e);
-        }
-    }
-
-    private static void setOwner(Path filePath, String tenant) {
-        try {
-            if (!OSUtils.isSudoEnable()) {
+            if (!CommonUtils.isSetTaskDirToTenantEnable()) {
                 // we need to open sudo, then we can change the owner.
                 return;
             }
@@ -178,7 +155,7 @@ public class TaskExecutionCheckerUtils {
             UserPrincipal tenantPrincipal = userPrincipalLookupService.lookupPrincipalByName(tenant);
             Files.setOwner(filePath, tenantPrincipal);
         } catch (IOException e) {
-            throw new TaskException("Set tenant directory " + filePath + " permission failed, tenant: " + tenant, e);
+            throw new TaskException("Set tenant directory permission failed, tenant: " + tenant, e);
         }
     }
 }

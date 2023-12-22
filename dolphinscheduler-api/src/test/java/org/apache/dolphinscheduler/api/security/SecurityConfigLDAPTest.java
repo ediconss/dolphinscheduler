@@ -20,8 +20,8 @@ package org.apache.dolphinscheduler.api.security;
 import org.apache.dolphinscheduler.api.controller.AbstractControllerTest;
 import org.apache.dolphinscheduler.api.security.impl.ldap.LdapService;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
@@ -39,15 +39,15 @@ public class SecurityConfigLDAPTest extends AbstractControllerTest {
     @Test
     public void testAuthenticator() {
         Authenticator authenticator = securityConfig.authenticator();
-        Assertions.assertNotNull(authenticator);
+        Assert.assertNotNull(authenticator);
     }
 
     @Test
     public void testLdapUserNotExistAction() {
         LdapUserNotExistActionType authenticator = ldapService.getLdapUserNotExistAction();
-        Assertions.assertEquals(LdapUserNotExistActionType.CREATE, authenticator);
+        Assert.assertEquals(LdapUserNotExistActionType.CREATE, authenticator);
 
         boolean isCreateAction = ldapService.createIfUserNotExists();
-        Assertions.assertEquals(Boolean.TRUE, isCreateAction);
+        Assert.assertEquals(Boolean.TRUE, isCreateAction);
     }
 }

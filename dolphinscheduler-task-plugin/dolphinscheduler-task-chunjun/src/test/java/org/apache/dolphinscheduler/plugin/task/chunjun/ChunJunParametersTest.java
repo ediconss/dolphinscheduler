@@ -17,15 +17,15 @@
 
 package org.apache.dolphinscheduler.plugin.task.chunjun;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ChunJunParametersTest {
 
     private ChunJunParameters chunJunParameters = new ChunJunParameters();
 
-    @BeforeEach
+    @Before
     public void setUp() {
         chunJunParameters.setCustomConfig(0);
         chunJunParameters.setDataSource(1);
@@ -58,21 +58,21 @@ public class ChunJunParametersTest {
                 + "deployMode=local"
                 + "}";
 
-        Assertions.assertNotEquals(expected, chunJunParameters.toString());
+        Assert.assertNotEquals(expected, chunJunParameters.toString());
     }
 
     @Test
     public void testCheckParameters() {
-        Assertions.assertFalse(chunJunParameters.checkParameters());
+        Assert.assertFalse(chunJunParameters.checkParameters());
     }
 
     @Test
     public void testGetResourceFilesList() {
-        Assertions.assertNotNull(chunJunParameters.getResourceFilesList());
+        Assert.assertNotNull(chunJunParameters.getResourceFilesList());
     }
 
     @Test
     public void testGetResources() {
-        Assertions.assertNotNull(chunJunParameters.getResources());
+        Assert.assertNotNull(chunJunParameters.getResources());
     }
 }

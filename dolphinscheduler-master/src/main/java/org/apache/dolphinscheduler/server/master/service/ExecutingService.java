@@ -21,6 +21,7 @@ import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.apache.dolphinscheduler.remote.dto.TaskInstanceExecuteDto;
 import org.apache.dolphinscheduler.remote.dto.WorkflowExecuteDto;
 import org.apache.dolphinscheduler.server.master.cache.ProcessInstanceExecCacheManager;
+import org.apache.dolphinscheduler.server.master.controller.WorkflowExecuteController;
 import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteRunnable;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -31,8 +32,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,8 +41,9 @@ import org.springframework.stereotype.Component;
  * executing service, to query executing data from memory, such workflow instance
  */
 @Component
-@Slf4j
 public class ExecutingService {
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowExecuteController.class);
 
     @Autowired
     private ProcessInstanceExecCacheManager processInstanceExecCacheManager;
@@ -50,13 +52,12 @@ public class ExecutingService {
         WorkflowExecuteRunnable workflowExecuteRunnable =
                 processInstanceExecCacheManager.getByProcessInstanceId(processInstanceId);
         if (workflowExecuteRunnable == null) {
-            log.info("workflow execute data not found, maybe it has finished, workflow id:{}", processInstanceId);
+            logger.info("workflow execute data not found, maybe it has finished, workflow id:{}", processInstanceId);
             return Optional.empty();
         }
         try {
             WorkflowExecuteDto workflowExecuteDto = new WorkflowExecuteDto();
-            BeanUtils.copyProperties(workflowExecuteDto,
-                    workflowExecuteRunnable.getWorkflowExecuteContext().getWorkflowInstance());
+            BeanUtils.copyProperties(workflowExecuteDto, workflowExecuteRunnable.getProcessInstance());
             List<TaskInstanceExecuteDto> taskInstanceList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(workflowExecuteRunnable.getAllTaskInstances())) {
                 for (TaskInstance taskInstance : workflowExecuteRunnable.getAllTaskInstances()) {
@@ -68,7 +69,7 @@ public class ExecutingService {
             workflowExecuteDto.setTaskInstances(taskInstanceList);
             return Optional.of(workflowExecuteDto);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("query workflow execute data fail, workflow id:{}", processInstanceId, e);
+            logger.error("query workflow execute data fail, workflow id:{}", processInstanceId, e);
         }
         return Optional.empty();
     }

@@ -25,18 +25,20 @@ import org.apache.dolphinscheduler.server.master.runner.WorkflowExecuteRunnable;
 
 import java.util.Optional;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.auto.service.AutoService;
 
 @AutoService(StateEventHandler.class)
-@Slf4j
 public class WorkflowBlockStateEventHandler implements StateEventHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkflowBlockStateEventHandler.class);
 
     @Override
     public boolean handleStateEvent(WorkflowExecuteRunnable workflowExecuteRunnable,
                                     StateEvent stateEvent) throws StateEventHandleError {
-        log.info("Handle workflow instance state block event");
+        logger.info("Handle workflow instance state block event");
         Optional<TaskInstance> taskInstanceOptional =
                 workflowExecuteRunnable.getTaskInstance(stateEvent.getTaskInstanceId());
         if (!taskInstanceOptional.isPresent()) {

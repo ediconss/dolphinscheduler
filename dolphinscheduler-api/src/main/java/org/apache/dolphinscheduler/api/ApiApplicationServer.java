@@ -21,15 +21,15 @@ import org.apache.dolphinscheduler.common.enums.PluginType;
 import org.apache.dolphinscheduler.dao.PluginDao;
 import org.apache.dolphinscheduler.dao.entity.PluginDefine;
 import org.apache.dolphinscheduler.plugin.task.api.TaskChannelFactory;
-import org.apache.dolphinscheduler.plugin.task.api.TaskPluginManager;
+import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 import org.apache.dolphinscheduler.spi.params.PluginParamsTransfer;
 import org.apache.dolphinscheduler.spi.params.base.PluginParams;
 
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -41,8 +41,9 @@ import org.springframework.context.event.EventListener;
 @ServletComponentScan
 @SpringBootApplication
 @ComponentScan("org.apache.dolphinscheduler")
-@Slf4j
 public class ApiApplicationServer {
+
+    private final Logger logger = LoggerFactory.getLogger(ApiApplicationServer.class);
 
     @Autowired
     private TaskPluginManager taskPluginManager;
@@ -56,7 +57,7 @@ public class ApiApplicationServer {
 
     @EventListener
     public void run(ApplicationReadyEvent readyEvent) {
-        log.info("Received spring application context ready event will load taskPlugin and write to DB");
+        logger.info("Received spring application context ready event will load taskPlugin and write to DB");
         // install task plugin
         taskPluginManager.loadPlugin();
         for (Map.Entry<String, TaskChannelFactory> entry : taskPluginManager.getTaskChannelFactoryMap().entrySet()) {

@@ -37,19 +37,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * process definition controller test
  */
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class DataQualityControllerTest {
 
     @InjectMocks
@@ -63,7 +63,7 @@ public class DataQualityControllerTest {
 
     protected User user;
 
-    @BeforeEach
+    @Before
     public void before() {
         User loginUser = new User();
         loginUser.setId(1);
@@ -83,7 +83,7 @@ public class DataQualityControllerTest {
         Mockito.when(dqRuleService.getRuleFormCreateJsonById(1)).thenReturn(result);
 
         Result response = dataQualityController.getRuleFormCreateJsonById(1);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
     }
 
     private void putMsg(Map<String, Object> result, Status status, Object... statusParams) {
@@ -140,7 +140,7 @@ public class DataQualityControllerTest {
                 user, searchVal, ruleType, start, end, 1, 10)).thenReturn(result);
 
         Result response = dataQualityController.queryRuleListPaging(user, searchVal, ruleType, start, end, 1, 10);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class DataQualityControllerTest {
         when(dqRuleService.queryAllRuleList()).thenReturn(result);
 
         Result response = dataQualityController.queryRuleList();
-        Assertions.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
     }
 
     @Test
@@ -176,6 +176,6 @@ public class DataQualityControllerTest {
 
         Result response =
                 dataQualityController.queryExecuteResultListPaging(user, searchVal, ruleType, 0, start, end, 1, 10);
-        Assertions.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
+        Assert.assertEquals(Status.SUCCESS.getCode(), response.getCode().intValue());
     }
 }

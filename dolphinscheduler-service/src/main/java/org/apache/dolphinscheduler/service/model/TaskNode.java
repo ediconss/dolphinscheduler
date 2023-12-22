@@ -78,8 +78,6 @@ public class TaskNode {
      */
     private String runFlag;
 
-    private int isCache;
-
     /**
      * the front field
      */
@@ -133,7 +131,7 @@ public class TaskNode {
     /**
      * node dependency list
      */
-    private List<Long> depList;
+    private List<String> depList;
 
     /**
      * outer dependency information
@@ -242,7 +240,7 @@ public class TaskNode {
 
     public void setPreTasks(String preTasks) {
         this.preTasks = preTasks;
-        this.depList = JSONUtils.toList(preTasks, Long.class);
+        this.depList = JSONUtils.toList(preTasks, String.class);
     }
 
     public String getExtras() {
@@ -253,11 +251,11 @@ public class TaskNode {
         this.extras = extras;
     }
 
-    public List<Long> getDepList() {
+    public List<String> getDepList() {
         return depList;
     }
 
-    public void setDepList(List<Long> depList) {
+    public void setDepList(List<String> depList) {
         if (depList != null) {
             this.depList = depList;
             this.preTasks = JSONUtils.toJsonString(depList);
@@ -278,14 +276,6 @@ public class TaskNode {
 
     public void setRunFlag(String runFlag) {
         this.runFlag = runFlag;
-    }
-
-    public int getIsCache() {
-        return isCache;
-    }
-
-    public void setIsCache(int isCache) {
-        this.isCache = isCache;
     }
 
     public boolean isForbidden() {

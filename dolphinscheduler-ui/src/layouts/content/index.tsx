@@ -77,6 +77,7 @@ const Content = defineComponent({
           }
 
           getSideMenu(state)
+
           const currentSide = (
             route.meta.activeSide
               ? route.meta.activeSide
@@ -96,8 +97,7 @@ const Content = defineComponent({
     return {
       ...toRefs(state),
       changeMenuOption,
-      sideKeyRef,
-      currentRoute: route
+      sideKeyRef
     }
   },
   render() {
@@ -124,7 +124,7 @@ const Content = defineComponent({
             style='padding: 16px 22px'
             contentStyle={'height: 100%'}
           >
-            <router-view key={this.currentRoute.fullPath} />
+            <router-view key={this.$route.fullPath} />
           </NLayoutContent>
         </NLayout>
       </NLayout>

@@ -17,7 +17,7 @@
 
 package org.apache.dolphinscheduler.api.aspect;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -37,7 +37,7 @@ public class AccessLogAspectTest {
 
         String actual = accessLogAspect.handleSensitiveData(data);
 
-        Assertions.assertEquals(expected, actual);
+        Assert.assertEquals(expected, actual);
     }
 
 }

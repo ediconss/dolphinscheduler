@@ -19,8 +19,8 @@ package org.apache.dolphinscheduler.spi.plugin;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.google.auto.service.AutoService;
 
@@ -31,14 +31,15 @@ public class PrioritySPIFactoryTest {
         PrioritySPIFactory<LoadHighPriorityConflictTestSPI> factory =
                 new PrioritySPIFactory<>(LoadHighPriorityConflictTestSPI.class);
         Map<String, LoadHighPriorityConflictTestSPI> spiMap = factory.getSPIMap();
-        Assertions.assertEquals(1, spiMap.get("A").getIdentify().getPriority());
+        Assert.assertEquals(1, spiMap.get("A").getIdentify().getPriority());
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void throwExceptionWhenPriorityIsSame() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            new PrioritySPIFactory<>(ThrowExceptionConflictTestSPI.class);
-        });
+        PrioritySPIFactory<ThrowExceptionConflictTestSPI> factory =
+                new PrioritySPIFactory<>(ThrowExceptionConflictTestSPI.class);
+        Map<String, ThrowExceptionConflictTestSPI> spiMap = factory.getSPIMap();
+        Assert.assertEquals(0, spiMap.get("B").getIdentify().getPriority());
     }
 
     public interface LoadHighPriorityConflictTestSPI extends PrioritySPI {

@@ -21,30 +21,23 @@ import static org.apache.dolphinscheduler.common.constants.Constants.SLEEP_TIME_
 
 import org.apache.dolphinscheduler.common.IStoppable;
 import org.apache.dolphinscheduler.common.constants.Constants;
-import org.apache.dolphinscheduler.common.model.Server;
+import org.apache.dolphinscheduler.common.enums.NodeType;
 import org.apache.dolphinscheduler.common.model.WorkerHeartBeat;
 import org.apache.dolphinscheduler.common.thread.ThreadUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
-import org.apache.dolphinscheduler.registry.api.RegistryClient;
 import org.apache.dolphinscheduler.registry.api.RegistryException;
-import org.apache.dolphinscheduler.registry.api.enums.RegistryNodeType;
-import org.apache.dolphinscheduler.remote.utils.Host;
 import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
 import org.apache.dolphinscheduler.server.worker.runner.WorkerManagerThread;
 import org.apache.dolphinscheduler.server.worker.task.WorkerHeartBeatTask;
-
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.dolphinscheduler.service.registry.RegistryClient;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -61,7 +54,6 @@ public class WorkerRegistryClient implements AutoCloseable {
     private RegistryClient registryClient;
 
     @Autowired
-    @Lazy
     private WorkerConnectStrategy workerConnectStrategy;
 
     private WorkerHeartBeatTask workerHeartBeatTask;
@@ -78,7 +70,7 @@ public class WorkerRegistryClient implements AutoCloseable {
         try {
             registry();
             registryClient.addConnectionStateListener(
-                    new WorkerConnectionStateListener(workerConfig, workerConnectStrategy));
+                    new WorkerConnectionStateListener(workerConfig, registryClient, workerConnectStrategy));
         } catch (Exception ex) {
             throw new RegistryException("Worker registry client start up error", ex);
         }
@@ -95,7 +87,7 @@ public class WorkerRegistryClient implements AutoCloseable {
         registryClient.persistEphemeral(workerZKPath, JSONUtils.toJsonString(workerHeartBeat));
         log.info("Worker node: {} registry to ZK {} successfully", workerConfig.getWorkerAddress(), workerZKPath);
 
-        while (!registryClient.checkNodeExists(workerConfig.getWorkerAddress(), RegistryNodeType.WORKER)) {
+        while (!registryClient.checkNodeExists(workerConfig.getWorkerAddress(), NodeType.WORKER)) {
             ThreadUtils.sleep(SLEEP_TIME_MILLIS);
         }
 
@@ -104,15 +96,6 @@ public class WorkerRegistryClient implements AutoCloseable {
 
         workerHeartBeatTask.start();
         log.info("Worker node: {} registry finished", workerConfig.getWorkerAddress());
-    }
-
-    public Optional<Host> getAlertServerAddress() {
-        List<Server> serverList = registryClient.getServerList(RegistryNodeType.ALERT_SERVER);
-        if (CollectionUtils.isEmpty(serverList)) {
-            return Optional.empty();
-        }
-        Server server = serverList.get(0);
-        return Optional.of(new Host(server.getHost(), server.getPort()));
     }
 
     public void setRegistryStoppable(IStoppable stoppable) {

@@ -34,9 +34,7 @@ export default defineComponent({
       getTableData({
         pageSize: variables.pageSize,
         pageNo: variables.page,
-        searchVal: variables.searchVal,
-        projectCode: variables.projectCode,
-        processDefinitionCode: variables.processDefinitionCode
+        searchVal: variables.searchVal
       })
     }
 

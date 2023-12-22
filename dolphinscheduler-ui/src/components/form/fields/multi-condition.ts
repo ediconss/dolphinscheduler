@@ -20,7 +20,7 @@ import { useFormItem } from 'naive-ui/es/_mixins'
 import { NFormItemGi, NSpace, NButton, NGrid, NGridItem } from 'naive-ui'
 import { PlusOutlined, DeleteOutlined } from '@vicons/antd'
 import { isFunction } from 'lodash'
-import type { IJsonItem, IFormItemRule } from '../types'
+import type { IJsonItem, FormItemRule } from '../types'
 import getField from '@/components/form/fields/get-field'
 import { formatValidate } from '@/components/form/utils'
 
@@ -65,9 +65,10 @@ const MultiCondition = defineComponent({
 
 export function renderMultiCondition(
   item: IJsonItem,
-  fields: { [field: string]: any }
+  fields: { [field: string]: any },
+  unused: { [key: string]: FormItemRule }[]
 ) {
-  const ruleItem: { [key: string]: IFormItemRule } = {}
+  const ruleItem: { [key: string]: FormItemRule } = {}
 
   // the fields is the data of the task definition.
   // the item is the options of this component in the form.

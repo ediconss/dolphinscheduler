@@ -24,10 +24,12 @@ import org.apache.dolphinscheduler.alert.api.AlertResult;
 
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public final class EmailAlertChannel implements AlertChannel {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailAlertChannel.class);
 
     @Override
     public AlertResult process(AlertInfo info) {
@@ -46,18 +48,18 @@ public final class EmailAlertChannel implements AlertChannel {
             alertResult = new AlertResult();
             alertResult.setStatus("false");
             alertResult.setMessage("alert send error.");
-            log.info("alert send error : {}", alertResult.getMessage());
+            logger.info("alert send error : {}", alertResult.getMessage());
             return alertResult;
         }
 
         flag = Boolean.parseBoolean(String.valueOf(alertResult.getStatus()));
 
         if (flag) {
-            log.info("alert send success");
+            logger.info("alert send success");
             alertResult.setMessage("email send success.");
         } else {
             alertResult.setMessage("alert send error.");
-            log.info("alert send error : {}", alertResult.getMessage());
+            logger.info("alert send error : {}", alertResult.getMessage());
         }
 
         return alertResult;

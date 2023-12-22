@@ -17,6 +17,8 @@
 
 package org.apache.dolphinscheduler.dao.upgrade;
 
+import org.apache.dolphinscheduler.common.utils.ConnectionUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,10 +26,12 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class ScheduleDao {
+
+    public static final Logger logger = LoggerFactory.getLogger(ScheduleDao.class);
 
     /**
      * queryAllSchedule
@@ -38,17 +42,21 @@ public class ScheduleDao {
     public Map<Integer, Long> queryAllSchedule(Connection conn) {
         Map<Integer, Long> scheduleMap = new HashMap<>();
         String sql = "SELECT id,process_definition_code FROM t_ds_schedules";
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
             while (rs.next()) {
                 Integer id = rs.getInt(1);
                 long processDefinitionCode = rs.getLong(2);
                 scheduleMap.put(id, processDefinitionCode);
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException("sql: " + sql, e);
+        } finally {
+            ConnectionUtils.releaseResource(rs, pstmt, conn);
         }
         return scheduleMap;
     }
@@ -82,8 +90,10 @@ public class ScheduleDao {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new RuntimeException("sql: " + sql, e);
+        } finally {
+            ConnectionUtils.releaseResource(conn);
         }
     }
 }

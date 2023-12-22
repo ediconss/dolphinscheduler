@@ -21,8 +21,8 @@ import org.apache.dolphinscheduler.common.constants.Constants;
 
 import org.apache.commons.lang3.SystemUtils;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Constants Test
@@ -35,9 +35,9 @@ public class ConstantsTest {
     @Test
     public void testPID() {
         if (SystemUtils.IS_OS_WINDOWS) {
-            Assertions.assertEquals(Constants.PID, "handle");
+            Assert.assertEquals(Constants.PID, "handle");
         } else {
-            Assertions.assertEquals(Constants.PID, "pid");
+            Assert.assertEquals(Constants.PID, "pid");
         }
     }
 

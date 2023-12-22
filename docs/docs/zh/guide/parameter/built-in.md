@@ -2,20 +2,24 @@
 
 ## 基础内置参数
 
-|               变量名               |                 声明方式                 |                含义                |
-|---------------------------------|--------------------------------------|----------------------------------|
-| system.biz.date                 | `${system.biz.date}`                 | 日常调度实例定时的定时时间前一天，格式为 yyyyMMdd    |
-| system.biz.curdate              | `${system.biz.curdate}`              | 日常调度实例定时的定时时间，格式为 yyyyMMdd       |
-| system.datetime                 | `${system.datetime}`                 | 日常调度实例定时的定时时间，格式为 yyyyMMddHHmmss |
-| system.task.execute.path        | `${system.task.execute.path}`        | 当前任务执行的绝对路径                      |
-| system.task.instance.id         | `${ssystem.task.instance.id}`        | 当前任务实例的ID                        |
-| system.task.definition.name     | `${system.task.definition.name}`     | 当前任务所属任务定义的名称                    |
-| system.task.definition.code     | `${system.task.definition.code}`     | 当前任务所属任务定义的code                  |
-| system.workflow.instance.id     | `${system.workflow.instance.id}`     | 当前任务所属工作流实例ID                    |
-| system.workflow.definition.name | `${system.workflow.definition.name}` | 当前任务所属工作流定义的名称                   |
-| system.workflow.definition.code | `${system.workflow.definition.code}` | 当前任务所属工作流定义的code                 |
-| system.project.name             | `${system.project.name}`             | 当前任务所在项目的名称                      |
-| system.project.code             | `${system.project.code}`             | 当前任务所在项目的code                    |
+<table>
+    <tr><th>变量名</th><th>声明方式</th><th>含义</th></tr>
+    <tr>
+        <td>system.biz.date</td>
+        <td>${system.biz.date}</td>
+        <td>日常调度实例定时的定时时间前一天，格式为 yyyyMMdd</td>
+    </tr>
+    <tr>
+        <td>system.biz.curdate</td>
+        <td>${system.biz.curdate}</td>
+        <td>日常调度实例定时的定时时间，格式为 yyyyMMdd</td>
+    </tr>
+    <tr>
+        <td>system.datetime</td>
+        <td>${system.datetime}</td>
+        <td>日常调度实例定时的定时时间，格式为 yyyyMMddHHmmss</td>
+    </tr>
+</table>
 
 ## 衍生内置参数
 
@@ -43,16 +47,4 @@
   * 前 N 小时：$[HHmmss-N/24]
   * 后 N 分钟：$[HHmmss+N/24/60]
   * 前 N 分钟：$[HHmmss-N/24/60]
-  *******************************************
-  3.业务属性方式
-  在自定义格式后直接“+/-”数字
-  支持日志格式：所有日期表达式，例如：yyyy-MM-dd/yyyyMMddHHmmss
-  * 当天：$[this_day(yyyy-MM-dd)]，如：2022-08-26 => 2022-08-26
-  * 昨天：$[last_day(yyyy-MM-dd)]，如：2022-08-26 => 2022-08-25
-  * 年的第N周，以周一为起点：$[year_week(yyyy-MM-dd)]，如：2022-08-26 => 2022-34
-  * 年的第N周，以周N为起点：$[year_week(yyyy-MM-dd,N)]，如：N=5时 2022-08-26 => 2022-35
-  * 前(-)/后(+) N 月第一天：$[month_first_day(yyyy-MM-dd,-N)]，如：N=1时 2022-08-26 => 2022-07-01
-  * 前(-)/后(+) N 月最后一天：$[month_last_day(yyyy-MM-dd,-N)]，如：N=1时 2022-08-28 => 2022-07-31
-  * 前(-)/后(+) N 周的周一：$[week_first_day(yyyy-MM-dd,-N)]，如：N=1 2022-08-26 => 2022-08-15
-  * 前(-)/后(+) N 周的周日：$[week_last_day(yyyy-MM-dd,-N)]，如：N=1 2022-08-26 => 2022-08-21
 

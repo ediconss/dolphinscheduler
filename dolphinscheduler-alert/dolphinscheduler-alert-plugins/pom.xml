@@ -21,14 +21,12 @@
     <parent>
         <groupId>org.apache.dolphinscheduler</groupId>
         <artifactId>dolphinscheduler-alert</artifactId>
-        <version>dev-SNAPSHOT</version>
+        <version>3.1.8-SNAPSHOT</version>
     </parent>
     <artifactId>dolphinscheduler-alert-plugins</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>dolphinscheduler-alert-all</module>
-        <module>dolphinscheduler-alert-api</module>
         <module>dolphinscheduler-alert-email</module>
         <module>dolphinscheduler-alert-wechat</module>
         <module>dolphinscheduler-alert-dingtalk</module>
@@ -40,5 +38,12 @@
         <module>dolphinscheduler-alert-webexteams</module>
         <module>dolphinscheduler-alert-telegram</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.dolphinscheduler</groupId>
+            <artifactId>dolphinscheduler-alert-api</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

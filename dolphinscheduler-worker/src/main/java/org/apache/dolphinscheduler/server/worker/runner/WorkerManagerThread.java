@@ -20,7 +20,6 @@ package org.apache.dolphinscheduler.server.worker.runner;
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.lifecycle.ServerLifeCycleManager;
 import org.apache.dolphinscheduler.common.thread.ThreadUtils;
-import org.apache.dolphinscheduler.common.utils.OSUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContextCacheManager;
 import org.apache.dolphinscheduler.server.worker.config.TaskExecuteThreadsFullPolicy;
 import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
@@ -31,16 +30,17 @@ import java.util.concurrent.DelayQueue;
 
 import javax.annotation.Nullable;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
  * Manage tasks
  */
 @Component
-@Slf4j
 public class WorkerManagerThread implements Runnable {
+
+    private final Logger logger = LoggerFactory.getLogger(WorkerManagerThread.class);
 
     private final DelayQueue<WorkerDelayTaskExecuteRunnable> waitSubmitQueue;
     private final WorkerExecService workerExecService;
@@ -102,7 +102,7 @@ public class WorkerManagerThread implements Runnable {
         }
 
         if (waitSubmitQueue.size() > workerExecThreads) {
-            log.warn("Wait submit queue is full, will retry submit task later");
+            logger.warn("Wait submit queue is full, will retry submit task later");
             WorkerServerMetrics.incWorkerSubmitQueueIsFullCount();
             // if waitSubmitQueue is full, it will wait 1s, then try add
             ThreadUtils.sleep(Constants.SLEEP_TIME_MILLIS);
@@ -114,21 +114,15 @@ public class WorkerManagerThread implements Runnable {
     }
 
     public void start() {
-        log.info("Worker manager thread starting");
+        logger.info("Worker manager thread starting");
         Thread thread = new Thread(this, this.getClass().getName());
         thread.setDaemon(true);
         thread.start();
-        log.info("Worker manager thread started");
+        logger.info("Worker manager thread started");
     }
 
     @Override
     public void run() {
-        WorkerServerMetrics.registerWorkerCpuUsageGauge(OSUtils::cpuUsagePercentage);
-        WorkerServerMetrics.registerWorkerMemoryAvailableGauge(OSUtils::availablePhysicalMemorySize);
-        WorkerServerMetrics.registerWorkerMemoryUsageGauge(OSUtils::memoryUsagePercentage);
-        WorkerServerMetrics.registerWorkerExecuteQueueSizeGauge(workerExecService::getThreadPoolQueueSize);
-        WorkerServerMetrics.registerWorkerActiveExecuteThreadGauge(workerExecService::getActiveExecThreadCount);
-
         Thread.currentThread().setName("Worker-Execute-Manager-Thread");
         while (!ServerLifeCycleManager.isStopped()) {
             try {
@@ -140,12 +134,12 @@ public class WorkerManagerThread implements Runnable {
                     workerExecService.submit(workerDelayTaskExecuteRunnable);
                 } else {
                     WorkerServerMetrics.incWorkerOverloadCount();
-                    log.info("Exec queue is full, waiting submit queue {}, waiting exec queue size {}",
+                    logger.info("Exec queue is full, waiting submit queue {}, waiting exec queue size {}",
                             this.getWaitSubmitQueueSize(), this.getThreadPoolQueueSize());
                     ThreadUtils.sleep(Constants.SLEEP_TIME_MILLIS);
                 }
             } catch (Exception e) {
-                log.error("An unexpected interrupt is happened, "
+                logger.error("An unexpected interrupt is happened, "
                         + "the exception will be ignored and this thread will continue to run", e);
             }
         }
@@ -157,9 +151,9 @@ public class WorkerManagerThread implements Runnable {
             int taskInstanceId = workerTaskExecuteRunnable.getTaskExecutionContext().getTaskInstanceId();
             try {
                 workerTaskExecuteRunnable.cancelTask();
-                log.info("Cancel the taskInstance in worker  {}", taskInstanceId);
+                logger.info("Cancel the taskInstance in worker  {}", taskInstanceId);
             } catch (Exception ex) {
-                log.error("Cancel the taskInstance error {}", taskInstanceId, ex);
+                logger.error("Cancel the taskInstance error {}", taskInstanceId, ex);
             } finally {
                 TaskExecutionContextCacheManager.removeByTaskInstanceId(taskInstanceId);
             }
