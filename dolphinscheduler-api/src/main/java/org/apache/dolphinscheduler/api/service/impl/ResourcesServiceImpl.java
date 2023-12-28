@@ -277,11 +277,6 @@ public class ResourcesServiceImpl extends BaseServiceImpl implements ResourcesSe
 
         // check resource name exists
         String fullName = getFullName(currentDir, name);
-        if (checkResourceExists(fullName, type.ordinal())) {
-            logger.error("resource {} has exist, can't recreate", RegexUtils.escapeNRT(name));
-            putMsg(result, Status.RESOURCE_EXIST);
-            return result;
-        }
         if (fullName.length() > Constants.RESOURCE_FULL_NAME_MAX_LENGTH) {
             logger.error("resource {}'s full name {}' is longer than the max length {}", RegexUtils.escapeNRT(name),
                     fullName, Constants.RESOURCE_FULL_NAME_MAX_LENGTH);
@@ -289,25 +284,33 @@ public class ResourcesServiceImpl extends BaseServiceImpl implements ResourcesSe
             return result;
         }
 
-        Date now = new Date();
-        Resource resource = new Resource(pid, name, fullName, false, desc, file.getOriginalFilename(),
-                loginUser.getId(), type, file.getSize(), now, now);
-
-        try {
-            resourcesMapper.insert(resource);
-            updateParentResourceSize(resource, resource.getSize());
+        Result<Object> queryResourceResponse = this.queryResource(loginUser, fullName, null, ResourceType.FILE);
+        if (queryResourceResponse.getData() != null) {
+            Resource resourcesFileInfo = (Resource) queryResourceResponse.getData();
+            resourcesFileInfo.setUpdateTime(new Date());
+            resourcesFileInfo.setSize(file.getSize());
+            resourcesMapper.updateById(resourcesFileInfo);
             putMsg(result, Status.SUCCESS);
-            permissionPostHandle(resource.getType(), loginUser, resource.getId());
-            Map<String, Object> resultMap = new HashMap<>();
-            for (Map.Entry<Object, Object> entry : new BeanMap(resource).entrySet()) {
-                if (!"class".equalsIgnoreCase(entry.getKey().toString())) {
-                    resultMap.put(entry.getKey().toString(), entry.getValue());
+        } else {
+            Date now = new Date();
+            Resource resource = new Resource(pid, name, fullName, false, desc, file.getOriginalFilename(),
+                    loginUser.getId(), type, file.getSize(), now, now);
+            try {
+                resourcesMapper.insert(resource);
+                updateParentResourceSize(resource, resource.getSize());
+                putMsg(result, Status.SUCCESS);
+                permissionPostHandle(resource.getType(), loginUser, resource.getId());
+                Map<String, Object> resultMap = new HashMap<>();
+                for (Map.Entry<Object, Object> entry : new BeanMap(resource).entrySet()) {
+                    if (!"class".equalsIgnoreCase(entry.getKey().toString())) {
+                        resultMap.put(entry.getKey().toString(), entry.getValue());
+                    }
                 }
+                result.setData(resultMap);
+            } catch (Exception e) {
+                logger.error("resource already exists, can't recreate ", e);
+                throw new ServiceException("resource already exists, can't recreate");
             }
-            result.setData(resultMap);
-        } catch (Exception e) {
-            logger.error("resource already exists, can't recreate ", e);
-            throw new ServiceException("resource already exists, can't recreate");
         }
 
         // fail upload
