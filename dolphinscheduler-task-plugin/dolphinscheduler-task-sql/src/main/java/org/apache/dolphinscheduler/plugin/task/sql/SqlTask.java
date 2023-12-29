@@ -107,6 +107,9 @@ public class SqlTask extends AbstractTask {
 
     private SQLTaskExecutionContext sqlTaskExecutionContext;
 
+
+    private static final int QUERY_TIME_OUT= 600;
+
     /**
      * Abstract Yarn Task
      *
@@ -479,6 +482,8 @@ public class SqlTask extends AbstractTask {
             PreparedStatement stmt = connection.prepareStatement(sqlBinds.getSql());
             if (timeoutFlag) {
                 stmt.setQueryTimeout(taskExecutionContext.getTaskTimeout());
+            } else {
+                stmt.setQueryTimeout(QUERY_TIME_OUT);
             }
             Map<Integer, Property> params = sqlBinds.getParamsMap();
             if (params != null) {
@@ -545,7 +550,6 @@ public class SqlTask extends AbstractTask {
             sqlParameters.setTitle(title);
         }
 
-        // special characters need to be escaped, ${} needs to be escaped
         setSqlParamsMap(sql, rgex, sqlParamsMap, paramsMap, taskExecutionContext.getTaskInstanceId());
         // Replace the original value in sql ！{...} ，Does not participate in precompilation
         String rgexo = "['\"]*\\!\\{(.*?)\\}['\"]*";
