@@ -52,7 +52,7 @@ public class ReaderFactory {
                 reader.validateConfig();
                 reader.prepare(sparkRuntimeEnvironment);
                 readerList.add(reader);
-
+            }
         }
 
         return readerList;

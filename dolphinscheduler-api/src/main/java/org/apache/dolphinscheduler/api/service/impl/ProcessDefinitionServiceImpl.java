@@ -924,11 +924,7 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                 }
             }
             if (CollectionUtils.isNotEmpty(taskCodeList)) {
-                int i = taskDefinitionMapper.deleteByBatchCodes(new ArrayList<>(taskCodeList));
-                if (i != taskCodeList.size()) {
-                    logger.error("Delete task definition error, processDefinitionCode:{}.", code);
-                    throw new ServiceException(Status.DELETE_TASK_DEFINE_BY_CODE_ERROR);
-                }
+                taskDefinitionMapper.deleteByBatchCodes(new ArrayList<>(taskCodeList));
             }
         }
         int delete = processDefinitionMapper.deleteById(processDefinition.getId());
