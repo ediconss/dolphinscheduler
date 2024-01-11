@@ -26,7 +26,6 @@ import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.ResUploadType;
 import org.apache.dolphinscheduler.common.factory.OssClientFactory;
 import org.apache.dolphinscheduler.common.model.OssConnection;
-import org.apache.dolphinscheduler.common.model.StorageEntity;
 import org.apache.dolphinscheduler.common.utils.PropertyUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskConstants;
 import org.apache.dolphinscheduler.service.storage.StorageOperate;
@@ -243,11 +242,6 @@ public class OssOperator implements Closeable, StorageOperate {
             default:
                 return "";
         }
-    }
-
-    @Override
-    public List<StorageEntity> listDir(String tenantCode, String dir) {
-        return null;
     }
 
     @Override

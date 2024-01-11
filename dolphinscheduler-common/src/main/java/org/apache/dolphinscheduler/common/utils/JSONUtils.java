@@ -27,7 +27,6 @@ import static org.apache.dolphinscheduler.common.constants.DateConstants.YYYY_MM
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,7 +39,6 @@ import java.util.TimeZone;
 
 import javax.annotation.Nullable;
 
-import org.postgresql.jdbc.PgArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,22 +61,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.google.common.base.Strings;
 
-class PgArraySerializer extends JsonSerializer<PgArray> {
-
-    @Override
-    public void serialize(PgArray value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeStartArray();
-        try {
-            Object[] array = (Object[]) value.getArray();
-            for (Object element : array) {
-                gen.writeObject(element);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        gen.writeEndArray();
-    }
-}
 /**
  * json utils
  */
@@ -92,7 +74,6 @@ public class JSONUtils {
 
     private static final SimpleModule LOCAL_DATE_TIME_MODULE = new SimpleModule()
             .addSerializer(LocalDateTime.class, new LocalDateTimeSerializer())
-            .addSerializer(PgArray.class, new PgArraySerializer())
             .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
 
     /**

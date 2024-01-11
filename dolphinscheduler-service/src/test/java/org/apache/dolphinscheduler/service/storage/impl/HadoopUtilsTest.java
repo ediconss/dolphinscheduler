@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 @PrepareForTest(value = {HadoopUtils.class})
 @SuppressStaticInitializationFor("org.apache.dolphinscheduler.common.utils.HttpUtils")
 public class HadoopUtilsTest {
-
     private static final Logger logger = LoggerFactory.getLogger(HadoopUtilsTest.class);
 
     @Test

@@ -13,7 +13,6 @@
 - If you deploy DolphinScheduler in `Standalone` mode, you only need to configure `standalone-server/conf/common.properties` as follows:
 
 config three fields as follows:
-
 ```properties
 ......
 

@@ -28,10 +28,6 @@ import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
 import org.apache.dolphinscheduler.spi.enums.ResourceType;
-
-import java.util.Date;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -40,6 +36,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * python gate test
@@ -68,15 +67,12 @@ public class PythonGatewayTest {
         Mockito.when(projectMapper.queryByName(project.getName())).thenReturn(project);
 
         ProcessDefinition processDefinition = getTestProcessDefinition();
-        Mockito.when(processDefinitionMapper.queryByDefineName(project.getCode(), processDefinition.getName()))
-                .thenReturn(processDefinition);
+        Mockito.when(processDefinitionMapper.queryByDefineName(project.getCode(), processDefinition.getName())).thenReturn(processDefinition);
 
         TaskDefinition taskDefinition = getTestTaskDefinition();
-        Mockito.when(taskDefinitionMapper.queryByName(project.getCode(), processDefinition.getCode(),
-                taskDefinition.getName())).thenReturn(taskDefinition);
+        Mockito.when(taskDefinitionMapper.queryByName(project.getCode(), processDefinition.getCode(), taskDefinition.getName())).thenReturn(taskDefinition);
 
-        Map<String, Long> result = pythonGateway.getCodeAndVersion(project.getName(), processDefinition.getName(),
-                taskDefinition.getName());
+        Map<String, Long> result = pythonGateway.getCodeAndVersion(project.getName(), processDefinition.getName(), taskDefinition.getName());
         Assert.assertEquals(result.get("code").longValue(), taskDefinition.getCode());
     }
 
@@ -86,15 +82,12 @@ public class PythonGatewayTest {
         Mockito.when(projectMapper.queryByName(project.getName())).thenReturn(project);
 
         ProcessDefinition processDefinition = getTestProcessDefinition();
-        Mockito.when(processDefinitionMapper.queryByDefineName(project.getCode(), processDefinition.getName()))
-                .thenReturn(processDefinition);
+        Mockito.when(processDefinitionMapper.queryByDefineName(project.getCode(), processDefinition.getName())).thenReturn(processDefinition);
 
         TaskDefinition taskDefinition = getTestTaskDefinition();
-        Mockito.when(taskDefinitionMapper.queryByName(project.getCode(), processDefinition.getCode(),
-                taskDefinition.getName())).thenReturn(taskDefinition);
+        Mockito.when(taskDefinitionMapper.queryByName(project.getCode(), processDefinition.getCode(), taskDefinition.getName())).thenReturn(taskDefinition);
 
-        Map<String, Object> result = pythonGateway.getDependentInfo(project.getName(), processDefinition.getName(),
-                taskDefinition.getName());
+        Map<String, Object> result = pythonGateway.getDependentInfo(project.getName(), processDefinition.getName(), taskDefinition.getName());
         Assert.assertEquals((long) result.get("taskDefinitionCode"), taskDefinition.getCode());
     }
 
@@ -108,16 +101,15 @@ public class PythonGatewayTest {
         String content = "content";
         String resourceFullName = resourceDir + resourceName + "." + resourceSuffix;
 
-        Assertions.assertDoesNotThrow(
-                () -> resourcesService.createOrUpdateResource(user.getUserName(), resourceFullName, desc, content));
+        Assertions.assertDoesNotThrow(() -> resourcesService.createOrUpdateResource(user.getUserName(), resourceFullName, desc, content));
     }
+
 
     @Test
     public void testQueryResourcesFileInfo() {
         User user = getTestUser();
         Resource resource = getTestResource();
-        Mockito.when(resourcesService.queryResourcesFileInfo(user.getUserName(), resource.getFullName()))
-                .thenReturn(resource);
+        Mockito.when(resourcesService.queryResourcesFileInfo(user.getUserName(), resource.getFullName())).thenReturn(resource);
         Resource result = pythonGateway.queryResourcesFileInfo(user.getUserName(), resource.getFullName());
         Assert.assertEquals(result.getId(), resource.getId());
     }

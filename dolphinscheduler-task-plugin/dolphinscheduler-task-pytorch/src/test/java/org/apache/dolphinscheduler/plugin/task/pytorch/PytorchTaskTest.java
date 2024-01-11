@@ -72,21 +72,16 @@ public class PytorchTaskTest {
         envManager.setPythonEnvTool(PythonEnvManager.ENV_TOOL_CONDA);
         envManager.setCondaPythonVersion("3.9");
         String condaEnvCommand39 = envManager.getBuildEnvCommand(requirementPath);
-        Assert.assertEquals(condaEnvCommand39,
-                "conda create -y python=3.9 -p ./venv && source activate ./venv && ./venv/bin/python -m pip install -r "
-                        + requirementPath);
+        Assert.assertEquals(condaEnvCommand39, "conda create -y python=3.9 -p ./venv && source activate ./venv && ./venv/bin/python -m pip install -r " + requirementPath);
 
         envManager.setCondaPythonVersion("3.8");
         String condaEnvCommand38 = envManager.getBuildEnvCommand(requirementPath);
-        Assert.assertEquals(condaEnvCommand38,
-                "conda create -y python=3.8 -p ./venv && source activate ./venv && ./venv/bin/python -m pip install -r "
-                        + requirementPath);
+        Assert.assertEquals(condaEnvCommand38, "conda create -y python=3.8 -p ./venv && source activate ./venv && ./venv/bin/python -m pip install -r " + requirementPath);
+
 
         envManager.setPythonEnvTool(PythonEnvManager.ENV_TOOL_VENV);
         String venvEnvCommand = envManager.getBuildEnvCommand(requirementPath);
-        Assert.assertEquals(venvEnvCommand,
-                "virtualenv -p ${PYTHON_HOME} ./venv && source ./venv/bin/activate && ./venv/bin/python -m pip install -r "
-                        + requirementPath);
+        Assert.assertEquals(venvEnvCommand, "virtualenv -p ${PYTHON_HOME} ./venv && source ./venv/bin/activate && ./venv/bin/python -m pip install -r " + requirementPath);
 
     }
 
@@ -119,22 +114,23 @@ public class PytorchTaskTest {
 
         PytorchTask task1 = initTask(parameters);
         Assert.assertEquals(task1.buildPythonExecuteCommand(),
-                "export PYTHONPATH=.\n" +
-                        "${PYTHON_HOME} main.py --epochs=1 --dry-run");
+            "export PYTHONPATH=.\n" +
+                "${PYTHON_HOME} main.py --epochs=1 --dry-run");
 
         parameters.setPythonCommand("");
         PytorchTask task2 = initTask(parameters);
         Assert.assertEquals(task2.buildPythonExecuteCommand(),
-                "export PYTHONPATH=.\n" +
-                        "${PYTHON_HOME} main.py --epochs=1 --dry-run");
+            "export PYTHONPATH=.\n" +
+                "${PYTHON_HOME} main.py --epochs=1 --dry-run");
 
         parameters.setPythonCommand("/usr/bin/python");
         PytorchTask task3 = initTask(parameters);
         Assert.assertEquals(task3.buildPythonExecuteCommand(),
-                "export PYTHONPATH=.\n" +
-                        "/usr/bin/python main.py --epochs=1 --dry-run");
+            "export PYTHONPATH=.\n" +
+                "/usr/bin/python main.py --epochs=1 --dry-run");
 
     }
+
 
     @Test
     public void testBuildPythonCommandWithCreateCondeEnv() throws Exception {
@@ -149,10 +145,9 @@ public class PytorchTaskTest {
 
         PytorchTask task = initTask(parameters);
         Assert.assertEquals(task.buildPythonExecuteCommand(),
-                "export PYTHONPATH=.\n" +
-                        "conda create -y python=3.6 -p ./venv && source activate ./venv && ./venv/bin/python -m pip install -r requirements.txt\n"
-                        +
-                        "./venv/bin/python main.py --epochs=1 --dry-run");
+            "export PYTHONPATH=.\n" +
+                "conda create -y python=3.6 -p ./venv && source activate ./venv && ./venv/bin/python -m pip install -r requirements.txt\n" +
+                "./venv/bin/python main.py --epochs=1 --dry-run");
     }
 
     @Test
@@ -167,10 +162,9 @@ public class PytorchTaskTest {
 
         PytorchTask task = initTask(parameters);
         Assert.assertEquals(task.buildPythonExecuteCommand(),
-                "export PYTHONPATH=.\n" +
-                        "virtualenv -p ${PYTHON_HOME} ./venv && source ./venv/bin/activate && ./venv/bin/python -m pip install -r requirements.txt\n"
-                        +
-                        "./venv/bin/python main.py --epochs=1 --dry-run");
+            "export PYTHONPATH=.\n" +
+                "virtualenv -p ${PYTHON_HOME} ./venv && source ./venv/bin/activate && ./venv/bin/python -m pip install -r requirements.txt\n" +
+                "./venv/bin/python main.py --epochs=1 --dry-run");
 
     }
 
@@ -195,14 +189,13 @@ public class PytorchTaskTest {
         createFile(scriptFile);
 
         String expected = "export PYTHONPATH=%s\n" +
-                "virtualenv -p ${PYTHON_HOME} ./venv && source ./venv/bin/activate && ./venv/bin/python -m pip install -r %s\n"
-                +
-                "./venv/bin/python %s";
+            "virtualenv -p ${PYTHON_HOME} ./venv && source ./venv/bin/activate && ./venv/bin/python -m pip install -r %s\n" +
+            "./venv/bin/python %s";
         System.out.println(task.buildPythonExecuteCommand());
-        Assert.assertEquals(String.format(expected, pythonPath, requirementFile, scriptFile),
-                task.buildPythonExecuteCommand());
+        Assert.assertEquals(String.format(expected, pythonPath, requirementFile, scriptFile), task.buildPythonExecuteCommand());
 
     }
+
 
     private PytorchTask initTask(PytorchParameters pytorchParameters) {
         TaskExecutionContext taskExecutionContext = createContext(pytorchParameters);
@@ -255,3 +248,5 @@ public class PytorchTaskTest {
     }
 
 }
+
+

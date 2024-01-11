@@ -27,7 +27,6 @@ import static org.apache.dolphinscheduler.common.constants.Constants.STORAGE_S3;
 
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.ResUploadType;
-import org.apache.dolphinscheduler.common.model.StorageEntity;
 import org.apache.dolphinscheduler.common.utils.PropertyUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskConstants;
 import org.apache.dolphinscheduler.service.storage.StorageOperate;
@@ -240,11 +239,6 @@ public class S3Utils implements Closeable, StorageOperate {
                 return "";
         }
 
-    }
-
-    @Override
-    public List<StorageEntity> listDir(String tenantCode, String dir) {
-        return null;
     }
 
     @Override

@@ -203,16 +203,16 @@ export function formatParams(data: INodeData): {
     taskParams.startupScript = data.startupScript
     taskParams.useCustom = data.useCustom
     taskParams.rawScript = data.rawScript
-    if (data.startupScript?.includes('flink')) {
+    if (data.startupScript?.includes("flink")) {
       taskParams.runMode = data.runMode
       taskParams.others = data.others
     }
-    if (data.startupScript?.includes('spark')) {
+    if (data.startupScript?.includes("spark")) {
       taskParams.deployMode = data.deployMode
       taskParams.master = data.master
       taskParams.masterUrl = data.masterUrl
     }
-    if (data.startupScript === 'seatunnel.sh') {
+    if (data.startupScript === "seatunnel.sh") {
       taskParams.deployMode = data.deployMode
       taskParams.others = data.others
     }
@@ -260,9 +260,6 @@ export function formatParams(data: INodeData): {
     }
     taskParams.xms = data.xms
     taskParams.xmx = data.xmx
-  }
-  if (data.taskType === 'XUANWU_CDC') {
-    taskParams.config = data.config
   }
   if (data.taskType === 'DEPENDENT') {
     taskParams.dependence = {
@@ -498,7 +495,6 @@ export function formatModel(data: ITaskData) {
     params.timeoutNotifyStrategy = ['WARN', 'FAILED']
   }
   if (data.taskParams?.resourceList) {
-    console.log(data.taskParams?.resourceList)
     params.resourceList = data.taskParams.resourceList.map(
       (item: { id: number }) => item.id
     )
@@ -590,10 +586,7 @@ export function formatModel(data: ITaskData) {
   }
 
   if (data.taskParams?.dependence) {
-    const dependence: {
-      relation?: RelationType
-      dependTaskList?: IDependTask[]
-    } = JSON.parse(JSON.stringify(data.taskParams.dependence))
+    const dependence: { relation?: RelationType, dependTaskList?: IDependTask[] } = JSON.parse(JSON.stringify(data.taskParams.dependence))
     params.dependTaskList = dependence.dependTaskList || []
     params.relation = dependence.relation
   }

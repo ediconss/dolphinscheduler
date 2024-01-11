@@ -33,9 +33,7 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.enums.DataType;
 import org.apache.dolphinscheduler.plugin.task.api.enums.Direct;
 import org.apache.dolphinscheduler.plugin.task.api.enums.TaskRunStatus;
-import org.apache.dolphinscheduler.plugin.task.api.model.ApplicationInfo;
 import org.apache.dolphinscheduler.plugin.task.api.model.Property;
-import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
 import org.apache.dolphinscheduler.plugin.task.api.model.TaskResponse;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.resource.ResourceParametersHelper;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
@@ -53,7 +51,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,8 +131,6 @@ public class DataxTaskTest {
         taskExecutionContext.setTaskParams(parameters);
         DataxTask dataxTask = new DataxTask(taskExecutionContext);
         dataxTask.init();
-        dataxTask.handle((int taskInstanceId, ApplicationInfo applicationInfo) -> {
-        });
 
         ShellCommandExecutor shellCommandExecutor = mock(ShellCommandExecutor.class);
         Field shellCommandExecutorFiled = DataxTask.class.getDeclaredField("shellCommandExecutor");
@@ -260,19 +255,12 @@ public class DataxTaskTest {
     private DataxParameters createDataxParameters() {
         DataxParameters dataxParameters = new DataxParameters();
         dataxParameters.setCustomConfig(1);
-        // dataxParameters.setDsType("mysql");
-        // dataxParameters.setDataSource(1);
-        // dataxParameters.setJson(getJsonString());
-        // dataxParameters.setDataTarget(2);
-        ArrayList<ResourceInfo> objects = new ArrayList<>();
-        ResourceInfo resourceInfo = new ResourceInfo();
-        resourceInfo.setId(1);
-        resourceInfo.setRes("/test.file");
-        resourceInfo.setResourceName("test");
-        objects.add(resourceInfo);
-        dataxParameters.setResourceList(objects);
-        // dataxParameters.setSql("SELECT count(*) FROM table");
-        // dataxParameters.setTargetTable("user.name");
+        dataxParameters.setDsType("mysql");
+        dataxParameters.setDataSource(1);
+        dataxParameters.setJson(getJsonString());
+        dataxParameters.setDataTarget(2);
+        dataxParameters.setSql("SELECT count(*) FROM table");
+        dataxParameters.setTargetTable("user.name");
         return dataxParameters;
     }
 

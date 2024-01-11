@@ -72,7 +72,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 @RunWith(MockitoJUnitRunner.class)
 @PrepareForTest({PropertyUtils.class})
 public class TenantServiceTest {
-
     private static final Logger baseServiceLogger = LoggerFactory.getLogger(BaseServiceImpl.class);
     private static final Logger tenantServiceImplLogger = LoggerFactory.getLogger(TenantServiceImpl.class);
 
@@ -107,34 +106,27 @@ public class TenantServiceTest {
 
         User loginUser = getLoginUser();
         Mockito.when(tenantMapper.existTenant(tenantCode)).thenReturn(true);
-        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.TENANT, null,
-                loginUser.getId(), TENANT_CREATE, baseServiceLogger)).thenReturn(true);
-        Mockito.when(resourcePermissionCheckService.resourcePermissionCheck(AuthorizationType.TENANT, null, 0,
-                baseServiceLogger)).thenReturn(true);
+        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.TENANT, null, loginUser.getId(), TENANT_CREATE, baseServiceLogger)).thenReturn(true);
+        Mockito.when(resourcePermissionCheckService.resourcePermissionCheck(AuthorizationType.TENANT, null, 0, baseServiceLogger)).thenReturn(true);
         Map<String, Object> result;
 
-        // check exist
+        //check exist
         String emptyTenantCode = "";
-        Throwable exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.createTenant(loginUser, emptyTenantCode, 1, tenantDesc));
+        Throwable exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.createTenant(loginUser, emptyTenantCode, 1, tenantDesc));
         String formatter = MessageFormat.format(Status.REQUEST_PARAMS_NOT_VALID_ERROR.getMsg(), emptyTenantCode);
         Assertions.assertEquals(formatter, exception.getMessage());
 
-        // check tenant code too long
-        String longStr =
-                "this_is_a_very_long_string_this_is_a_very_long_string_this_is_a_very_long_string_this_is_a_very_long_string";
-        exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.createTenant(loginUser, longStr, 1, tenantDesc));
+        //check tenant code too long
+        String longStr = "this_is_a_very_long_string_this_is_a_very_long_string_this_is_a_very_long_string_this_is_a_very_long_string";
+        exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.createTenant(loginUser, longStr, 1, tenantDesc));
         Assert.assertEquals(Status.TENANT_FULL_NAME_TOO_LONG_ERROR.getMsg(), exception.getMessage());
 
-        // check tenant code invalid
-        exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.createTenant(getLoginUser(), "%!1111", 1, tenantDesc));
+        //check tenant code invalid
+        exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.createTenant(getLoginUser(), "%!1111", 1, tenantDesc));
         Assert.assertEquals(Status.CHECK_OS_TENANT_CODE_ERROR.getMsg(), exception.getMessage());
 
-        // check exist
-        exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.createTenant(loginUser, tenantCode, 1, tenantDesc));
+        //check exist
+        exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.createTenant(loginUser, tenantCode, 1, tenantDesc));
         formatter = MessageFormat.format(Status.OS_TENANT_CODE_EXIST.getMsg(), tenantCode);
         Assert.assertEquals(formatter, exception.getMessage());
 
@@ -148,8 +140,7 @@ public class TenantServiceTest {
         Mockito.when(tenantMapper.existTenant(tenantCode)).thenReturn(true);
 
         // tenantCode exist
-        Throwable exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.verifyTenantCode(getTenant().getTenantCode()));
+        Throwable exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.verifyTenantCode(getTenant().getTenantCode()));
         String expect = MessageFormat.format(Status.OS_TENANT_CODE_EXIST.getMsg(), getTenant().getTenantCode());
         Assertions.assertEquals(expect, exception.getMessage());
 
@@ -166,8 +157,7 @@ public class TenantServiceTest {
         page.setTotal(1L);
         Set<Integer> ids = new HashSet<>();
         ids.add(1);
-        Mockito.when(resourcePermissionCheckService.userOwnedResourceIdsAcquisition(AuthorizationType.TENANT,
-                getLoginUser().getId(), tenantServiceImplLogger)).thenReturn(ids);
+        Mockito.when(resourcePermissionCheckService.userOwnedResourceIdsAcquisition(AuthorizationType.TENANT, getLoginUser().getId(), tenantServiceImplLogger)).thenReturn(ids);
         Mockito.when(tenantMapper.queryTenantPaging(Mockito.any(Page.class), Mockito.anyList(), Mockito.eq(tenantDesc)))
                 .thenReturn(page);
         Result result = tenantService.queryTenantList(getLoginUser(), tenantDesc, 1, 10);
@@ -179,14 +169,11 @@ public class TenantServiceTest {
     @Test
     public void testUpdateTenant() throws Exception {
         Mockito.when(tenantMapper.queryById(1)).thenReturn(getTenant());
-        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.TENANT, null,
-                getLoginUser().getId(), TENANT_UPDATE, baseServiceLogger)).thenReturn(true);
-        Mockito.when(resourcePermissionCheckService.resourcePermissionCheck(AuthorizationType.TENANT, null, 0,
-                baseServiceLogger)).thenReturn(true);
+        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.TENANT, null, getLoginUser().getId(), TENANT_UPDATE, baseServiceLogger)).thenReturn(true);
+        Mockito.when(resourcePermissionCheckService.resourcePermissionCheck(AuthorizationType.TENANT, null, 0, baseServiceLogger)).thenReturn(true);
 
         // update not exists tenant
-        Throwable exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.updateTenant(getLoginUser(), 912222, tenantCode, 1, tenantDesc));
+        Throwable exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.updateTenant(getLoginUser(), 912222, tenantCode, 1, tenantDesc));
         Assertions.assertEquals(Status.TENANT_NOT_EXIST.getMsg(), exception.getMessage());
 
         // success
@@ -200,39 +187,32 @@ public class TenantServiceTest {
 
     @Test
     public void testDeleteTenantById() throws Exception {
-        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.TENANT, null,
-                getLoginUser().getId(), TENANT_DELETE, baseServiceLogger)).thenReturn(true);
-        Mockito.when(resourcePermissionCheckService.resourcePermissionCheck(AuthorizationType.TENANT, null, 0,
-                baseServiceLogger)).thenReturn(true);
+        Mockito.when(resourcePermissionCheckService.operationPermissionCheck(AuthorizationType.TENANT, null, getLoginUser().getId(), TENANT_DELETE, baseServiceLogger)).thenReturn(true);
+        Mockito.when(resourcePermissionCheckService.resourcePermissionCheck(AuthorizationType.TENANT, null, 0, baseServiceLogger)).thenReturn(true);
         Mockito.when(tenantMapper.queryById(1)).thenReturn(getTenant());
-        Mockito.when(processInstanceMapper.queryByTenantIdAndStatus(1,
-                org.apache.dolphinscheduler.service.utils.Constants.NOT_TERMINATED_STATES))
+        Mockito.when(processInstanceMapper.queryByTenantIdAndStatus(1, org.apache.dolphinscheduler.service.utils.Constants.NOT_TERMINATED_STATES))
                 .thenReturn(getInstanceList());
         Mockito.when(processDefinitionMapper.queryDefinitionListByTenant(2)).thenReturn(getDefinitionsList());
         Mockito.when(userMapper.queryUserListByTenant(3)).thenReturn(getUserList());
 
-        // TENANT_NOT_EXIST
-        Throwable exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.deleteTenantById(getLoginUser(), 12));
+        //TENANT_NOT_EXIST
+        Throwable exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.deleteTenantById(getLoginUser(), 12));
         Assertions.assertEquals(Status.TENANT_NOT_EXIST.getMsg(), exception.getMessage());
 
-        // DELETE_TENANT_BY_ID_FAIL
-        exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.deleteTenantById(getLoginUser(), 1));
+        //DELETE_TENANT_BY_ID_FAIL
+        exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.deleteTenantById(getLoginUser(), 1));
         String prefix = Status.DELETE_TENANT_BY_ID_FAIL.getMsg().substring(1, 5);
         Assertions.assertTrue(exception.getMessage().contains(prefix));
 
-        // DELETE_TENANT_BY_ID_FAIL_DEFINES
+        //DELETE_TENANT_BY_ID_FAIL_DEFINES
         Mockito.when(tenantMapper.queryById(2)).thenReturn(getTenant(2));
-        exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.deleteTenantById(getLoginUser(), 2));
+        exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.deleteTenantById(getLoginUser(), 2));
         prefix = Status.DELETE_TENANT_BY_ID_FAIL_DEFINES.getMsg().substring(1, 5);
         Assertions.assertTrue(exception.getMessage().contains(prefix));
 
-        // DELETE_TENANT_BY_ID_FAIL_USERS
+        //DELETE_TENANT_BY_ID_FAIL_USERS
         Mockito.when(tenantMapper.queryById(3)).thenReturn(getTenant(3));
-        exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.deleteTenantById(getLoginUser(), 3));
+        exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.deleteTenantById(getLoginUser(), 3));
         prefix = Status.DELETE_TENANT_BY_ID_FAIL_USERS.getMsg().substring(1, 5);
         Assertions.assertTrue(exception.getMessage().contains(prefix));
 
@@ -246,8 +226,7 @@ public class TenantServiceTest {
     public void testVerifyTenantCode() {
         Mockito.when(tenantMapper.existTenant(tenantCode)).thenReturn(true);
         // tenantCode exist
-        Throwable exception = Assertions.assertThrows(ServiceException.class,
-                () -> tenantService.verifyTenantCode(getTenant().getTenantCode()));
+        Throwable exception = Assertions.assertThrows(ServiceException.class, () -> tenantService.verifyTenantCode(getTenant().getTenantCode()));
         String expect = MessageFormat.format(Status.OS_TENANT_CODE_EXIST.getMsg(), getTenant().getTenantCode());
         Assertions.assertEquals(expect, exception.getMessage());
 

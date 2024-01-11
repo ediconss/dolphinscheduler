@@ -17,14 +17,11 @@
 
 package org.apache.dolphinscheduler.plugin.task.spark;
 
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
+import java.util.Collections;
 
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
-
-import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,9 +31,12 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
-        JSONUtils.class
+    JSONUtils.class
 })
 @PowerMockIgnore({"javax.*"})
 
@@ -53,16 +53,16 @@ public class SparkTaskTest {
         SparkTask sparkTask = spy(new SparkTask(taskExecutionContext));
         sparkTask.init();
         Assert.assertEquals(sparkTask.buildCommand(),
-                "${SPARK_HOME2}/bin/spark-sql " +
-                        "--master yarn " +
-                        "--deploy-mode client " +
-                        "--driver-cores 1 " +
-                        "--driver-memory 512M " +
-                        "--num-executors 2 " +
-                        "--executor-cores 2 " +
-                        "--executor-memory 1G " +
-                        "--name sparksql " +
-                        "-f /tmp/5536_node.sql");
+            "${SPARK_HOME2}/bin/spark-sql " +
+                "--master yarn " +
+                "--deploy-mode client " +
+                "--driver-cores 1 " +
+                "--driver-memory 512M " +
+                "--num-executors 2 " +
+                "--executor-cores 2 " +
+                "--executor-memory 1G " +
+                "--name sparksql " +
+                "-f /tmp/5536_node.sql");
     }
     @Test
     public void testBuildCommandWithSpark1Sql() throws Exception {

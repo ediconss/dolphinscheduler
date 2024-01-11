@@ -18,6 +18,8 @@
 package org.apache.dolphinscheduler.plugin.task.api;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 public class TaskConstants {
 
@@ -411,13 +413,6 @@ public class TaskConstants {
     public static final String ALIBABA_CLOUD_ACCESS_KEY_ID = "resource.alibaba.cloud.access.key.id";
     public static final String ALIBABA_CLOUD_ACCESS_KEY_SECRET = "resource.alibaba.cloud.access.key.secret";
     public static final String ALIBABA_CLOUD_REGION = "resource.alibaba.cloud.region";
-
-    /**
-     * huawei cloud config
-     */
-    public static final String HUAWEI_CLOUD_ACCESS_KEY_ID = "resource.huawei.cloud.access.key.id";
-    public static final String HUAWEI_CLOUD_ACCESS_KEY_SECRET = "resource.huawei.cloud.access.key.secret";
-    public static final String HUAWEI_CLOUD_REGION = "resource.huawei.cloud.region";
 
     /**
      * use for k8s task

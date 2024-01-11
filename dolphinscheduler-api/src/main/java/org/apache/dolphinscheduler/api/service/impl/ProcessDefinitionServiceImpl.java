@@ -85,7 +85,6 @@ import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
 import org.apache.dolphinscheduler.dao.entity.ProcessTaskRelation;
 import org.apache.dolphinscheduler.dao.entity.ProcessTaskRelationLog;
 import org.apache.dolphinscheduler.dao.entity.Project;
-import org.apache.dolphinscheduler.dao.entity.Resource;
 import org.apache.dolphinscheduler.dao.entity.Schedule;
 import org.apache.dolphinscheduler.dao.entity.TaskDefinition;
 import org.apache.dolphinscheduler.dao.entity.TaskDefinitionLog;
@@ -99,7 +98,6 @@ import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProcessTaskRelationLogMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProcessTaskRelationMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
-import org.apache.dolphinscheduler.dao.mapper.ResourceMapper;
 import org.apache.dolphinscheduler.dao.mapper.ScheduleMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionLogMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
@@ -165,7 +163,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 /**
@@ -235,9 +232,6 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
 
     @Autowired
     private WorkFlowLineageService workFlowLineageService;
-
-    @Autowired
-    private ResourceMapper resourceMapper;
 
     /**
      * create process definition
@@ -334,34 +328,9 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
         return result;
     }
 
-    private void updateTaskDefinitionResourceList(List<TaskDefinitionLog> taskDefinitionLogs) {
-
-        for (TaskDefinitionLog taskDefinitionLog : taskDefinitionLogs) {
-            ObjectNode jsonNodes = JSONUtils.parseObject(taskDefinitionLog.getTaskParams());
-            ArrayNode resourceList = (ArrayNode) jsonNodes.get("resourceList");
-            for (int i = 0; i < resourceList.size(); i++) {
-                JsonNode jsonNode = resourceList.get(i);
-                if (jsonNode.has("resourceName")) {
-                    continue;
-                }
-                Integer id = jsonNode.get("id").asInt();
-                List<Resource> resources = resourceMapper.queryResourceListById(Collections.singletonList(id));
-                if (resources.isEmpty()) {
-                    continue;
-                }
-                resourceList.set(i, JSONUtils.toJsonNode(ImmutableMap.of(
-                        "name", resources.get(0).getFullName(),
-                        "id", id)));
-            }
-            jsonNodes.set("resourceList", resourceList);
-            taskDefinitionLog.setTaskParams(jsonNodes.toString());
-        }
-
-    }
     private List<TaskDefinitionLog> generateTaskDefinitionList(String taskDefinitionJson) {
         try {
             List<TaskDefinitionLog> taskDefinitionLogs = JSONUtils.toList(taskDefinitionJson, TaskDefinitionLog.class);
-            updateTaskDefinitionResourceList(taskDefinitionLogs);
             if (CollectionUtils.isEmpty(taskDefinitionLogs)) {
                 logger.error("Generate task definition list failed, the given taskDefinitionJson is invalided: {}",
                         taskDefinitionJson);
@@ -817,7 +786,7 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
         return result;
     }
 
-    /**
+   /**
      * Process definition want to delete whether used in other task, should throw exception when have be used.
      *
      * This function avoid delete process definition already dependencies by other tasks by accident.
@@ -832,8 +801,7 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
 
         // check process instances is already running
         List<ProcessInstance> processInstances = processInstanceService
-                .queryByProcessDefineCodeAndStatus(processDefinition.getCode(),
-                        org.apache.dolphinscheduler.service.utils.Constants.NOT_TERMINATED_STATES);
+                .queryByProcessDefineCodeAndStatus(processDefinition.getCode(), org.apache.dolphinscheduler.service.utils.Constants.NOT_TERMINATED_STATES);
         if (CollectionUtils.isNotEmpty(processInstances)) {
             logger.warn(
                     "Process definition can not be deleted because there are {} executing process instances, processDefinitionCode:{}",
@@ -924,7 +892,11 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                 }
             }
             if (CollectionUtils.isNotEmpty(taskCodeList)) {
-                taskDefinitionMapper.deleteByBatchCodes(new ArrayList<>(taskCodeList));
+                int i = taskDefinitionMapper.deleteByBatchCodes(new ArrayList<>(taskCodeList));
+                if (i != taskCodeList.size()) {
+                    logger.error("Delete task definition error, processDefinitionCode:{}.", code);
+                    throw new ServiceException(Status.DELETE_TASK_DEFINE_BY_CODE_ERROR);
+                }
             }
         }
         int delete = processDefinitionMapper.deleteById(processDefinition.getId());

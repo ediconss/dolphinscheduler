@@ -20,6 +20,7 @@ package org.apache.dolphinscheduler.plugin.task.emr;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_FAILURE;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_KILL;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_SUCCESS;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.mock;
@@ -63,28 +64,28 @@ import com.amazonaws.services.elasticmapreduce.model.StepStatus;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
-        AmazonElasticMapReduceClientBuilder.class,
-        EmrAddStepsTask.class,
-        AmazonElasticMapReduce.class,
-        JSONUtils.class
+    AmazonElasticMapReduceClientBuilder.class,
+    EmrAddStepsTask.class,
+    AmazonElasticMapReduce.class,
+    JSONUtils.class
 })
 @PowerMockIgnore({"javax.*"})
 public class EmrAddStepsTaskTest {
 
     private final StepStatus pendingState =
-            new StepStatus().withState(StepState.PENDING);
+        new StepStatus().withState(StepState.PENDING);
 
     private final StepStatus runningState =
-            new StepStatus().withState(StepState.RUNNING);
+        new StepStatus().withState(StepState.RUNNING);
 
     private final StepStatus completedState =
-            new StepStatus().withState(StepState.COMPLETED);
+        new StepStatus().withState(StepState.COMPLETED);
 
     private final StepStatus cancelledState =
-            new StepStatus().withState(StepState.CANCELLED);
+        new StepStatus().withState(StepState.CANCELLED);
 
     private final StepStatus failedState =
-            new StepStatus().withState(StepState.FAILED);
+        new StepStatus().withState(StepState.FAILED);
 
     private EmrAddStepsTask emrAddStepsTask;
     private AmazonElasticMapReduce emrClient;
@@ -123,8 +124,7 @@ public class EmrAddStepsTaskTest {
     @Test(expected = TaskException.class)
     public void testCanNotParseJson() throws Exception {
         mockStatic(JSONUtils.class);
-        when(emrAddStepsTask, "createAddJobFlowStepsRequest").thenThrow(
-                new EmrTaskException("can not parse AddJobFlowStepsRequest from json", new Exception("error")));
+        when(emrAddStepsTask, "createAddJobFlowStepsRequest").thenThrow(new EmrTaskException("can not parse AddJobFlowStepsRequest from json", new Exception("error")));
         emrAddStepsTask.handle(taskCallBack);
     }
 
@@ -163,8 +163,7 @@ public class EmrAddStepsTaskTest {
         emrAddStepsTask.handle(taskCallBack);
         Assert.assertEquals(EXIT_CODE_FAILURE, emrAddStepsTask.getExitStatusCode());
 
-        when(emrClient.addJobFlowSteps(any())).thenThrow(new AmazonElasticMapReduceException("error"),
-                new EmrTaskException());
+        when(emrClient.addJobFlowSteps(any())).thenThrow(new AmazonElasticMapReduceException("error"), new EmrTaskException());
         emrAddStepsTask.handle(taskCallBack);
     }
 

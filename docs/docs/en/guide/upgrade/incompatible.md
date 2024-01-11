@@ -14,4 +14,3 @@ This document records the incompatible updates between each version. You need to
 ## 3.1.1
 
 * Change the default unix shell executor from sh to bash ([#12180](https://github.com/apache/dolphinscheduler/pull/12180)).
-

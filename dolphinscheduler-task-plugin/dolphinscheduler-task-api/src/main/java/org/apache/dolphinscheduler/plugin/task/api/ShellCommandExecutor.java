@@ -67,8 +67,10 @@ public class ShellCommandExecutor extends AbstractCommandExecutor {
     @Override
     protected String buildCommandFilePath() {
         // command file
-        return String.format("%s/%s.%s", taskRequest.getExecutePath(), taskRequest.getTaskAppId(),
-                SystemUtils.IS_OS_WINDOWS ? "bat" : "command");
+        return String.format("%s/%s.%s"
+                , taskRequest.getExecutePath()
+                , taskRequest.getTaskAppId()
+                , SystemUtils.IS_OS_WINDOWS ? "bat" : "command");
     }
 
     /**
@@ -118,7 +120,7 @@ public class ShellCommandExecutor extends AbstractCommandExecutor {
         FileUtils.createFileWith755(commandFilePath);
         Files.write(commandFilePath, commandContent.getBytes(), StandardOpenOption.APPEND);
 
-        // logger.info("Success create command file, command: {}", commandContent);
+        logger.info("Success create command file, command: {}", commandContent);
     }
 
     @Override

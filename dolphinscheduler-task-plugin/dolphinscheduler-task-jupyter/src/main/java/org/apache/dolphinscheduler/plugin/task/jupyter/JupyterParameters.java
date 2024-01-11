@@ -20,6 +20,8 @@ package org.apache.dolphinscheduler.plugin.task.jupyter;
 import org.apache.dolphinscheduler.plugin.task.api.model.ResourceInfo;
 import org.apache.dolphinscheduler.plugin.task.api.parameters.AbstractParameters;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
 import lombok.Getter;

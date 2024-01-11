@@ -41,19 +41,19 @@ The key features for DolphinScheduler are as follows:
 ## User Interface Screenshots
 
 * **Homepage:** Project and workflow overview, including the latest workflow instance and task instance status statistics.
-  ![home](images/home.png)
+![home](images/home.png)
 
 * **Workflow Definition:** Create and manage workflow by drag and drop, easy to build and maintain complex workflow, support [bulk of tasks](https://dolphinscheduler.apache.org/en-us/docs/3.1.5/introduction-to-functions_menu/task_menu) out of box.
-  ![workflow-definition](images/workflow-definition.png)
+![workflow-definition](images/workflow-definition.png)
 
 * **Workflow Tree View:** Abstract tree structure could clearer understanding of the relationship between tasks
-  ![workflow-tree](images/workflow-tree.png)
+![workflow-tree](images/workflow-tree.png)
 
 * **Data source:** Manage support multiple external data sources, provide unified data access capabilities for such as MySQL, PostgreSQL, Hive, Trino, etc.
-  ![data-source](images/data-source.png)
+![data-source](images/data-source.png)
 
 * **Monitor:** View the status of the master, worker and database in real time, including server resource usage and load, do quick health check without logging in to the server.
-  ![monitor](images/monitor.png)
+![monitor](images/monitor.png)
 
 ## Suggestions & Bug Reports
 

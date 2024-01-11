@@ -11,7 +11,7 @@ registry:
   type: etcd
   endpoints: "http://etcd0:2379, http://etcd1:2379, http://etcd2:2379"
   # The options below have default values
-  namespace: dolphinscheduler2
+  namespace: dolphinscheduler
   connectionTimeout: 9s
   # The unit is milliseconds
   retryDelay: 60ms

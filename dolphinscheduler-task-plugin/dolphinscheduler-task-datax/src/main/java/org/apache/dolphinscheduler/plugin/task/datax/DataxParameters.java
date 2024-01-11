@@ -27,6 +27,7 @@ import org.apache.dolphinscheduler.spi.enums.Flag;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -238,7 +239,7 @@ public class DataxParameters extends AbstractParameters {
                     && StringUtils.isNotEmpty(sql)
                     && StringUtils.isNotEmpty(targetTable);
         } else {
-            return !resourceList.isEmpty() || StringUtils.isNotEmpty(json);
+            return StringUtils.isNotEmpty(json);
         }
     }
 
@@ -288,10 +289,8 @@ public class DataxParameters extends AbstractParameters {
             return dataxTaskExecutionContext;
         }
 
-        DataSourceParameters dbSource =
-                (DataSourceParameters) parametersHelper.getResourceParameters(ResourceType.DATASOURCE, dataSource);
-        DataSourceParameters dbTarget =
-                (DataSourceParameters) parametersHelper.getResourceParameters(ResourceType.DATASOURCE, dataTarget);
+        DataSourceParameters dbSource = (DataSourceParameters) parametersHelper.getResourceParameters(ResourceType.DATASOURCE, dataSource);
+        DataSourceParameters dbTarget = (DataSourceParameters) parametersHelper.getResourceParameters(ResourceType.DATASOURCE, dataTarget);
 
         if (Objects.nonNull(dbSource)) {
             dataxTaskExecutionContext.setDataSourceId(dataSource);

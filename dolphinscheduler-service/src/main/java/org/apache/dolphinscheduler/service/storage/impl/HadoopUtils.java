@@ -25,7 +25,6 @@ import static org.apache.dolphinscheduler.common.constants.Constants.RESOURCE_TY
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.ResUploadType;
 import org.apache.dolphinscheduler.common.exception.BaseException;
-import org.apache.dolphinscheduler.common.model.StorageEntity;
 import org.apache.dolphinscheduler.common.utils.HttpUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.common.utils.KerberosHttpClient;
@@ -556,11 +555,6 @@ public class HadoopUtils implements Closeable, StorageOperate {
     @Override
     public String getDir(ResourceType resourceType, String tenantCode) {
         return getHdfsDir(resourceType, tenantCode);
-    }
-
-    @Override
-    public List<StorageEntity> listDir(String tenantCode, String dir) {
-        return null;
     }
 
     /**

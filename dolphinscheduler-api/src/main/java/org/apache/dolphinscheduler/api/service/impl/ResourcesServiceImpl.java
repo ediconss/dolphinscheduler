@@ -27,8 +27,6 @@ import static org.apache.dolphinscheduler.common.constants.Constants.JAR;
 import static org.apache.dolphinscheduler.common.constants.Constants.PERIOD;
 
 import org.apache.dolphinscheduler.api.constants.ApiFuncIdentificationConstant;
-import org.apache.dolphinscheduler.api.dto.resources.Directory;
-import org.apache.dolphinscheduler.api.dto.resources.FileLeaf;
 import org.apache.dolphinscheduler.api.dto.resources.ResourceComponent;
 import org.apache.dolphinscheduler.api.dto.resources.filter.ResourceFilter;
 import org.apache.dolphinscheduler.api.dto.resources.visitor.ResourceTreeVisitor;
@@ -43,7 +41,6 @@ import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.AuthorizationType;
 import org.apache.dolphinscheduler.common.enums.ProgramType;
 import org.apache.dolphinscheduler.common.enums.ResUploadType;
-import org.apache.dolphinscheduler.common.model.StorageEntity;
 import org.apache.dolphinscheduler.common.utils.FileUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.common.utils.PropertyUtils;
@@ -64,7 +61,6 @@ import org.apache.dolphinscheduler.spi.enums.ResourceType;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -87,7 +83,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,9 +122,6 @@ public class ResourcesServiceImpl extends BaseServiceImpl implements ResourcesSe
 
     @Autowired(required = false)
     private StorageOperate storageOperate;
-
-    @Value("${xuanwu.sql.path:xuanwu-sql}")
-    private String codePath;
 
     /**
      * create directory
@@ -277,6 +269,11 @@ public class ResourcesServiceImpl extends BaseServiceImpl implements ResourcesSe
 
         // check resource name exists
         String fullName = getFullName(currentDir, name);
+        if (checkResourceExists(fullName, type.ordinal())) {
+            logger.error("resource {} has exist, can't recreate", RegexUtils.escapeNRT(name));
+            putMsg(result, Status.RESOURCE_EXIST);
+            return result;
+        }
         if (fullName.length() > Constants.RESOURCE_FULL_NAME_MAX_LENGTH) {
             logger.error("resource {}'s full name {}' is longer than the max length {}", RegexUtils.escapeNRT(name),
                     fullName, Constants.RESOURCE_FULL_NAME_MAX_LENGTH);
@@ -284,33 +281,25 @@ public class ResourcesServiceImpl extends BaseServiceImpl implements ResourcesSe
             return result;
         }
 
-        Result<Object> queryResourceResponse = this.queryResource(loginUser, fullName, null, ResourceType.FILE);
-        if (queryResourceResponse.getData() != null) {
-            Resource resourcesFileInfo = (Resource) queryResourceResponse.getData();
-            resourcesFileInfo.setUpdateTime(new Date());
-            resourcesFileInfo.setSize(file.getSize());
-            resourcesMapper.updateById(resourcesFileInfo);
+        Date now = new Date();
+        Resource resource = new Resource(pid, name, fullName, false, desc, file.getOriginalFilename(),
+                loginUser.getId(), type, file.getSize(), now, now);
+
+        try {
+            resourcesMapper.insert(resource);
+            updateParentResourceSize(resource, resource.getSize());
             putMsg(result, Status.SUCCESS);
-        } else {
-            Date now = new Date();
-            Resource resource = new Resource(pid, name, fullName, false, desc, file.getOriginalFilename(),
-                    loginUser.getId(), type, file.getSize(), now, now);
-            try {
-                resourcesMapper.insert(resource);
-                updateParentResourceSize(resource, resource.getSize());
-                putMsg(result, Status.SUCCESS);
-                permissionPostHandle(resource.getType(), loginUser, resource.getId());
-                Map<String, Object> resultMap = new HashMap<>();
-                for (Map.Entry<Object, Object> entry : new BeanMap(resource).entrySet()) {
-                    if (!"class".equalsIgnoreCase(entry.getKey().toString())) {
-                        resultMap.put(entry.getKey().toString(), entry.getValue());
-                    }
+            permissionPostHandle(resource.getType(), loginUser, resource.getId());
+            Map<String, Object> resultMap = new HashMap<>();
+            for (Map.Entry<Object, Object> entry : new BeanMap(resource).entrySet()) {
+                if (!"class".equalsIgnoreCase(entry.getKey().toString())) {
+                    resultMap.put(entry.getKey().toString(), entry.getValue());
                 }
-                result.setData(resultMap);
-            } catch (Exception e) {
-                logger.error("resource already exists, can't recreate ", e);
-                throw new ServiceException("resource already exists, can't recreate");
             }
+            result.setData(resultMap);
+        } catch (Exception e) {
+            logger.error("resource already exists, can't recreate ", e);
+            throw new ServiceException("resource already exists, can't recreate");
         }
 
         // fail upload
@@ -986,15 +975,7 @@ public class ResourcesServiceImpl extends BaseServiceImpl implements ResourcesSe
                 putMsg(result, Status.RESOURCE_NOT_EXIST);
                 return result;
             }
-            List<Resource> resourceListByUser = resourceList.stream()
-                    .filter(t -> t.getUserId() == loginUser.getId())
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(resourceListByUser)) {
-                resource = resourceListByUser.get(0);
-            } else {
-                resource = resourceList.get(0);
-            }
-
+            resource = resourceList.get(0);
         } else {
             resource = resourcesMapper.selectById(id);
             if (resource == null) {
@@ -1253,7 +1234,7 @@ public class ResourcesServiceImpl extends BaseServiceImpl implements ResourcesSe
     @Override
     @Transactional
     public void createOrUpdateResource(String userName, String fullName, String description,
-                                       String resourceContent) {
+                                          String resourceContent) {
         User user = userMapper.queryByUserNameAccurately(userName);
         int suffixLabelIndex = fullName.indexOf(PERIOD);
         if (suffixLabelIndex == -1) {
@@ -1333,152 +1314,6 @@ public class ResourcesServiceImpl extends BaseServiceImpl implements ResourcesSe
             }
         }
         return result;
-    }
-
-    /**
-     * findResourceFromTree
-     *
-     * @param path
-     * @return ResourceComponent
-     */
-    private ResourceComponent findResourceFromTree(List<ResourceComponent> resourceComponentList, String path) {
-        for (ResourceComponent resourceComponent : resourceComponentList) {
-            if (resourceComponent.getFullName().equals(path)) {
-                return resourceComponent;
-            }
-            if (resourceComponent.isDirctory()) {
-                ResourceComponent findResourceComponent =
-                        findResourceFromTree(resourceComponent.getChildren(), path);
-                if (findResourceComponent != null) {
-                    return findResourceComponent;
-                }
-            }
-        }
-        return null;
-
-    }
-
-    @Override
-    @Transactional
-    public Result<Object> refreshResource(User loginUser, String path) {
-        Result<Object> result = new Result<>();
-        List<Resource> allResourceList = queryAuthoredResourceList(loginUser, ResourceType.FILE);
-        Visitor resourceTreeVisitor = new ResourceTreeVisitor(allResourceList);
-        List<ResourceComponent> currentFileTree = resourceTreeVisitor.visit().getChildren();
-
-        String tenantCode = getTenantCode(loginUser.getId(), result);
-        if (tenantCode == null) {
-            return result;
-        }
-        ResourceComponent root = null;
-        if (StringUtils.isNotBlank(path)) {
-            if (path.equals("/")) {
-                Resource rootResource = new Resource();
-                rootResource.setId(-1);
-                rootResource.setFullName("/");
-                root = getResourceComponent(rootResource);
-            } else {
-                ResourceComponent resourceComponent = findResourceFromTree(currentFileTree, path.replaceFirst("/", ""));
-                if (resourceComponent != null) {
-                    root = resourceComponent;
-                    currentFileTree = resourceComponent.getChildren();
-                } else {
-                    putMsg(result, Status.RESOURCE_FILE_NOT_EXIST, path);
-                    return result;
-                }
-            }
-
-        }
-        List<StorageEntity> storageFileTree =
-                storageOperate.listDir(tenantCode, storageOperate.getResDir(tenantCode) + path.replaceFirst("/", ""));
-
-        compareFileTree(loginUser, root, currentFileTree, storageFileTree);
-
-        return Result.success(null);
-    }
-
-    // 递归两个文件夹，同步数据库和文件系统
-    public void compareFileTree(User loginUser, ResourceComponent parentFile, List<ResourceComponent> dataBaseFileTree,
-                                List<StorageEntity> storageFileTree) {
-        // 遍历数据库文件夹
-        // 如果在文件系统中有，数据库中没有则创建
-        // 如果在文件系统中没有，数据库中有则删除
-        // 如果都有，则递归子文件夹
-        for (ResourceComponent dataBaseFile : dataBaseFileTree) {
-            StorageEntity findStorageFile = null;
-            for (StorageEntity storageFile : storageFileTree) {
-                if (dataBaseFile.getName().equals(storageFile.getFileName())) {
-                    findStorageFile = storageFile;
-                    break;
-                }
-            }
-            if (findStorageFile == null) {
-                // 没有找到，删除
-                resourcesMapper.deleteById(dataBaseFile.getId());
-            } else {
-                // 找到了，递归子文件夹
-                if (dataBaseFile.isDirctory()) {
-                    compareFileTree(loginUser, dataBaseFile, dataBaseFile.getChildren(), findStorageFile.getChild());
-                }
-            }
-        }
-
-        for (StorageEntity storageFile : storageFileTree) {
-            ResourceComponent findResourceComponent = null;
-            for (ResourceComponent dataBaseFile : dataBaseFileTree) {
-                if (dataBaseFile.getName().equals(storageFile.getFileName())) {
-                    findResourceComponent = dataBaseFile;
-                    break;
-                }
-            }
-            if (findResourceComponent == null) {
-                // 创建
-                Resource resource = new Resource();
-                resource.setUserId(loginUser.getId());
-                resource.setUserName(loginUser.getUserName());
-                resource.setAlias(storageFile.getFileName());
-                resource.setFileName(storageFile.getFileName());
-                resource.setPid(parentFile.getId());
-                if (parentFile.getId() == -1) {
-                    resource.setFullName("/" + storageFile.getFileName());
-                } else {
-                    resource.setFullName("/" + parentFile.getFullName() + "/" + storageFile.getFileName());
-                }
-                resource.setCreateTime(new Date());
-                resource.setUpdateTime(new Date());
-                resource.setSize(storageFile.getSize());
-                resource.setDescription("");
-                resource.setType(ResourceType.FILE);
-                // 递归子文件夹
-                if (storageFile.isDirectory()) {
-                    resource.setDirectory(true);
-                    resourcesMapper.insert(resource);
-                    compareFileTree(loginUser, getResourceComponent(resource), Lists.newArrayList(),
-                            storageFile.getChild());
-                } else {
-                    resourcesMapper.insert(resource);
-                }
-            }
-        }
-
-    }
-
-    private static ResourceComponent getResourceComponent(Resource resource) {
-        ResourceComponent tempResourceComponent;
-        if (resource.isDirectory()) {
-            tempResourceComponent = new Directory();
-        } else {
-            tempResourceComponent = new FileLeaf();
-        }
-
-        tempResourceComponent.setName(resource.getAlias());
-        tempResourceComponent.setFullName(resource.getFullName().replaceFirst("/", ""));
-        tempResourceComponent.setId(resource.getId());
-        tempResourceComponent.setPid(resource.getPid());
-        tempResourceComponent.setIdValue(resource.getId(), resource.isDirectory());
-        tempResourceComponent.setDescription(resource.getDescription());
-        tempResourceComponent.setType(resource.getType());
-        return tempResourceComponent;
     }
 
     /**

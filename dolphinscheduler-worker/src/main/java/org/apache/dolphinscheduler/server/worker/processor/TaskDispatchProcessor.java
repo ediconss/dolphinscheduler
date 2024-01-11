@@ -37,7 +37,6 @@ import org.apache.dolphinscheduler.service.storage.StorageOperate;
 import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 import org.apache.dolphinscheduler.service.utils.LogUtils;
 import org.apache.dolphinscheduler.service.utils.LoggerUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,14 +137,10 @@ public class TaskDispatchProcessor implements NettyRequestProcessor {
             // submit task to manager
             boolean offer = workerManager.offer(workerTaskExecuteRunnable);
             if (!offer) {
-                logger.warn(
-                        "submit task to wait queue error, queue is full, current queue size is {}, will send a task reject message to master",
-                        workerManager.getWaitSubmitQueueSize());
-                workerMessageSender.sendMessageWithRetry(taskExecutionContext, workflowMasterAddress,
-                        CommandType.TASK_REJECT);
+                logger.warn("submit task to wait queue error, queue is full, current queue size is {}, will send a task reject message to master", workerManager.getWaitSubmitQueueSize());
+                workerMessageSender.sendMessageWithRetry(taskExecutionContext, workflowMasterAddress, CommandType.TASK_REJECT);
             } else {
-                logger.info("Submit task to wait queue success, current queue size is {}",
-                        workerManager.getWaitSubmitQueueSize());
+                logger.info("Submit task to wait queue success, current queue size is {}", workerManager.getWaitSubmitQueueSize());
             }
         } finally {
             LoggerUtils.removeWorkflowAndTaskInstanceIdMDC();

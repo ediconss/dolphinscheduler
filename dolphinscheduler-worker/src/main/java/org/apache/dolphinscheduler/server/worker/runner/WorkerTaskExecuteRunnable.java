@@ -21,7 +21,7 @@ import static org.apache.dolphinscheduler.common.constants.Constants.SINGLE_SLAS
 
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.WarningType;
-import org.apache.dolphinscheduler.common.utils.HttpUtils;
+import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.plugin.task.api.AbstractTask;
 import org.apache.dolphinscheduler.plugin.task.api.TaskCallBack;
@@ -39,7 +39,6 @@ import org.apache.dolphinscheduler.server.worker.config.WorkerConfig;
 import org.apache.dolphinscheduler.server.worker.rpc.WorkerMessageSender;
 import org.apache.dolphinscheduler.server.worker.utils.TaskExecutionCheckerUtils;
 import org.apache.dolphinscheduler.service.alert.AlertClientService;
-import org.apache.dolphinscheduler.service.log.LogClient;
 import org.apache.dolphinscheduler.service.storage.StorageOperate;
 import org.apache.dolphinscheduler.service.task.TaskPluginManager;
 import org.apache.dolphinscheduler.service.utils.CommonUtils;
@@ -51,8 +50,6 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
@@ -118,32 +115,11 @@ public abstract class WorkerTaskExecuteRunnable implements Runnable {
         clearTaskExecPathIfNeeded();
     }
 
-    public String getTrackingUrl(String errorMsg) {
-        String trackingUrl = "";
-        String regex = "tracking_url=(.*)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(errorMsg);
-        if (matcher.find()) {
-            trackingUrl = matcher.group(1);
-        }
-        return trackingUrl;
-    }
-
     protected void afterThrowing(Throwable throwable) throws TaskException {
         cancelTask();
         TaskExecutionContextCacheManager.removeByTaskInstanceId(taskExecutionContext.getTaskInstanceId());
         taskExecutionContext.setCurrentExecutionStatus(TaskExecutionStatus.FAILURE);
         taskExecutionContext.setEndTime(new Date());
-        if (throwable.getCause() != null) {
-            String errorMsg = throwable.getCause().getMessage().replace("\n", "\\n");
-            String trackingUrl = getTrackingUrl(errorMsg);
-            if (Strings.isNullOrEmpty(trackingUrl)) {
-                logger.info(LogClient.ERROR_HEAD + ": {}", errorMsg);
-            } else {
-                errorMsg = HttpUtils.get(trackingUrl);
-                logger.info(LogClient.ERROR_HEAD + ": {}", errorMsg);
-            }
-        }
         workerMessageSender.sendMessageWithRetry(taskExecutionContext, masterAddress, CommandType.TASK_EXECUTE_RESULT);
         logger.info(
                 "Get a exception when execute the task, will send the task execute result to master, the current task execute result is {}",
@@ -256,6 +232,8 @@ public abstract class WorkerTaskExecuteRunnable implements Runnable {
         logger.info("Success initialized task plugin instance success");
 
         task.getParameters().setVarPool(taskExecutionContext.getVarPool());
+        logger.info("Success set taskVarPool: {}", taskExecutionContext.getVarPool());
+
     }
 
     protected void sendAlertIfNeeded() {

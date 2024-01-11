@@ -88,7 +88,6 @@ import org.apache.dolphinscheduler.service.process.ProcessService;
 import org.apache.dolphinscheduler.service.queue.PeerTaskInstancePriorityQueue;
 import org.apache.dolphinscheduler.service.utils.DagHelper;
 import org.apache.dolphinscheduler.service.utils.LoggerUtils;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -110,8 +109,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import lombok.NonNull;
@@ -829,8 +826,7 @@ public class WorkflowExecuteRunnable implements Callable<WorkflowSubmitStatue> {
                             task.getTaskCode(),
                             task.getState());
                     if (validTaskMap.containsKey(task.getTaskCode())) {
-                        logger.warn(
-                                "Have same taskCode taskInstance when init task queue, need to check taskExecutionStatus, taskCode:{}",
+                        logger.warn("Have same taskCode taskInstance when init task queue, need to check taskExecutionStatus, taskCode:{}",
                                 task.getTaskCode());
                         int oldTaskInstanceId = validTaskMap.get(task.getTaskCode());
                         TaskInstance oldTaskInstance = taskInstanceMap.get(oldTaskInstanceId);
@@ -979,8 +975,7 @@ public class WorkflowExecuteRunnable implements Callable<WorkflowSubmitStatue> {
                         taskInstance.getProcessInstanceId(),
                         taskInstance.getTaskGroupPriority());
                 if (!acquireTaskGroup) {
-                    logger.info(
-                            "Submitted task will not be dispatch right now because the first time to try to acquire" +
+                    logger.info("Submitted task will not be dispatch right now because the first time to try to acquire" +
                                     " task group failed, taskInstanceName: {}, taskGroupId: {}",
                             taskInstance.getName(), taskGroupId);
                     return Optional.of(taskInstance);
@@ -989,8 +984,7 @@ public class WorkflowExecuteRunnable implements Callable<WorkflowSubmitStatue> {
 
             boolean dispatchSuccess = taskProcessor.action(TaskAction.DISPATCH);
             if (!dispatchSuccess) {
-                logger.error("Dispatch standby process {} task {} failed", processInstance.getName(),
-                        taskInstance.getName());
+                logger.error("Dispatch standby process {} task {} failed", processInstance.getName(), taskInstance.getName());
                 return Optional.empty();
             }
             taskProcessor.action(TaskAction.RUN);
@@ -1212,10 +1206,6 @@ public class WorkflowExecuteRunnable implements Callable<WorkflowSubmitStatue> {
         // delay execution time
         taskInstance.setDelayTime(taskNode.getDelayTime());
         taskInstance.setTaskExecuteType(taskNode.getTaskExecuteType());
-        if (StringUtils.isNotEmpty(taskInstance.getEnvironmentConfig())) {
-            setVarPoolByEnv(taskInstance, taskInstance.getEnvironmentConfig());
-        }
-
         return taskInstance;
     }
 
@@ -1243,55 +1233,11 @@ public class WorkflowExecuteRunnable implements Callable<WorkflowSubmitStatue> {
             if (allProperty.size() > 0) {
                 taskInstance.setVarPool(JSONUtils.toJsonString(allProperty.values()));
             }
-        }
-        if (StringUtils.isNotEmpty(processInstance.getVarPool())) {
-            taskInstance.setVarPool(processInstance.getVarPool());
-        }
-
-        if (StringUtils.isNotEmpty(taskInstance.getEnvironmentConfig())) {
-            setVarPoolByEnv(taskInstance, taskInstance.getEnvironmentConfig());
-        }
-
-        if (processInstance.getEnvironmentCode() != null) {
-            Environment environment = processService.findEnvironmentByCode(processInstance.getEnvironmentCode());
-            if (Objects.nonNull(environment)) {
-                setVarPoolByEnv(taskInstance, environment.getConfig());
+        } else {
+            if (StringUtils.isNotEmpty(processInstance.getVarPool())) {
+                taskInstance.setVarPool(processInstance.getVarPool());
             }
         }
-    }
-
-    private static void setVarPoolByEnv(TaskInstance taskInstance, String config) {
-        if (StringUtils.isNotEmpty(config)) {
-            List<Property> properties = JSONUtils.toList(taskInstance.getVarPool(), Property.class);
-            if (CollectionUtils.isEmpty(properties)) {
-                properties = new ArrayList<>();
-            }
-            String[] envs = config.split("\n");
-            for (String env : envs) {
-                Pattern pattern = Pattern.compile("(\\w+)=(.*)");
-                Matcher matcher = pattern.matcher(env);
-                if (matcher.find()) {
-                    Property property = new Property();
-                    property.setDirect(IN);
-                    property.setType(VARCHAR);
-                    property.setProp(matcher.group(1));
-                    String value = matcher.group(2);
-                    if (value != null && value.startsWith("'") && value.endsWith("'")) {
-                        value = value.replace("'", "");
-                    }
-                    if (value != null && value.startsWith("\"") && value.endsWith("\"")) {
-                        value = value.replace("\"", "");
-                    }
-                    property.setValue(value);
-                    if (property.getProp() != null && property.getValue() != null) {
-                        properties.add(property);
-                    }
-                }
-            }
-            List<Property> distinctProperty = properties.stream().distinct().collect(Collectors.toList());
-            taskInstance.setVarPool(JSONUtils.toJsonString(distinctProperty));
-        }
-
     }
 
     public Collection<TaskInstance> getAllTaskInstances() {
@@ -1495,10 +1441,9 @@ public class WorkflowExecuteRunnable implements Callable<WorkflowSubmitStatue> {
             List<String> nextTaskList =
                     DagHelper.parseConditionTask(dependNodeName, skipTaskNodeMap, dag, getCompleteTaskInstanceMap());
             if (!nextTaskList.contains(nextNodeName)) {
-                logger.info(
-                        "DependTask is a condition task, and its next condition branch does not hava current task, " +
-                                "dependTaskCode: {}, currentTaskCode: {}",
-                        dependNodeName, nextNodeName);
+                logger.info("DependTask is a condition task, and its next condition branch does not hava current task, " +
+                                "dependTaskCode: {}, currentTaskCode: {}", dependNodeName, nextNodeName
+                        );
                 return false;
             }
         } else {
@@ -1874,8 +1819,7 @@ public class WorkflowExecuteRunnable implements Callable<WorkflowSubmitStatue> {
                 TaskInstance retryTask = processService.findTaskInstanceById(task.getId());
                 if (retryTask != null && retryTask.getState().isForceSuccess()) {
                     task.setState(retryTask.getState());
-                    logger.info(
-                            "Task {} has been forced success, put it into complete task list and stop retrying, taskInstanceId: {}",
+                    logger.info("Task {} has been forced success, put it into complete task list and stop retrying, taskInstanceId: {}",
                             task.getName(), task.getId());
                     removeTaskFromStandbyList(task);
                     completeTaskMap.put(task.getTaskCode(), task.getId());

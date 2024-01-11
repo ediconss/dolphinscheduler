@@ -20,11 +20,14 @@ package org.apache.dolphinscheduler.plugin.task.zeppelin;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_FAILURE;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_KILL;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_SUCCESS;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.when;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
@@ -32,13 +35,11 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskCallBack;
 import org.apache.dolphinscheduler.plugin.task.api.TaskException;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 
-import org.apache.zeppelin.client.NoteResult;
+
 import org.apache.zeppelin.client.ParagraphResult;
+import org.apache.zeppelin.client.NoteResult;
 import org.apache.zeppelin.client.Status;
 import org.apache.zeppelin.client.ZeppelinClient;
-
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,14 +50,15 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
-        ZeppelinTask.class,
-        ZeppelinClient.class,
-        ObjectMapper.class,
-        DateUtils.class
+    ZeppelinTask.class,
+    ZeppelinClient.class,
+    ObjectMapper.class,
+    DateUtils.class
 })
 @PowerMockIgnore({"javax.*"})
 public class ZeppelinTaskTest {
@@ -133,9 +135,9 @@ public class ZeppelinTaskTest {
 
     @Test(expected = TaskException.class)
     public void testHandleWithParagraphExecutionException() throws Exception {
-        when(this.zClient.executeParagraph(any(), any(), any(Map.class)))
-                .thenThrow(new TaskException("Something wrong happens from zeppelin side"));
-        // when(this.paragraphResult.getStatus()).thenReturn(Status.ERROR);
+        when(this.zClient.executeParagraph(any(), any(), any(Map.class))).
+                thenThrow(new TaskException("Something wrong happens from zeppelin side"));
+//        when(this.paragraphResult.getStatus()).thenReturn(Status.ERROR);
         this.zeppelinTask.handle(taskCallBack);
         Mockito.verify(this.zClient).executeParagraph(MOCK_NOTE_ID,
                 MOCK_PARAGRAPH_ID,
@@ -148,7 +150,7 @@ public class ZeppelinTaskTest {
     @Test
     public void testHandleWithNoteExecutionSuccess() throws Exception {
         String zeppelinParametersWithNoParagraphId = buildZeppelinTaskParametersWithNoParagraphId();
-        TaskExecutionContext taskExecutionContext = PowerMockito.mock(TaskExecutionContext.class);
+        TaskExecutionContext taskExecutionContext= PowerMockito.mock(TaskExecutionContext.class);
         when(taskExecutionContext.getTaskParams()).thenReturn(zeppelinParametersWithNoParagraphId);
         this.zeppelinTask = spy(new ZeppelinTask(taskExecutionContext));
 

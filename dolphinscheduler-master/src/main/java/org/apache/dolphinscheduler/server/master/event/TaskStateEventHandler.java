@@ -72,7 +72,7 @@ public class TaskStateEventHandler implements StateEventHandler {
         if (task.getState().isFinished()) {
             if (completeTaskMap.containsKey(task.getTaskCode())
                     && completeTaskMap.get(task.getTaskCode()).equals(task.getId())) {
-                logger.warn("The task instance is already complete, stateEvent: {}", stateEvent);
+                    logger.warn("The task instance is already complete, stateEvent: {}", stateEvent);
                 return true;
             }
             workflowExecuteRunnable.taskFinished(task);

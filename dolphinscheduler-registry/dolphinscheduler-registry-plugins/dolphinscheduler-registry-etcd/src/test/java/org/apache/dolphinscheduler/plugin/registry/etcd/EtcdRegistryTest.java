@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import io.etcd.jetcd.test.EtcdClusterExtension;
 
 public class EtcdRegistryTest {
-
     private static final Logger logger = LoggerFactory.getLogger(EtcdRegistryTest.class);
 
     @RegisterExtension
@@ -77,8 +76,7 @@ public class EtcdRegistryTest {
         new Thread(() -> {
             registry.acquireLock("/lock");
             preCountDownLatch.countDown();
-            logger.info(Thread.currentThread().getName()
-                    + " :I got the lock, but I don't want to work. I want to rest for a while");
+            logger.info(Thread.currentThread().getName() + " :I got the lock, but I don't want to work. I want to rest for a while");
             try {
                 Thread.sleep(1000);
                 logger.info(Thread.currentThread().getName() + " :I'm going to start working");
@@ -93,7 +91,7 @@ public class EtcdRegistryTest {
             }
         }).start();
         try {
-            preCountDownLatch.await(5, TimeUnit.SECONDS);
+            preCountDownLatch.await(5,TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -131,7 +129,6 @@ public class EtcdRegistryTest {
     }
 
     static class TestListener implements SubscribeListener {
-
         @Override
         public void notify(Event event) {
             logger.info("I'm test listener");

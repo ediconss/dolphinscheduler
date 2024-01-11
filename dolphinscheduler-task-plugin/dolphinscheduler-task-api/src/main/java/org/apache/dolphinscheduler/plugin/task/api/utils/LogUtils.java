@@ -20,10 +20,7 @@ package org.apache.dolphinscheduler.plugin.task.api.utils;
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.plugin.task.api.TaskConstants;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -81,9 +78,9 @@ public class LogUtils {
     public static String readWholeFileContent(String filePath) {
         String line;
         StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(filePath))))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)))) {
             while ((line = br.readLine()) != null) {
-                sb.append(line).append("\r\n");
+                sb.append(line + "\r\n");
             }
             return sb.toString();
         } catch (IOException e) {

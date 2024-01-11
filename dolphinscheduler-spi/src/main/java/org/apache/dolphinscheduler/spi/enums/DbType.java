@@ -27,7 +27,6 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.google.common.base.Functions;
 
 public enum DbType {
-
     MYSQL(0, "mysql"),
     POSTGRESQL(1, "postgresql"),
     HIVE(2, "hive"),
@@ -38,8 +37,8 @@ public enum DbType {
     DB2(7, "db2"),
     PRESTO(8, "presto"),
     H2(9, "h2"),
-    REDSHIFT(10, "redshift"),
-    ATHENA(11, "athena"),
+    REDSHIFT(10,"redshift"),
+    ATHENA(11,"athena"),
     ;
 
     @EnumValue
@@ -70,8 +69,7 @@ public enum DbType {
     }
 
     public static DbType ofName(String name) {
-        return Arrays.stream(DbType.values()).filter(e -> e.name().equals(name)).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("no such db type"));
+        return Arrays.stream(DbType.values()).filter(e -> e.name().equals(name)).findFirst().orElseThrow(() -> new NoSuchElementException("no such db type"));
     }
 
     public boolean isHive() {

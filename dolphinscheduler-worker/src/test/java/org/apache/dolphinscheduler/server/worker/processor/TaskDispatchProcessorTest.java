@@ -17,6 +17,7 @@
 
 package org.apache.dolphinscheduler.server.worker.processor;
 
+import io.netty.channel.Channel;
 import org.apache.dolphinscheduler.plugin.task.api.TaskChannel;
 import org.apache.dolphinscheduler.plugin.task.api.TaskExecutionContext;
 import org.apache.dolphinscheduler.remote.command.Command;
@@ -28,9 +29,6 @@ import org.apache.dolphinscheduler.server.worker.runner.WorkerManagerThread;
 import org.apache.dolphinscheduler.service.alert.AlertClientService;
 import org.apache.dolphinscheduler.service.storage.StorageOperate;
 import org.apache.dolphinscheduler.service.task.TaskPluginManager;
-
-import java.util.Date;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -38,7 +36,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import io.netty.channel.Channel;
+import java.util.Date;
 
 /**
  * test task execute processor
@@ -78,16 +76,17 @@ public class TaskDispatchProcessorTest {
         taskDispatchProcessor.process(channel, dispatchCommand);
 
         Mockito.verify(workerManagerThread, Mockito.atMostOnce()).offer(Mockito.any());
-        Mockito.verify(workerMessageSender, Mockito.never()).sendMessageWithRetry(taskExecutionContext,
-                "localhost:5678", CommandType.TASK_REJECT);
+        Mockito.verify(workerMessageSender, Mockito.never()).sendMessageWithRetry(taskExecutionContext, "localhost:5678", CommandType.TASK_REJECT);
     }
+
 
     public Command createDispatchCommand(TaskExecutionContext taskExecutionContext) {
         return new TaskDispatchCommand(
                 taskExecutionContext,
                 "localhost:5678",
                 "localhost:1234",
-                System.currentTimeMillis()).convert2Command();
+                System.currentTimeMillis()
+        ).convert2Command();
     }
 
     public TaskExecutionContext getTaskExecutionContext() {

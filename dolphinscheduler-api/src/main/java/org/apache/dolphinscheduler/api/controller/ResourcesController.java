@@ -32,7 +32,6 @@ import static org.apache.dolphinscheduler.api.enums.Status.QUERY_RESOURCES_LIST_
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_RESOURCES_LIST_PAGING;
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_UDF_FUNCTION_LIST_PAGING_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.RESOURCE_FILE_IS_EMPTY;
-import static org.apache.dolphinscheduler.api.enums.Status.RESOURCE_FILE_NOT_EXIST;
 import static org.apache.dolphinscheduler.api.enums.Status.RESOURCE_NOT_EXIST;
 import static org.apache.dolphinscheduler.api.enums.Status.UNAUTHORIZED_UDF_FUNCTION_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.UPDATE_RESOURCE_ERROR;
@@ -50,8 +49,8 @@ import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.ProgramType;
 import org.apache.dolphinscheduler.common.enums.UdfType;
-import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.plugin.task.api.utils.ParameterUtils;
+import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.spi.enums.ResourceType;
 
 import springfox.documentation.annotations.ApiIgnore;
@@ -751,24 +750,5 @@ public class ResourcesController extends BaseController {
                                     @PathVariable(value = "id", required = true) Integer id) {
 
         return resourceService.queryResourceById(loginUser, id);
-    }
-
-    /**
-     * refresh resource
-     *
-     * @param loginUser login user
-     * @return resource
-     */
-    @ApiOperation(value = "refreshResource", notes = "REFRESH_RESOURCE")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "path", value = "PATH", required = false, dataTypeClass = String.class, example = "/")
-    })
-    @GetMapping(value = "/refresh")
-    @ResponseStatus(HttpStatus.OK)
-    @ApiException(RESOURCE_FILE_NOT_EXIST)
-    @AccessLogAnnotation(ignoreRequestArgs = "loginUser")
-    public Result refreshResource(@ApiIgnore @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
-                                  @RequestParam("path") String path) {
-        return resourceService.refreshResource(loginUser, path);
     }
 }

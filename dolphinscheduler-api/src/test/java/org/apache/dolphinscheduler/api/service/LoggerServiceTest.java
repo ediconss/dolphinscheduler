@@ -81,13 +81,13 @@ public class LoggerServiceTest {
 
         TaskInstance taskInstance = new TaskInstance();
         Mockito.when(processService.findTaskInstanceById(1)).thenReturn(taskInstance);
-        Result result = loggerService.queryLog(2, 1, 1, null);
+        Result result = loggerService.queryLog(2, 1, 1);
         // TASK_INSTANCE_NOT_FOUND
         Assert.assertEquals(Status.TASK_INSTANCE_NOT_FOUND.getCode(), result.getCode().intValue());
 
         try {
             // HOST NOT FOUND OR ILLEGAL
-            result = loggerService.queryLog(1, 1, 1, null);
+            result = loggerService.queryLog(1, 1, 1);
         } catch (RuntimeException e) {
             Assert.assertTrue(true);
             logger.error("testQueryDataSourceList error {}", e.getMessage());
@@ -98,7 +98,7 @@ public class LoggerServiceTest {
         taskInstance.setHost("127.0.0.1:8080");
         taskInstance.setLogPath("/temp/log");
         Mockito.when(processService.findTaskInstanceById(1)).thenReturn(taskInstance);
-        result = loggerService.queryLog(1, 1, 1, null);
+        result = loggerService.queryLog(1, 1, 1);
         Assert.assertEquals(Status.SUCCESS.getCode(), result.getCode().intValue());
     }
 
@@ -159,7 +159,7 @@ public class LoggerServiceTest {
         Mockito.when(projectService.checkProjectAndAuth(loginUser, project, projectCode, VIEW_LOG)).thenReturn(result);
         Mockito.when(processService.findTaskInstanceById(1)).thenReturn(taskInstance);
         Mockito.when(taskDefinitionMapper.queryByCode(taskInstance.getTaskCode())).thenReturn(taskDefinition);
-        result = loggerService.queryLog(loginUser, projectCode, 1, 1, 1, null);
+        result = loggerService.queryLog(loginUser, projectCode, 1, 1, 1);
         Assert.assertEquals(Status.SUCCESS.getCode(), ((Status) result.get(Constants.STATUS)).getCode());
     }
 

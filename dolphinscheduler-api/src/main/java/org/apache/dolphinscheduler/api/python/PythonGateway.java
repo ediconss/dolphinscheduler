@@ -86,7 +86,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PythonGateway {
-
     private static final Logger logger = LoggerFactory.getLogger(PythonGateway.class);
 
     private static final FailureStrategy DEFAULT_FAILURE_STRATEGY = FailureStrategy.CONTINUE;
@@ -150,7 +149,6 @@ public class PythonGateway {
 
     // TODO replace this user to build in admin user if we make sure build in one could not be change
     private final User dummyAdminUser = new User() {
-
         {
             setId(ADMIN_USER_ID);
             setUserName("dummyUser");
@@ -159,7 +157,6 @@ public class PythonGateway {
     };
 
     private final Queue queuePythonGateway = new Queue() {
-
         {
             setId(Integer.MAX_VALUE);
             setQueueName("queuePythonGateway");
@@ -176,8 +173,7 @@ public class PythonGateway {
         return taskDefinitionService.genTaskCodeList(genNum);
     }
 
-    public Map<String, Long> getCodeAndVersion(String projectName, String processDefinitionName,
-                                               String taskName) throws CodeGenerateUtils.CodeGenerateException {
+    public Map<String, Long> getCodeAndVersion(String projectName, String processDefinitionName, String taskName) throws CodeGenerateUtils.CodeGenerateException {
         Project project = projectMapper.queryByName(projectName);
         Map<String, Long> result = new HashMap<>();
         // project do not exists, mean task not exists too, so we should directly return init value
@@ -197,8 +193,7 @@ public class PythonGateway {
             return result;
         }
 
-        TaskDefinition taskDefinition =
-                taskDefinitionMapper.queryByName(project.getCode(), processDefinition.getCode(), taskName);
+        TaskDefinition taskDefinition = taskDefinitionMapper.queryByName(project.getCode(), processDefinition.getCode(), taskName);
         if (taskDefinition == null) {
             result.put("code", CodeGenerateUtils.getInstance().genCode());
             result.put("version", 0L);
@@ -288,8 +283,7 @@ public class PythonGateway {
                     warningType,
                     warningGroupId);
         }
-        processDefinitionService.releaseProcessDefinition(user, projectCode, processDefinitionCode,
-                ReleaseState.getEnum(releaseState));
+        processDefinitionService.releaseProcessDefinition(user, projectCode, processDefinitionCode, ReleaseState.getEnum(releaseState));
         return processDefinitionCode;
     }
 
@@ -399,7 +393,8 @@ public class PythonGateway {
                 null,
                 null,
                 DEFAULT_DRY_RUN,
-                COMPLEMENT_DEPENDENT_MODE);
+                COMPLEMENT_DEPENDENT_MODE
+        );
     }
 
     // side object
@@ -419,8 +414,8 @@ public class PythonGateway {
     }
 
     /*
-     * Grant or create project. Create a new project if project do not exists, and grant the project permission to user
-     * if project exists but without permission to this user.
+      Grant or create project. Create a new project if project do not exists, and grant the project
+      permission to user if project exists but without permission to this user.
      */
     public void createOrGrantProject(String userName, String name, String desc) {
         User user = usersService.queryUser(userName);
@@ -488,8 +483,7 @@ public class PythonGateway {
         return user;
     }
 
-    public User updateUser(String userName, String userPassword, String email, String phone, String tenantCode,
-                           String queue, int state) throws Exception {
+    public User updateUser(String userName, String userPassword, String email, String phone, String tenantCode, String queue, int state) throws Exception {
         return usersService.createUserIfNotExists(userName, userPassword, email, phone, tenantCode, queue, state);
     }
 
@@ -596,8 +590,7 @@ public class PythonGateway {
         result.put("processDefinitionCode", processDefinition.getCode());
 
         if (taskName != null) {
-            TaskDefinition taskDefinition =
-                    taskDefinitionMapper.queryByName(projectCode, processDefinition.getCode(), taskName);
+            TaskDefinition taskDefinition = taskDefinitionMapper.queryByName(projectCode, processDefinition.getCode(), taskName);
             result.put("taskDefinitionCode", taskDefinition.getCode());
         }
         return result;
@@ -613,14 +606,11 @@ public class PythonGateway {
     public Map<String, Object> getResourcesFileInfo(String programType, String fullName) {
         Map<String, Object> result = new HashMap<>();
 
-        Result<Object> resources = resourceService.queryResourceByProgramType(dummyAdminUser, ResourceType.FILE,
-                ProgramType.valueOf(programType));
+        Result<Object> resources = resourceService.queryResourceByProgramType(dummyAdminUser, ResourceType.FILE, ProgramType.valueOf(programType));
         List<ResourceComponent> resourcesComponent = (List<ResourceComponent>) resources.getData();
-        List<ResourceComponent> namedResources =
-                resourcesComponent.stream().filter(s -> fullName.equals(s.getFullName())).collect(Collectors.toList());
+        List<ResourceComponent> namedResources = resourcesComponent.stream().filter(s -> fullName.equals(s.getFullName())).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(namedResources)) {
-            String msg =
-                    String.format("Can not find valid resource by program type %s and name %s", programType, fullName);
+            String msg = String.format("Can not find valid resource by program type %s and name %s", programType, fullName);
             logger.error(msg);
             throw new IllegalArgumentException(msg);
         }
@@ -648,6 +638,7 @@ public class PythonGateway {
         return environmentDto.getCode();
     }
 
+
     /**
      * Get resource by given resource type and full name. It return map contain resource id, name.
      * Useful in Python API create task which need workflow information.
@@ -673,7 +664,7 @@ public class PythonGateway {
      * @param resourceContent content of resource
      */
     public void createOrUpdateResource(
-                                       String userName, String fullName, String description, String resourceContent) {
+            String userName, String fullName, String description, String resourceContent) {
         resourceService.createOrUpdateResource(userName, fullName, description, resourceContent);
     }
 

@@ -20,6 +20,7 @@ package org.apache.dolphinscheduler.plugin.task.emr;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_FAILURE;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_KILL;
 import static org.apache.dolphinscheduler.plugin.task.api.TaskConstants.EXIT_CODE_SUCCESS;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.mock;
@@ -59,54 +60,61 @@ import com.amazonaws.services.elasticmapreduce.model.RunJobFlowResult;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
-        AmazonElasticMapReduceClientBuilder.class,
-        EmrJobFlowTask.class,
-        AmazonElasticMapReduce.class,
-        JSONUtils.class
+    AmazonElasticMapReduceClientBuilder.class,
+    EmrJobFlowTask.class,
+    AmazonElasticMapReduce.class,
+    JSONUtils.class
 })
 @PowerMockIgnore({"javax.*"})
 public class EmrJobFlowTaskTest {
 
     private final ClusterStatus startingStatus =
-            new ClusterStatus().withState(ClusterState.STARTING)
-                    .withStateChangeReason(new ClusterStateChangeReason());
+        new ClusterStatus().withState(ClusterState.STARTING)
+            .withStateChangeReason(new ClusterStateChangeReason());
 
     private final ClusterStatus softwareConfigStatus =
-            new ClusterStatus().withState(ClusterState.STARTING)
-                    .withStateChangeReason(
-                            new ClusterStateChangeReason()
-                                    .withMessage("Configuring cluster software"));
+        new ClusterStatus().withState(ClusterState.STARTING)
+            .withStateChangeReason(
+                new ClusterStateChangeReason()
+                    .withMessage("Configuring cluster software")
+            );
 
     private final ClusterStatus runningStatus =
-            new ClusterStatus().withState(ClusterState.RUNNING)
-                    .withStateChangeReason(
-                            new ClusterStateChangeReason().withMessage("Running step"));
+        new ClusterStatus().withState(ClusterState.RUNNING)
+            .withStateChangeReason(
+                new ClusterStateChangeReason().withMessage("Running step")
+            );
 
     private final ClusterStatus terminatingStatus =
-            new ClusterStatus().withState(ClusterState.TERMINATING.toString())
-                    .withStateChangeReason(
-                            new ClusterStateChangeReason()
-                                    .withCode(ClusterStateChangeReasonCode.ALL_STEPS_COMPLETED)
-                                    .withMessage("Steps completed"));
+        new ClusterStatus().withState(ClusterState.TERMINATING.toString())
+            .withStateChangeReason(
+                new ClusterStateChangeReason()
+                    .withCode(ClusterStateChangeReasonCode.ALL_STEPS_COMPLETED)
+                    .withMessage("Steps completed")
+            );
 
     private final ClusterStatus waitingStatus =
-            new ClusterStatus().withState(ClusterState.WAITING)
-                    .withStateChangeReason(
-                            new ClusterStateChangeReason()
-                                    .withMessage("Cluster ready after last step completed."));
+        new ClusterStatus().withState(ClusterState.WAITING)
+            .withStateChangeReason(
+                new ClusterStateChangeReason()
+                    .withMessage("Cluster ready after last step completed.")
+            );
 
     private final ClusterStatus userRequestTerminateStatus =
-            new ClusterStatus().withState(ClusterState.TERMINATING)
-                    .withStateChangeReason(
-                            new ClusterStateChangeReason()
-                                    .withCode(ClusterStateChangeReasonCode.USER_REQUEST)
-                                    .withMessage("Terminated by user request"));
+        new ClusterStatus().withState(ClusterState.TERMINATING)
+            .withStateChangeReason(
+                new ClusterStateChangeReason()
+                    .withCode(ClusterStateChangeReasonCode.USER_REQUEST)
+                    .withMessage("Terminated by user request")
+            );
+
 
     private final ClusterStatus terminatedWithErrorsStatus =
-            new ClusterStatus().withState(ClusterState.TERMINATED_WITH_ERRORS)
-                    .withStateChangeReason(
-                            new ClusterStateChangeReason()
-                                    .withCode(ClusterStateChangeReasonCode.STEP_FAILURE));
+        new ClusterStatus().withState(ClusterState.TERMINATED_WITH_ERRORS)
+            .withStateChangeReason(
+                new ClusterStateChangeReason()
+                    .withCode(ClusterStateChangeReasonCode.STEP_FAILURE)
+            );
 
     private EmrJobFlowTask emrJobFlowTask;
     private AmazonElasticMapReduce emrClient;
@@ -166,8 +174,7 @@ public class EmrJobFlowTaskTest {
 
     @Test
     public void testHandleTerminatedWithError() throws Exception {
-        when(cluster.getStatus()).thenReturn(startingStatus, softwareConfigStatus, runningStatus,
-                terminatedWithErrorsStatus);
+        when(cluster.getStatus()).thenReturn(startingStatus, softwareConfigStatus, runningStatus, terminatedWithErrorsStatus);
 
         emrJobFlowTask.handle(taskCallBack);
         Assert.assertEquals(EXIT_CODE_FAILURE, emrJobFlowTask.getExitStatusCode());
@@ -176,8 +183,7 @@ public class EmrJobFlowTaskTest {
     @Test(expected = TaskException.class)
     public void testCanNotParseJson() throws Exception {
         mockStatic(JSONUtils.class);
-        when(emrJobFlowTask, "createRunJobFlowRequest")
-                .thenThrow(new EmrTaskException("can not parse RunJobFlowRequest from json", new Exception("error")));
+        when(emrJobFlowTask, "createRunJobFlowRequest").thenThrow(new EmrTaskException("can not parse RunJobFlowRequest from json", new Exception("error")));
         emrJobFlowTask.handle(taskCallBack);
     }
 
@@ -190,8 +196,7 @@ public class EmrJobFlowTaskTest {
 
     @Test(expected = TaskException.class)
     public void testRunJobFlowError() throws Exception {
-        when(emrClient.runJobFlow(any())).thenThrow(new AmazonElasticMapReduceException("error"),
-                new EmrTaskException());
+        when(emrClient.runJobFlow(any())).thenThrow(new AmazonElasticMapReduceException("error"), new EmrTaskException());
         emrJobFlowTask.handle(taskCallBack);
     }
 

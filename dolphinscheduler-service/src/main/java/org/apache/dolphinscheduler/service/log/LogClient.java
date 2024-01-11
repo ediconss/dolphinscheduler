@@ -58,7 +58,6 @@ public class LogClient implements AutoCloseable {
 
     private static final long LOG_REQUEST_TIMEOUT = 10 * 1000L;
 
-    public static final String ERROR_HEAD = "TaskExecuteErrorMsg";
     public LogClient() {
         NettyClientConfig nettyClientConfig = new NettyClientConfig();
         this.client = new NettyRemotingClient(nettyClientConfig);
@@ -75,10 +74,10 @@ public class LogClient implements AutoCloseable {
      * @param limit limit
      * @return log content
      */
-    public String rollViewLog(String host, int port, String path, int skipLineNum, int limit, String filter) {
+    public String rollViewLog(String host, int port, String path, int skipLineNum, int limit) {
         logger.info("Roll view log from host : {}, port : {}, path {}, skipLineNum {} ,limit {}", host, port, path,
                 skipLineNum, limit);
-        RollViewLogRequestCommand request = new RollViewLogRequestCommand(path, skipLineNum, limit, filter);
+        RollViewLogRequestCommand request = new RollViewLogRequestCommand(path, skipLineNum, limit);
         final Host address = new Host(host, port);
         try {
             Command command = request.convert2Command();
